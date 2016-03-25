@@ -148,7 +148,7 @@ class weibo:
 		f = open("weibo/%s.txt"%self.user_id, "wb")
 		f.write(result)
 		f.close()
-		file_path=os.getcwd()+"\weibo"+"\%d"%user_id+".txt"
+		file_path=os.getcwd()+"\weibo"+"\%d"%self.user_id+".txt"
 		print '微博写入文件完毕，保存路径%s'%(file_path)
 	  except Exception,e:		 
 		print "Error: ",e 
