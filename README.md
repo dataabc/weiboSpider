@@ -46,7 +46,7 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter默认值为0，表示爬取所
 **wb.num_forwarding**：存储微博获得的点赞数，为list形式，如wb.num_forwarding[0]为最新一条微博获得的转发数，与wb.weibos对应，其它用法同wb.weibos；<br>
 **wb.num_comment**：存储微博获得的点赞数，为list形式，如wb.num_comment[0]为最新一条微博获得的评论数，与wb.weibos对应，其它用法同wb.weibos。<br>
 6、运行脚本。我的运行环境是ipython,通过
-```python
+```bash
 $ run filepath/weiboSpider.py
 ```
 即可运行脚本，大家可以根据自己的运行环境选择运行方式。
