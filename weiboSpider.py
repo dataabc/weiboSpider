@@ -158,7 +158,7 @@ class weibo:
 #使用实例,输入一个用户id，所有信息都会存储在wb实例中		
 user_id = 1669879400 #可以改成任意合法的用户id（爬虫的微博id除外）
 filter = 1 #值为0表示爬取全部的微博信息（原创微博+转发微博），值为1表示只爬取原创微博
-wb = weibo(user_id,filter)
+wb = weibo(user_id,filter) #调用weibo类，创建微博实例wb
 wb.start() #爬取微博信息
 print '用户名：' + wb.userName
 print '全部微博数：' + str(wb.weiboNum)
