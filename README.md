@@ -1,5 +1,5 @@
 ### 功能
-- 爬取新浪微博信息
+- 爬取新浪微博信息：因为微博移动端的信息比PC端更容易爬取，所以本脚本是利用微博移动端爬取信息
 
 ### 输入
 - 用户id，例如新浪微博昵称为“Google黑板报”的id为“2617744132”
@@ -28,7 +28,7 @@ $ git clone https://github.com/dataabc/weibospider.git
 2、用文本编辑器打开weibospider文件夹下的"weiboSpider.py"文件；<br>
 3、将"weiboSpider.py"文件中的“your cookie”替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；<br>
 4、将"weiboSpider.py"文件中的user_id替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id；<br>
-5、按需求调用脚本。本脚本是一个weibo类，用户可以按照自己的需求调用weibo类，然后运行脚本。
+5、按需求调用脚本。本脚本是一个weibo类，用户可以按照自己的需求调用weibo类。
 例如用户可以直接在"weiboSpider.py"文件中调用weibo类，具体调用代码示例如下：
 ```python
 user_id = 1669879400
@@ -44,7 +44,12 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter默认值为0，表示爬取所
 **wb.weibos**：存储用户的所有微博，为list形式，若filter=1， wb.weibos[0]为最新一条**原创**微博，filter=0为最新一条微博，wb.weibos[1]、wb.weibos[2]分别表示第二新和第三新的微博，以此类推。当然如果用户没有发过微博，wb.weibos则为[]；<br>
 **wb.num_zan**：存储微博获得的点赞数，为list形式，如wb.num_zan[0]为最新一条微博获得的点赞数，与wb.weibos对应，其它用法同wb.weibos；<br>
 **wb.num_forwarding**：存储微博获得的点赞数，为list形式，如wb.num_forwarding[0]为最新一条微博获得的转发数，与wb.weibos对应，其它用法同wb.weibos；<br>
-**wb.num_comment**：存储微博获得的点赞数，为list形式，如wb.num_comment[0]为最新一条微博获得的评论数，与wb.weibos对应，其它用法同wb.weibos。
+**wb.num_comment**：存储微博获得的点赞数，为list形式，如wb.num_comment[0]为最新一条微博获得的评论数，与wb.weibos对应，其它用法同wb.weibos。<br>
+6、运行脚本。我的运行环境是ipython,通过
+```python
+$run filepath/weiboSpider.py
+```
+即可运行脚本，大家可以根据自己的运行环境选择运行方式。
 ###如何获取cookie
 1、用Chrome打开<https://passport.weibo.cn/signin/login>；<br>
 2、按F12键打开Chrome开发者工具；<br>
