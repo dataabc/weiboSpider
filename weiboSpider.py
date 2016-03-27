@@ -13,9 +13,9 @@ class weibo:
 	cookie = {"Cookie": "your cookie"} #将your cookie替换成自己的cookie
 	#weibo类初始化
 	def __init__(self,user_id,filter = 0):
-			self.user_id = user_id #用户id，即需要我们输入的数字，如昵称为“Google黑板报”的id为2617744132
+			self.user_id = user_id #用户id，即需要我们输入的数字，如昵称为“Dear-迪丽热巴”的id为1669879400
 			self.filter = filter #取值范围为0、1，程序默认值为0，代表要爬取用户的全部微博，1代表只爬取用户的原创微博
-			self.userName = '' #用户名，如“Google黑板报”
+			self.userName = '' #用户名，如“Dear-迪丽热巴”
 			self.weiboNum = 0 #用户全部微博数
 			self.weiboNum2 = 0 #爬取到的微博数
 			self.following = 0 #用户关注数
