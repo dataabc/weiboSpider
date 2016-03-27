@@ -2,10 +2,10 @@
 - 爬取新浪微博信息：因为微博移动端的信息比PC端更容易爬取，所以本脚本是利用微博移动端爬取信息
 
 ### 输入
-- 用户id，例如新浪微博昵称为“Google黑板报”的id为“2617744132”
+- 用户id，例如新浪微博昵称为“Dear-迪丽热巴”的id为“1669879400”
 
 ### 输出
-- 用户名：用户昵称，如"Google黑板报"
+- 用户名：用户昵称，如"Dear-迪丽热巴"
 - 微博数：用户的全部微博数（转发微博+原创微博）
 - 关注数：用户关注的微博账号数量
 - 粉丝数：用户的粉丝数
@@ -13,6 +13,7 @@
 - 微博对应的点赞数：以list的形式存储了用户所有微博对应的点赞数
 - 微博对应的转发数：以list的形式存储了用户所有微博对应的转发数
 - 微博对应的评论数：以list的形式存储了用户所有微博对应的评论数
+- 结果文件：保存在当前目录的weibo文件夹里，名字为"user_id.txt"的形式
 
 ### 运行环境
 - 开发语言：python2.7
@@ -50,6 +51,7 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter默认值为0，表示爬取所
 $ run filepath/weiboSpider.py
 ```
 即可运行脚本，大家可以根据自己的运行环境选择运行方式。
+
 ###如何获取cookie
 1、用Chrome打开<https://passport.weibo.cn/signin/login>；<br>
 2、按F12键打开Chrome开发者工具；<br>
@@ -57,6 +59,7 @@ $ run filepath/weiboSpider.py
 ![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/cookie1.png)
 4、点击Chrome开发者工具“Name"列表中的"m.weibo.cn",点击"Headers"，其中"Request Headers"下，"Cookie"后的值即为我们要找的cookie值，复制即可，如图所示：
 ![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/cookie2.png)
+
 ###如何获取user_id
 1、打开网址<http://weibo.cn>，搜索我们要找的人，如”郭碧婷“，进入她的主页；<br>
 2、大部分情况下，在用户主页的地址栏里就包含了user_id，如”郭碧婷“的地址栏地址为"<http://weibo.cn/u/1729370543?f=search_0>"，其中的"1729370543"就是她的user_id。如图所示：
