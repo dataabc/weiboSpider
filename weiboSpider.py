@@ -33,7 +33,7 @@ class weibo:
 		html = requests.get(url, cookies = weibo.cookie).content
 		selector = etree.HTML(html)
 		userName = selector.xpath("//title/text()")[0]
-		self.userName = userName[:-3].encode('gbk')
+		self.userName = userName[:-3].encode(sys.stdout.encoding)
 		#print '用户昵称：' + self.userName
 	  except Exception,e:		 
 		print "Error: ",e 
@@ -94,7 +94,7 @@ class weibo:
 			  self.weiboNum2 = self.weiboNum2 + 1
 			  #微博内容
 			  str_t = info[i].xpath("div/span[@class='ctt']")
-			  weibos = str_t[0].xpath('string(.)').encode('gbk','ignore')
+			  weibos = str_t[0].xpath('string(.)').encode(sys.stdout.encoding,'ignore')
 			  self.weibos.append(weibos)
 			  #print '微博内容：'+ weibos
 			  #点赞数
