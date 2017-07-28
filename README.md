@@ -1,74 +1,74 @@
-### ����
-- ��ȡ����΢����Ϣ����Ϊ΢���ƶ��˵���Ϣ��PC�˸�������ȡ�����Ա��ű�������΢���ƶ�����ȡ��Ϣ
+# 功能
+爬取新浪微博信息：因为微博移动端的信息比PC端更容易爬取，所以本脚本是利用微博移动端爬取信息
 
-### ����
-- �û�id����������΢���ǳ�Ϊ��Dear-�����Ȱ͡���idΪ��1669879400��
+# 输入
+用户id，例如新浪微博昵称为“Dear-迪丽热巴”的id为“1669879400”
 
-### ���
-- �û������û��ǳƣ���"Dear-�����Ȱ�"
-- ΢�������û���ȫ��΢������ת��΢��+ԭ��΢����
-- ��ע�����û���ע��΢���˺�����
-- ��˿�����û��ķ�˿��
-- ΢�����ݣ���list����ʽ�洢���û�����΢������
-- ΢����Ӧ�ĵ���������list����ʽ�洢���û�����΢����Ӧ�ĵ�����
-- ΢����Ӧ��ת��������list����ʽ�洢���û�����΢����Ӧ��ת����
-- ΢����Ӧ������������list����ʽ�洢���û�����΢����Ӧ��������
-- ����ļ��������ڵ�ǰĿ¼��weibo�ļ��������Ϊ"user_id.txt"����ʽ
+# 输出
+- 用户名：用户昵称，如"Dear-迪丽热巴"
+- 微博数：用户的全部微博数（转发微博+原创微博）
+- 关注数：用户关注的微博账号数量
+- 粉丝数：用户的粉丝数
+- 微博内容：以list的形式存储了用户所有微博内容
+- 微博对应的点赞数：以list的形式存储了用户所有微博对应的点赞数
+- 微博对应的转发数：以list的形式存储了用户所有微博对应的转发数
+- 微博对应的评论数：以list的形式存储了用户所有微博对应的评论数
+- 结果文件：保存在当前目录的weibo文件夹里，名字为"user_id.txt"的形式
 
-### ���л���
-- �������ԣ�python2.7
-- ϵͳ�� windows 10��64λ��
-- ���л�����IPython��Anaconda 64λ��
+# 运行环境
+- 开发语言：python2.7
+- 系统： windows 10（64位）
+- 运行环境：IPython（Anaconda 64位）
 
-### ʹ��˵��
-1�����ؽű�
-```bash
-$ git clone https://github.com/dataabc/weibospider.git
-```
-�����������������Ŀ���ص���ǰĿ¼��������سɹ���ǰĿ¼�����һ����Ϊ"weibospider"���ļ��У�<br>
-2�����ı��༭����weibospider�ļ����µ�"weiboSpider.py"�ļ���<br>
-3����"weiboSpider.py"�ļ��еġ�your cookie���滻������΢����cookie���������ϸ������λ�ȡcookie��<br>
-4����"weiboSpider.py"�ļ��е�user_id�滻����Ҫ��ȡ��΢����user_id���������ϸ������λ�ȡuser_id��<br>
-5����������ýű������ű���һ��weibo�࣬�û����԰����Լ����������weibo�ࡣ
-�����û�����ֱ����"weiboSpider.py"�ļ��е���weibo�࣬������ô���ʾ�����£�
-```python
-user_id = 1669879400
-filter = 1 
-wb = weibo(user_id,filter) #����weibo�࣬����΢��ʵ��wb
-wb.start()  #��ȡ΢����Ϣ
-```
-user_id���Ըĳ�����Ϸ����û�id�������΢��id���⣩��filterĬ��ֵΪ0����ʾ��ȡ����΢����Ϣ��ת��΢��+ԭ��΢������Ϊ1��ʾֻ��ȡ�û�������ԭ��΢����wb��weibo���һ��ʵ����Ҳ�������������֣�ֻҪ����python�������淶���ɣ�ͨ��ִ��wb.start() �����΢������ȡ����������������֮�����ǿ��Եõ��ܶ���Ϣ��<br>
-**wb.userName**���û�����<br>
-**wb.weiboNum**��΢������<br>
-**wb.following**����ע����<br>
-**wb.followers**����˿����<br>
-**wb.weibos**���洢�û�������΢����Ϊlist��ʽ����filter=1�� wb.weibos[0]Ϊ����һ��**ԭ��**΢����filter=0Ϊ����һ��΢����wb.weibos[1]��wb.weibos[2]�ֱ��ʾ�ڶ��º͵����µ�΢�����Դ����ơ���Ȼ����û�û�з���΢����wb.weibos��Ϊ[]��<br>
-**wb.num_zan**���洢΢����õĵ�������Ϊlist��ʽ����wb.num_zan[0]Ϊ����һ��΢����õĵ���������wb.weibos��Ӧ�������÷�ͬwb.weibos��<br>
-**wb.num_forwarding**���洢΢����õĵ�������Ϊlist��ʽ����wb.num_forwarding[0]Ϊ����һ��΢����õ�ת��������wb.weibos��Ӧ�������÷�ͬwb.weibos��<br>
-**wb.num_comment**���洢΢����õĵ�������Ϊlist��ʽ����wb.num_comment[0]Ϊ����һ��΢����õ�����������wb.weibos��Ӧ�������÷�ͬwb.weibos��<br>
-6�����нű����ҵ����л�����IPython,ͨ��
-```bash
-$ run filepath/weiboSpider.py
-```
-�������нű�����ҿ��Ը����Լ������л���ѡ�����з�ʽ��
+# 使用说明
+1. 下载脚本
+    ```bash
+    $ git clone https://github.com/dataabc/weibospider.git
+    ```
+    运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；
+2. 用文本编辑器打开weibospider文件夹下的"weiboSpider.py"文件；
+3. 将"weiboSpider.py"文件中的“your cookie”替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；
+4. 将"weiboSpider.py"文件中的user_id替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id；
+5. 按需求调用脚本。本脚本是一个weibo类，用户可以按照自己的需求调用weibo类。
+    例如用户可以直接在"weiboSpider.py"文件中调用weibo类，具体调用代码示例如下：
+    ```python
+    user_id = 1669879400
+    filter = 1 
+    wb = weibo(user_id,filter) #调用weibo类，创建微博实例wb
+    wb.start()  #爬取微博信息
+    ```
+    user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter默认值为0，表示爬取所有微博信息（转发微博+原创微博），为1表示只爬取用户的所有原创微博；wb是weibo类的一个实例，也可以是其它名字，只要符合python的命名规范即可；通过执行wb.start() 完成了微博的爬取工作。在上述代码之后，我们可以得到很多信息：
+    - **wb.userName**：用户名；
+    - **wb.weiboNum**：微博数；
+    - **wb.following**：关注数；
+    - **wb.followers**：粉丝数；
+    - **wb.weibos**：存储用户的所有微博，为list形式，若filter=1， wb.weibos[0]为最新一条**原创**微博，filter=0为最新一条微博，wb.weibos[1]、wb.weibos[2]分别表示第二新和第三新的微博，以此类推。当然如果用户没有发过微博，wb.weibos则为[]；
+    - **wb.num_zan**：存储微博获得的点赞数，为list形式，如wb.num_zan[0]为最新一条微博获得的点赞数，与wb.weibos对应，其它用法同wb.weibos；
+    - **wb.num_forwarding**：存储微博获得的点赞数，为list形式，如wb.num_forwarding[0]为最新一条微博获得的转发数，与wb.weibos对应，其它用法同wb.weibos；
+    - **wb.num_comment**：存储微博获得的点赞数，为list形式，如wb.num_comment[0]为最新一条微博获得的评论数，与wb.weibos对应，其它用法同wb.weibos。
+6. 运行脚本。我的运行环境是IPython,通过
+    ```bash
+    $ run filepath/weiboSpider.py
+    ```
+    即可运行脚本，大家可以根据自己的运行环境选择运行方式。
 
-###��λ�ȡcookie
-1����Chrome��<https://passport.weibo.cn/signin/login>��<br>
-2����F12����Chrome�����߹��ߣ�<br>
-3���㿪��Network��������Preserve log��ѡ�У�����΢�����û��������룬��¼����ͼ��ʾ��
-![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/cookie1.png)
-4�����Chrome�����߹��ߡ�Name"�б��е�"m.weibo.cn",���"Headers"������"Request Headers"�£�"Cookie"���ֵ��Ϊ����Ҫ�ҵ�cookieֵ�����Ƽ��ɣ���ͼ��ʾ��
-![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/cookie2.png)
+# 如何获取cookie
+1. 用Chrome打开<https://passport.weibo.cn/signin/login>；
+2. 按F12键打开Chrome开发者工具；
+3. 点开“Network”，将“Preserve log”选中，输入微博的用户名、密码，登录，如图所示：
+    ![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/cookie1.png)
+4. 点击Chrome开发者工具“Name"列表中的"m.weibo.cn",点击"Headers"，其中"Request Headers"下，"Cookie"后的值即为我们要找的cookie值，复制即可，如图所示：
+    ![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/cookie2.png)
 
-###��λ�ȡuser_id
-1������ַ<http://weibo.cn>����������Ҫ�ҵ��ˣ��硱�����á�������������ҳ��<br>
-2���󲿷�����£����û���ҳ�ĵ�ַ����Ͱ�����user_id���硱�����á��ĵ�ַ����ַΪ"<http://weibo.cn/u/1729370543?f=search_0>"�����е�"1729370543"��������user_id����ͼ��ʾ��
-![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/userid1.png)
-���ǲ����û������˸������������ǵĵ�ַ����ַ�ͱ����"<http://weibo.cn/��������?f=search_0>"����ʽ����������ҳ�ĵ�ַ����ַΪ"<http://weibo.cn/guangxianliuyan?f=search_0>"����ͼ��ʾ��
-![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/userid2.png)
-��ʵ�ϣ����������ȡ΢������user_id��������������ԣ�������Ϊ���ű���Ҫ��ȡ�û��ǳƣ����ø���������ʾ����ҳ��ȡ��һЩС���⣬��Ҫ�������ҳ�����ԣ����������ַ��û��user_id���������ҿ��Ե�������ϡ�����ת���û�����ҳ�棬�����ҵ�����ҳ���ַΪ"<http://weibo.cn/1644461042/info>"�����е�"1644461042"��Ϊ����΢����user_id����ͼ��ʾ��
-![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/userid3.png)
+# 如何获取user_id
+1. 打开网址<http://weibo.cn>，搜索我们要找的人，如”郭碧婷“，进入她的主页；<br>
+2. 大部分情况下，在用户主页的地址栏里就包含了user_id，如”郭碧婷“的地址栏地址为"<http://weibo.cn/u/1729370543?f=search_0>"，其中的"1729370543"就是她的user_id。如图所示：
+    ![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/userid1.png)
+    但是部分用户设置了个性域名，他们的地址栏地址就变成了"<http://weibo.cn/个性域名?f=search_0>"的形式，如柳岩主页的地址栏地址为"<http://weibo.cn/guangxianliuyan?f=search_0>"。如图所示：
+    ![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/userid2.png)
+    事实上，如果仅仅爬取微博，用user_id或个性域名都可以，但是因为本脚本还要爬取用户昵称，而用个性域名表示的网页爬取有一些小问题，需要另外的网页。所以，如果遇到地址栏没有user_id的情况，大家可以点击”资料“，跳转到用户资料页面，如柳岩的资料页面地址为"<http://weibo.cn/1644461042/info>"，其中的"1644461042"即为柳岩微博的user_id。如图所示：
+    ![](http://7xknyo.com1.z0.glb.clouddn.com/github/weibospider/userid3.png)
 
-###ע������
-1��user_id����Ϊ����΢����user_id����ΪҪ��΢����Ϣ�������ȵ�¼��ĳ��΢���˺ţ����˺����ǹ��ҳ�Ϊ����΢��������΢�������Լ���ҳ��ͷ��������û���ҳ�棬�õ�����ҳ��ʽ��ͬ�������޷���ȡ�Լ���΢����Ϣ��<br>
-2��cookie���������ƣ���Լ�������ҵ���Ч�ڣ�������Ч�������¸���cookie��
+# 注意事项
+1. user_id不能为爬虫微博的user_id。因为要爬微博信息，必须先登录到某个微博账号，此账号我们姑且称为爬虫微博。爬虫微博访问自己的页面和访问其他用户的页面，得到的网页格式不同，所以无法爬取自己的微博信息；
+2. cookie有期限限制，大约两天左右的有效期，超过有效期需重新更新cookie。
