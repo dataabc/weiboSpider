@@ -6,11 +6,13 @@ import re
 import requests
 import sys
 import traceback
+from datetime import datetime
+from datetime import timedelta
 from lxml import etree
 
 
 class Weibo:
-    cookie = {"Cookie": "_T_WM=330cc3a310a2344885e1ea86e650feb8; ALF=1510241844; SCF=Aig0E82zMhwysBSohbuPVB4LiqX63N1tUYzyztLu1TfPG1Rgw2USfoPAp4jPPHp1NXa3h3VQswu-FjUbDw83kyw.; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5J85T6XeKH-NynHmnLSVwd5JpX5K-hUgL.FozNeoz0SoBpSK22dJLoI7fZUgpDqCfCdciLMrx0; SUB=_2A2502JkvDeThGeRJ6VAS9irNzj2IHXVUIidnrDV6PUJbkdANLXCjkW0R8xFWAgwk59MYPu3KaiuFr2ps-w..; SUHB=0M2UGZv27a_mNL; SSOLoginState=1507649919; M_WEIBOCN_PARAMS=luicode%3D20000174%26uicode%3D20000174%26featurecode%3D20000320%26fid%3Dhotword"}  # 将your cookie替换成自己的cookie
+    cookie = {"Cookie": "your cookie"}  # 将your cookie替换成自己的cookie
 
     # Weibo类初始化
     def __init__(self, user_id, filter=0):
@@ -22,6 +24,7 @@ class Weibo:
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
         self.weibo_content = []  # 微博内容
+        self.publish_time = []  # 微博发布时间
         self.up_num = []  # 微博对应的点赞数
         self.retweet_num = []  # 微博对应的转发数
         self.comment_num = []  # 微博对应的评论数
@@ -74,7 +77,7 @@ class Weibo:
             print "Error: ", e
             traceback.print_exc()
 
-    # 获取用户微博内容及对应的点赞数、转发数、评论数
+    # 获取用户微博内容及对应的发布时间、点赞数、转发数、评论数
     def get_weibo_info(self):
         try:
             url = "https://weibo.cn/u/%d?filter=%d&page=1" % (
@@ -104,6 +107,37 @@ class Weibo:
                             sys.stdout.encoding)
                         self.weibo_content.append(weibo_content)
                         print u"微博内容：" + weibo_content
+
+                        # 微博发布时间
+                        str_time = info[i].xpath("div/span[@class='ct']")
+                        str_time = str_time[0].xpath("string(.)").encode(
+                            sys.stdout.encoding, "ignore").decode(
+                            sys.stdout.encoding)
+                        publish_time = str_time.split(u'来自')[0]
+                        if u"刚刚" in publish_time:
+                            publish_time = datetime.now().strftime(
+                                '%Y-%m-%d %H:%M')
+                        elif u"分钟" in publish_time:
+                            minute = publish_time[:publish_time.find(u"分钟")]
+                            minute = timedelta(minutes=int(minute))
+                            publish_time = (
+                                datetime.now() - minute).strftime(
+                                "%Y-%m-%d %H:%M")
+                        elif u"今天" in publish_time:
+                            today = datetime.now().strftime("%Y-%m-%d")
+                            time = publish_time[3:]
+                            publish_time = today + " " + time
+                        elif u"月" in publish_time:
+                            year = datetime.now().strftime("%Y")
+                            month = publish_time[0:2]
+                            day = publish_time[3:5]
+                            time = publish_time[7:12]
+                            publish_time = (
+                                year + "-" + month + "-" + day + " " + time)
+                        else:
+                            publish_time = publish_time[:16]
+                        self.publish_time.append(publish_time)
+                        print u"微博发布时间：" + publish_time
 
                         # 点赞数
                         str_zan = info[i].xpath("div/a/text()")[-4]
@@ -152,6 +186,7 @@ class Weibo:
                       )
             for i in range(1, self.weibo_num2 + 1):
                 text = (str(i) + ":" + self.weibo_content[i - 1] + "\n" +
+                        u"发布时间：" + self.publish_time[i - 1] + "\n" +
                         u"点赞数：" + str(self.up_num[i - 1]) +
                         u"	 转发数：" + str(self.retweet_num[i - 1]) +
                         u"	 评论数：" + str(self.comment_num[i - 1]) + "\n\n"
@@ -195,6 +230,7 @@ def main():
         print u"关注数：" + str(wb.following)
         print u"粉丝数：" + str(wb.followers)
         print u"最新一条原创微博为：" + wb.weibo_content[0]
+        print u"最新一条原创微博发布时间：" + wb.publish_time[0]
         print u"最新一条原创微博获得的点赞数：" + str(wb.up_num[0])
         print u"最新一条原创微博获得的转发数：" + str(wb.retweet_num[0])
         print u"最新一条原创微博获得的评论数：" + str(wb.comment_num[0])
