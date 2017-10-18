@@ -98,8 +98,6 @@ class Weibo:
                 info = selector2.xpath("//div[@class='c']")
                 if len(info) > 3:
                     for i in range(0, len(info) - 2):
-                        self.weibo_num2 = self.weibo_num2 + 1
-
                         # 微博内容
                         str_t = info[i].xpath("div/span[@class='ctt']")
                         weibo_content = str_t[0].xpath("string(.)").encode(
@@ -159,6 +157,8 @@ class Weibo:
                         comment_num = int(guid[0])
                         self.comment_num.append(comment_num)
                         print u"评论数: " + str(comment_num)
+
+                        self.weibo_num2 += 1
 
             if not self.filter:
                 print u"共" + str(self.weibo_num2) + u"条微博"
@@ -222,7 +222,7 @@ def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
         user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 1  # 值为0表示爬取全部的微博信息（原创微博+转发微博），值为1表示只爬取原创微博
+        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print u"用户名：" + wb.username
