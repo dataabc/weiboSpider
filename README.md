@@ -11,6 +11,7 @@
 - 关注数：用户关注的微博账号数量
 - 粉丝数：用户的粉丝数
 - 微博内容：以list的形式存储了用户所有微博内容
+- 微博发布时间：以list的形式存储了用户所有微博的发布时间
 - 微博对应的点赞数：以list的形式存储了用户所有微博对应的点赞数
 - 微博对应的转发数：以list的形式存储了用户所有微博对应的转发数
 - 微博对应的评论数：以list的形式存储了用户所有微博对应的评论数
@@ -43,9 +44,10 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter
 **wb.following**：关注数；<br>
 **wb.followers**：粉丝数；<br>
 **wb.weibo_content**：存储用户的所有微博，为list形式，若filter=1， wb.weibo_content[0]为最新一条**原创**微博，filter=0为最新一条微博，wb.weibo_content[1]、wb.weibo_content[2]分别表示第二新和第三新的微博，以此类推。当然如果用户没有发过微博，wb.weibo_content则为[]；<br>
-**wb.up_num**：存储微博获得的点赞数，为list形式，如wb.up_num[0]为最新一条微博获得的点赞数，与wb.weibo_content对应，其它用法同wb.weibo_content；<br>
-**wb.retweet_num**：存储微博获得的转发数，为list形式，如wb.retweet_num[0]为最新一条微博获得的转发数，与wb.weibo_content对应，其它用法同wb.weibo_content；<br>
-**wb.comment_num**：存储微博获得的评论数，为list形式，如wb.comment_num[0]为最新一条微博获得的评论数，与wb.weibo_content对应，其它用法同wb.weibo_content。<br>
+**wb.publish_time**: 存储微博的发布时间，为list形式，如wb.publish_time[0]为最新一条微博的发布时间，与wb.weibo_content[0]对应，其它用法同wb.weibo_content；<br>
+**wb.up_num**：存储微博获得的点赞数，为list形式，如wb.up_num[0]为最新一条微博获得的点赞数，与wb.weibo_content[0]对应，其它用法同wb.weibo_content；<br>
+**wb.retweet_num**：存储微博获得的转发数，为list形式，如wb.retweet_num[0]为最新一条微博获得的转发数，与wb.weibo_content[0]对应，其它用法同wb.weibo_content；<br>
+**wb.comment_num**：存储微博获得的评论数，为list形式，如wb.comment_num[0]为最新一条微博获得的评论数，与wb.weibo_content[0]对应，其它用法同wb.weibo_content。<br>
 6.运行脚本。我的运行环境是IPython,通过
 ```bash
 $ run filepath/weibospider.py
