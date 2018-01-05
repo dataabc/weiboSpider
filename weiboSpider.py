@@ -12,7 +12,8 @@ from lxml import etree
 
 
 class Weibo:
-    cookie = {"Cookie": "your cookie"}  # 将your cookie替换成自己的cookie
+    cookie = {"Cookie":""}
+
 
     # Weibo类初始化
     def __init__(self, user_id, filter=0):
@@ -99,15 +100,32 @@ class Weibo:
                 if len(info) > 3:
                     for i in range(0, len(info) - 2):
                         # 微博内容
-                        str_t = info[i].xpath("div/span[@class='ctt']")
-                        weibo_content = str_t[0].xpath("string(.)").encode(
-                            sys.stdout.encoding, "ignore").decode(
-                            sys.stdout.encoding)
+                        # 修改: 因为转发和原创所用class不同,所以取消[@class]直接查询
+
+                        str_class = info[i].xpath("div/span/@class")[0]
+                        if str_class == "cmt":
+                            # 原信息 + 转发理由
+                            weibo_content = \
+                                    info[i].xpath("div/span")[0].xpath("string(.)").encode(sys.stdout.\
+                                    encoding,"ignore").decode(sys.stdout.encoding) + '\n' + \
+                                    info[i].xpath("div/span")[1].xpath("string(.)").encode(sys.stdout.encoding,\
+                                    "ignore").decode(sys.stdout.encoding) + '\n' + \
+                                    re.search(r'(.*?)\xa0', info[i].xpath("div")[-1].xpath("string(.)").\
+                                    encode(sys.stdout.encoding,"ignore").decode(sys.stdout.encoding)).group(1)
+                        else: #  str_class == "ctt" 默认原创
+                            str_t = info[i].xpath("div/span[@class='ctt']")
+                            weibo_content = str_t[0].xpath("string(.)").encode(
+                                sys.stdout.encoding, "ignore").decode(
+                                sys.stdout.encoding)
+
                         self.weibo_content.append(weibo_content)
                         print u"微博内容：" + weibo_content
 
                         # 微博发布时间
-                        str_time = info[i].xpath("div/span[@class='ct']")
+                        if str_class == "cmt":
+                            str_time = info[i].xpath("div")[-1].xpath("span[@class='ct']")
+                        else:
+                            str_time = info[i].xpath("div/span[@class='ct']")
                         str_time = str_time[0].xpath("string(.)").encode(
                             sys.stdout.encoding, "ignore").decode(
                             sys.stdout.encoding)
@@ -137,24 +155,35 @@ class Weibo:
                         self.publish_time.append(publish_time)
                         print u"微博发布时间：" + publish_time
 
+                        # 修改2: 直接读取整条信息,避免"已赞"格式无法分析 -> empty zan list
+                        #        分别在不同区块读取原创和转发信息
+
+                        # guid: 赞、转发、评论
+                        if str_class == "cmt":
+                            str_meta = info[i].xpath("div")[-1]
+                        else: # str_class == "ctt"
+                            if len(info[i].xpath("div")) > 1:
+                                str_meta = info[i].xpath("div")[1] # 带图
+                            else:
+                                str_meta = info[i].xpath("div")[0] # 文字博
+
+                        str_meta = str_meta.xpath("string(.)").encode(sys.stdout.encoding, "ignore").decode(
+                            sys.stdout.encoding)
+                        str_meta = str_meta[str_meta.find(u'赞'):]
+                        guid = re.findall(pattern, str_meta, re.M)
+
                         # 点赞数
-                        str_zan = info[i].xpath("div/a/text()")[-4]
-                        guid = re.findall(pattern, str_zan, re.M)
                         up_num = int(guid[0])
                         self.up_num.append(up_num)
                         print u"点赞数: " + str(up_num)
 
                         # 转发数
-                        retweet = info[i].xpath("div/a/text()")[-3]
-                        guid = re.findall(pattern, retweet, re.M)
-                        retweet_num = int(guid[0])
+                        retweet_num = int(guid[1])
                         self.retweet_num.append(retweet_num)
                         print u"转发数: " + str(retweet_num)
 
                         # 评论数
-                        comment = info[i].xpath("div/a/text()")[-2]
-                        guid = re.findall(pattern, comment, re.M)
-                        comment_num = int(guid[0])
+                        comment_num = int(guid[2])
                         self.comment_num.append(comment_num)
                         print u"评论数: " + str(comment_num)
 
@@ -211,6 +240,7 @@ class Weibo:
             self.get_username()
             self.get_user_info()
             self.get_weibo_info()
+            print("done with info")
             self.write_txt()
             print u"信息抓取完毕"
             print "==========================================================================="
@@ -221,8 +251,8 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        user_id = 5491331848 # 可以改成任意合法的用户id（爬虫的微博id除外）
+        filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print u"用户名：" + wb.username
