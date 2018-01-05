@@ -1,3 +1,12 @@
+# 功能添加 by KnightReigh
+区分转发和原创微博信息，爬去正确信息
+
+添加从原生成文件读取功能，方便进一步结果处理
+
+添加csv生成功能
+
+添加微博内容翻译功能[google translate for python](https://github.com/ssut/py-googletrans)
+
 # 功能
 爬取新浪微博信息：爬取微博信息，并写入文件，文件结果如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/weibotxt.png)

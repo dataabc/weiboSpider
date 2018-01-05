@@ -6,13 +6,24 @@ import re
 import requests
 import sys
 import traceback
+import csv
+import time
 from datetime import datetime
 from datetime import timedelta
 from lxml import etree
+from googletrans import Translator
+
+emoji_pattern = re.compile("["
+        u"\U0001F600-\U0001F64F"  # emoticons
+        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                           "]+", flags=re.UNICODE)
 
 
 class Weibo:
-    cookie = {"Cookie": "your cookie"}  # 将your cookie替换成自己的cookie
+    cookie = {"Cookie": "_T_WM=3ee66893b0c9bfd883628d437ccdb644; SCF=Aqt1CGgzsIJiOEI_UrIiVE4sjjLz6YI7JXnoy65qoX5SBDW29c-SHrlkJaigKdSjXpq_F86MXllb7P0_oP55KtM.; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WWvW0Jk66DBo_dquLugAH8g5JpX5K-hUgL.Fo-4S0epSK5cShM2dJLoIEvJi--fiK.7iKn0i--NiKnpi-8Fi--4iK.XiKnfi--NiKLWiKnXi--NiKyhi-8FP7tt; M_WEIBOCN_PARAMS=uicode%3D20000174%26featurecode%3D20000320%26fid%3Dhotword; SUB=_2A253SuJZDeRhGeNH7FEQ9S7KzzuIHXVUtI4RrDV6PUJbkdBeLWf9kW1NSpoOV0ki5QMBX32mUOLHh_eGthS4LWw8; SUHB=010G4fK5jataN9; SSOLoginState=1515098633"}  # 将your cookie替换成自己的cookie
+
 
     # Weibo类初始化
     def __init__(self, user_id, filter=0):
@@ -28,6 +39,76 @@ class Weibo:
         self.up_num = []  # 微博对应的点赞数
         self.retweet_num = []  # 微博对应的转发数
         self.comment_num = []  # 微博对应的评论数
+
+    def read_from_file(self,filepath):
+        try:
+            f = open(filepath, "r")
+        except Exception, e:
+            print "Error: ", e
+            traceback.print_exc()
+
+        last_line = ""
+
+        # 读取微博信息
+        try:
+            f.next()
+            self.username = f.next()[15:]
+            self.user_id = int(f.next()[11:])
+            self.weibo_num = int(f.next()[12:])
+            self.weibo_num2 = self.weibo_num
+            self.following = int(f.next()[12:])
+            self.followers = int(f.next()[12:])
+            f.next()
+            f.next()
+        except Exception, e:
+            print "Error: ", e
+            traceback.print_exc()
+
+        # 读取每条微博
+        weibo_num = 0
+        weibo_content = ""
+        for line in f:
+            if line != '\n':
+                if u"发布时间" == line.decode(sys.stdout.encoding)[:4]:
+                    self.publish_time.append(line[15:])
+                elif u"点赞数" == line.decode(sys.stdout.encoding)[:3]:
+                    pattern = r"\d+\.?\d*"
+                    guid = re.findall(pattern, line, re.S | re.M)
+                    self.up_num.append(int(guid[0])) # 微博对应的点赞数
+                    self.retweet_num.append(int(guid[1])) # 微博对应的转发数
+                    self.comment_num.append(int(guid[2]))  # 微博对应的评论数
+                else:
+                    weibo_content = weibo_content + line.decode(sys.stdout.encoding).encode(sys.stdout.encoding)
+            else:
+                self.weibo_content.append(weibo_content)
+                weibo_content = ""
+                weibo_num = weibo_num + 1
+
+                # 检查信息空集
+                if len(self.up_num) < weibo_num:
+                    self.up_num.append(0)
+                if len(self.retweet_num) < weibo_num:
+                    self.retweet_num.append(0)
+                if len(self.comment_num) < weibo_num:
+                    self.comment_num.append(0)
+                if len(self.weibo_content) < weibo_num:
+                    self.weibo_content.append("")
+
+            last_line = line
+
+        # 不完整结尾信息
+        if last_line != "\n":
+            weibo_num = weibo_num + 1
+            if len(self.up_num) < weibo_num:
+                self.up_num.append(0)
+            if len(self.retweet_num) < weibo_num:
+                self.retweet_num.append(0)
+            if len(self.comment_num) < weibo_num:
+                self.comment_num.append(0)
+            if len(self.weibo_content) < weibo_num:
+                self.weibo_content.append("")
+
+        self.weibo_num2 = weibo_num
 
     # 获取用户昵称
     def get_username(self):
@@ -99,15 +180,32 @@ class Weibo:
                 if len(info) > 3:
                     for i in range(0, len(info) - 2):
                         # 微博内容
-                        str_t = info[i].xpath("div/span[@class='ctt']")
-                        weibo_content = str_t[0].xpath("string(.)").encode(
-                            sys.stdout.encoding, "ignore").decode(
-                            sys.stdout.encoding)
+                        # 修改: 因为转发和原创所用class不同,所以取消[@class]直接查询
+
+                        str_class = info[i].xpath("div/span/@class")[0]
+                        if str_class == "cmt":
+                            # 原信息 + 转发理由
+                            weibo_content = \
+                                    info[i].xpath("div/span")[0].xpath("string(.)").encode(sys.stdout.\
+                                    encoding,"ignore").decode(sys.stdout.encoding) + '\n' + \
+                                    info[i].xpath("div/span")[1].xpath("string(.)").encode(sys.stdout.encoding,\
+                                    "ignore").decode(sys.stdout.encoding) + '\n' + \
+                                    re.search(r'(.*?)\xa0', info[i].xpath("div")[-1].xpath("string(.)").\
+                                    encode(sys.stdout.encoding,"ignore").decode(sys.stdout.encoding)).group(1)
+                        else: #  str_class == "ctt" 默认原创
+                            str_t = info[i].xpath("div/span[@class='ctt']")
+                            weibo_content = str_t[0].xpath("string(.)").encode(
+                                sys.stdout.encoding, "ignore").decode(
+                                sys.stdout.encoding)
+
                         self.weibo_content.append(weibo_content)
                         print u"微博内容：" + weibo_content
 
                         # 微博发布时间
-                        str_time = info[i].xpath("div/span[@class='ct']")
+                        if str_class == "cmt":
+                            str_time = info[i].xpath("div")[-1].xpath("span[@class='ct']")
+                        else:
+                            str_time = info[i].xpath("div/span[@class='ct']")
                         str_time = str_time[0].xpath("string(.)").encode(
                             sys.stdout.encoding, "ignore").decode(
                             sys.stdout.encoding)
@@ -137,24 +235,35 @@ class Weibo:
                         self.publish_time.append(publish_time)
                         print u"微博发布时间：" + publish_time
 
+                        # 修改2: 直接读取整条信息,避免"已赞"格式无法分析 -> empty zan list
+                        #        分别在不同区块读取原创和转发信息
+
+                        # guid: 赞、转发、评论
+                        if str_class == "cmt":
+                            str_meta = info[i].xpath("div")[-1]
+                        else: # str_class == "ctt"
+                            if len(info[i].xpath("div")) > 1:
+                                str_meta = info[i].xpath("div")[1] # 带图
+                            else:
+                                str_meta = info[i].xpath("div")[0] # 文字博
+
+                        str_meta = str_meta.xpath("string(.)").encode(sys.stdout.encoding, "ignore").decode(
+                            sys.stdout.encoding)
+                        str_meta = str_meta[str_meta.find(u'赞'):]
+                        guid = re.findall(pattern, str_meta, re.M)
+
                         # 点赞数
-                        str_zan = info[i].xpath("div/a/text()")[-4]
-                        guid = re.findall(pattern, str_zan, re.M)
                         up_num = int(guid[0])
                         self.up_num.append(up_num)
                         print u"点赞数: " + str(up_num)
 
                         # 转发数
-                        retweet = info[i].xpath("div/a/text()")[-3]
-                        guid = re.findall(pattern, retweet, re.M)
-                        retweet_num = int(guid[0])
+                        retweet_num = int(guid[1])
                         self.retweet_num.append(retweet_num)
                         print u"转发数: " + str(retweet_num)
 
                         # 评论数
-                        comment = info[i].xpath("div/a/text()")[-2]
-                        guid = re.findall(pattern, comment, re.M)
-                        comment_num = int(guid[0])
+                        comment_num = int(guid[2])
                         self.comment_num.append(comment_num)
                         print u"评论数: " + str(comment_num)
 
@@ -205,38 +314,126 @@ class Weibo:
             print "Error: ", e
             traceback.print_exc()
 
+    def write_pure(self):
+        try:
+            result = ""
+            for i in range(1, self.weibo_num2 + 1):
+                result = result + self.weibo_content[i-1] + '\n\n'
+            file_dir = os.path.split(os.path.realpath(__file__))[
+                0] + os.sep + "weibo"
+            if not os.path.isdir(file_dir):
+                os.mkdir(file_dir)
+            file_path = file_dir + os.sep + "%d" % self.user_id + "_pure.txt"
+            f = open(file_path, "wb")
+            f.write(result.encode(sys.stdout.encoding))
+            f.close()
+            print u"微博写入文件完毕，保存路径:" + file_path
+        except Exception, e:
+            print "Error: ", e
+            traceback.print_exc()
+
+    def write_csv(self,file_path, translation=0):
+        try:
+            f = open(file_path, "wb")
+            port_csv = csv.writer(f)
+            port_csv.writerow(["微博","翻译","点赞数","转发数","评论数","发布时间"])
+
+            translator = Translator()
+            for i in range(0,len(self.weibo_content)):
+                if translation == 0:
+                    translated = ""
+                else:
+                    translated = translator.translate(emoji_pattern.sub(r'', self.weibo_content[i])).text.encode(sys.stdout.encoding)
+                    time.sleep(1.5)
+                    print(translated)
+
+                newrow = [self.weibo_content[i],translated,self.up_num[i],self.retweet_num[i],self.comment_num[i],self.publish_time[i]]
+                port_csv.writerow(newrow)
+            f.close()
+            print u"csv写入文件完毕，保存路径:" + file_path
+        except Exception,e:
+            print "Error: ", e
+            traceback.print_exc()
+
     # 运行爬虫
     def start(self):
         try:
             self.get_username()
             self.get_user_info()
             self.get_weibo_info()
+            print("done with info")
             self.write_txt()
             print u"信息抓取完毕"
             print "==========================================================================="
         except Exception, e:
             print "Error: ", e
 
-
-def main():
+def read_cookie(file_path):
+    data = ""
     try:
-        # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
-        wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
-        wb.start()  # 爬取微博信息
-        print u"用户名：" + wb.username
-        print u"全部微博数：" + str(wb.weibo_num)
-        print u"关注数：" + str(wb.following)
-        print u"粉丝数：" + str(wb.followers)
-        print u"最新一条原创微博为：" + wb.weibo_content[0]
-        print u"最新一条原创微博发布时间：" + wb.publish_time[0]
-        print u"最新一条原创微博获得的点赞数：" + str(wb.up_num[0])
-        print u"最新一条原创微博获得的转发数：" + str(wb.retweet_num[0])
-        print u"最新一条原创微博获得的评论数：" + str(wb.comment_num[0])
+        with open(file_path,'r') as f:
+            data = f.read()
     except Exception, e:
         print "Error: ", e
         traceback.print_exc()
+
+    return data
+
+
+def main():
+
+    print("选择任务：1.采集微博信息 2.转换txt到csv")
+    choice = str(raw_input("您的选择: "))
+
+    if choice == "1":
+        try:
+            # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
+            user_id = 5491331848 # 可以改成任意合法的用户id（爬虫的微博id除外）
+            filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+            wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
+            wb.start()  # 爬取微博信息
+            print u"用户名：" + wb.username
+            print u"全部微博数：" + str(wb.weibo_num)
+            print u"关注数：" + str(wb.following)
+            print u"粉丝数：" + str(wb.followers)
+            print u"最新一条原创微博为：" + wb.weibo_content[0]
+            print u"最新一条原创微博发布时间：" + wb.publish_time[0]
+            print u"最新一条原创微博获得的点赞数：" + str(wb.up_num[0])
+            print u"最新一条原创微博获得的转发数：" + str(wb.retweet_num[0])
+            print u"最新一条原创微博获得的评论数：" + str(wb.comment_num[0])
+        except Exception, e:
+            print "Error: ", e
+            traceback.print_exc()
+    elif choice == "2":
+        try:
+            print("请输入文件名: weibo/filename")
+            file_path = raw_input("您的输入： ")
+            filter = 0
+            wb = Weibo('0000',filter)
+            file_path = os.getcwd() + os.path.sep + "weibo" + os.path.sep + file_path
+
+            if os.path.exists(file_path):
+                wb.read_from_file(file_path)
+                print u"用户名：" + wb.username.decode(sys.stdout.encoding)
+                print u"全部微博数：" + str(wb.weibo_num)
+                print u"关注数：" + str(wb.following)
+                print u"粉丝数：" + str(wb.followers)
+                print u"最新一条原创微博为：" + wb.weibo_content[0].decode(sys.stdout.encoding)
+                print u"最新一条原创微博发布时间：" + wb.publish_time[0].decode(sys.stdout.encoding)
+                print u"最新一条原创微博获得的点赞数：" + str(wb.up_num[0])
+                print u"最新一条原创微博获得的转发数：" + str(wb.retweet_num[0])
+                print u"最新一条原创微博获得的评论数：" + str(wb.comment_num[0])
+                wb.write_csv(file_path[:-4] + '.csv',1)
+                print u"文件转化完毕: " + file_path
+            else:
+                raise Exception, u"文件不存在: " + file_path
+
+        except Exception, e:
+            print "Error: ", e
+            traceback.print_exc()
+    else:
+        print("请输入合法选择：1.采集微博信息 2.转换txt到csv")
+        print("退出")
 
 
 if __name__ == "__main__":
