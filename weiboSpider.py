@@ -137,24 +137,24 @@ class Weibo:
                         self.publish_time.append(publish_time)
                         print u"微博发布时间：" + publish_time
 
+                        str_footer = info[i].xpath("div")[-1]
+                        str_footer = str_footer.xpath("string(.)").encode(
+                            sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+                        str_footer = str_footer[str_footer.rfind(u'赞'):]
+                        guid = re.findall(pattern, str_footer, re.M)
+
                         # 点赞数
-                        str_zan = info[i].xpath("div/a/text()")[-4]
-                        guid = re.findall(pattern, str_zan, re.M)
                         up_num = int(guid[0])
                         self.up_num.append(up_num)
                         print u"点赞数: " + str(up_num)
 
                         # 转发数
-                        retweet = info[i].xpath("div/a/text()")[-3]
-                        guid = re.findall(pattern, retweet, re.M)
-                        retweet_num = int(guid[0])
+                        retweet_num = int(guid[1])
                         self.retweet_num.append(retweet_num)
                         print u"转发数: " + str(retweet_num)
 
                         # 评论数
-                        comment = info[i].xpath("div/a/text()")[-2]
-                        guid = re.findall(pattern, comment, re.M)
-                        comment_num = int(guid[0])
+                        comment_num = int(guid[2])
                         self.comment_num.append(comment_num)
                         print u"评论数: " + str(comment_num)
 
@@ -221,7 +221,7 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 5982879020  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
@@ -229,11 +229,11 @@ def main():
         print u"全部微博数：" + str(wb.weibo_num)
         print u"关注数：" + str(wb.following)
         print u"粉丝数：" + str(wb.followers)
-        print u"最新一条原创微博为：" + wb.weibo_content[0]
-        print u"最新一条原创微博发布时间：" + wb.publish_time[0]
-        print u"最新一条原创微博获得的点赞数：" + str(wb.up_num[0])
-        print u"最新一条原创微博获得的转发数：" + str(wb.retweet_num[0])
-        print u"最新一条原创微博获得的评论数：" + str(wb.comment_num[0])
+        print u"最新/置顶 微博为：" + wb.weibo_content[0]
+        print u"最新/置顶 微博发布时间：" + wb.publish_time[0]
+        print u"最新/置顶 微博获得的点赞数：" + str(wb.up_num[0])
+        print u"最新/置顶 微博获得的转发数：" + str(wb.retweet_num[0])
+        print u"最新/置顶 微博获得的评论数：" + str(wb.comment_num[0])
     except Exception, e:
         print "Error: ", e
         traceback.print_exc()
