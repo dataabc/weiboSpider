@@ -96,13 +96,14 @@ class Weibo:
                 html2 = requests.get(url2, cookies=self.cookie).content
                 selector2 = etree.HTML(html2)
                 info = selector2.xpath("//div[@class='c']")
-                if len(info) > 3:
+                if len(info) > 2:
                     for i in range(0, len(info) - 2):
                         # 微博内容
                         str_t = info[i].xpath("div/span[@class='ctt']")
                         weibo_content = str_t[0].xpath("string(.)").encode(
                             sys.stdout.encoding, "ignore").decode(
                             sys.stdout.encoding)
+                        weibo_content = weibo_content[:-4]
                         self.weibo_content.append(weibo_content)
                         print u"微博内容：" + weibo_content
 
