@@ -96,13 +96,15 @@ class Weibo:
                 html2 = requests.get(url2, cookies=self.cookie).content
                 selector2 = etree.HTML(html2)
                 info = selector2.xpath("//div[@class='c']")
-                if len(info) > 3:
+                is_empty = info[0].xpath("div/span[@class='ctt']")
+                if is_empty:
                     for i in range(0, len(info) - 2):
                         # 微博内容
                         str_t = info[i].xpath("div/span[@class='ctt']")
                         weibo_content = str_t[0].xpath("string(.)").encode(
                             sys.stdout.encoding, "ignore").decode(
                             sys.stdout.encoding)
+                        weibo_content = weibo_content[:-1]
                         self.weibo_content.append(weibo_content)
                         print u"微博内容：" + weibo_content
 
@@ -229,11 +231,12 @@ def main():
         print u"全部微博数：" + str(wb.weibo_num)
         print u"关注数：" + str(wb.following)
         print u"粉丝数：" + str(wb.followers)
-        print u"最新/置顶 微博为：" + wb.weibo_content[0]
-        print u"最新/置顶 微博发布时间：" + wb.publish_time[0]
-        print u"最新/置顶 微博获得的点赞数：" + str(wb.up_num[0])
-        print u"最新/置顶 微博获得的转发数：" + str(wb.retweet_num[0])
-        print u"最新/置顶 微博获得的评论数：" + str(wb.comment_num[0])
+        if wb.weibo_content:
+            print u"最新/置顶 微博为：" + wb.weibo_content[0]
+            print u"最新/置顶 微博发布时间：" + wb.publish_time[0]
+            print u"最新/置顶 微博获得赞数：" + str(wb.up_num[0])
+            print u"最新/置顶 微博获得转发数：" + str(wb.retweet_num[0])
+            print u"最新/置顶 微博获得评论数：" + str(wb.comment_num[0])
     except Exception, e:
         print "Error: ", e
         traceback.print_exc()
