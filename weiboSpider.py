@@ -77,6 +77,20 @@ class Weibo:
             print "Error: ", e
             traceback.print_exc()
 
+    # 获取"长微博"全部文字内容
+    def get_long_weibo(self, weibo_link):
+        try:
+            html = requests.get(weibo_link, cookies=self.cookie).content
+            selector = etree.HTML(html)
+            info = selector.xpath("//div[@class='c']")[1]
+            wb_content = info.xpath("div/span[@class='ctt']")[0].xpath(
+                "string(.)").encode(sys.stdout.encoding, "ignore").decode(
+                sys.stdout.encoding)
+            return wb_content
+        except Exception, e:
+            print "Error: ", e
+            traceback.print_exc()
+
     # 获取用户微博内容及对应的发布时间、点赞数、转发数、评论数
     def get_weibo_info(self):
         try:
@@ -105,6 +119,15 @@ class Weibo:
                             sys.stdout.encoding, "ignore").decode(
                             sys.stdout.encoding)
                         weibo_content = weibo_content[:-1]
+                        weibo_id = info[i].xpath("@id")[0][2:]
+                        a_link = info[i].xpath(
+                            "div/span[@class='ctt']/a/@href")
+                        if a_link:
+                            if a_link[-1] == "/comment/" + weibo_id:
+                                weibo_link = "https://weibo.cn" + a_link[-1]
+                                wb_content = self.get_long_weibo(weibo_link)
+                                if wb_content:
+                                    weibo_content = wb_content
                         self.weibo_content.append(weibo_content)
                         print u"微博内容：" + weibo_content
 
