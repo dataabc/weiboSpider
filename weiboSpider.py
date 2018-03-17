@@ -225,7 +225,8 @@ class Weibo:
             f = open(file_path, "wb")
             f.write(result.encode(sys.stdout.encoding))
             f.close()
-            print u"微博写入文件完毕，保存路径:" + file_path
+            print u"微博写入文件完毕，保存路径:"
+            print file_path
         except Exception, e:
             print "Error: ", e
             traceback.print_exc()
