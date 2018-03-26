@@ -67,14 +67,14 @@ $ python filepath/weibospider.py
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie2.png)
 
 # 如何获取user_id
-1.打开网址<http://weibo.cn>，搜索我们要找的人，如”郭碧婷“，进入她的主页；<br>
-2.大部分情况下，在用户主页的地址栏里就包含了user_id，如”郭碧婷“的地址栏地址为"<http://weibo.cn/u/1729370543?f=search_0>"，其中的"1729370543"就是她的user_id。如图所示：
+1.打开网址<https://weibo.cn>，搜索我们要找的人，如”郭碧婷“，进入她的主页；<br>
+2.大部分情况下，在用户主页的地址栏里就包含了user_id，如”郭碧婷“的地址栏地址为"<https://weibo.cn/u/1729370543?f=search_0>"，其中的"1729370543"就是她的user_id。如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/userid1.png)
-但是部分用户设置了个性域名，他们的地址栏地址就变成了"<http://weibo.cn/个性域名?f=search_0>"的形式，如柳岩主页的地址栏地址为"<http://weibo.cn/guangxianliuyan?f=search_0>"。如图所示：
+但是部分用户设置了个性域名，他们的地址栏地址就变成了"<https://weibo.cn/个性域名?f=search_0>"的形式，如柳岩主页的地址栏地址为"<https://weibo.cn/guangxianliuyan?f=search_0>"。如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/userid2.png)
-事实上，如果仅仅爬取微博，用user_id或个性域名都可以，但是因为本脚本还要爬取用户昵称，而用个性域名表示的网页爬取有一些小问题，需要另外的网页。所以，如果遇到地址栏没有user_id的情况，大家可以点击”资料“，跳转到用户资料页面，如柳岩的资料页面地址为"<http://weibo.cn/1644461042/info>"，其中的"1644461042"即为柳岩微博的user_id。如图所示：
+事实上，如果仅仅爬取微博，用user_id或个性域名都可以，但是因为本脚本还要爬取用户昵称，而用个性域名表示的网页爬取有一些小问题，需要另外的网页。所以，如果遇到地址栏没有user_id的情况，大家可以点击”资料“，跳转到用户资料页面，如柳岩的资料页面地址为"<https://weibo.cn/1644461042/info>"，其中的"1644461042"即为柳岩微博的user_id。如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/userid3.png)
 
 # 注意事项
 1.user_id不能为爬虫微博的user_id。因为要爬微博信息，必须先登录到某个微博账号，此账号我们姑且称为爬虫微博。爬虫微博访问自己的页面和访问其他用户的页面，得到的网页格式不同，所以无法爬取自己的微博信息；<br>
-2.cookie有期限限制，大约两天左右的有效期，超过有效期需重新更新cookie。
+2.cookie有期限限制，大约有几天的有效期，超过有效期需重新更新cookie。
