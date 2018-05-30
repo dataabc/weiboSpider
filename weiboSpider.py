@@ -123,7 +123,8 @@ class Weibo:
                         a_link = info[i].xpath(
                             "div/span[@class='ctt']/a/@href")
                         if a_link:
-                            if a_link[-1] == "/comment/" + weibo_id:
+                            if (a_link[-1] == "/comment/" + weibo_id or
+                                "/comment/" + weibo_id + "?" in a_link[-1]):
                                 weibo_link = "https://weibo.cn" + a_link[-1]
                                 wb_content = self.get_long_weibo(weibo_link)
                                 if wb_content:
