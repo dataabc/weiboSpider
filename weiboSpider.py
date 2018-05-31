@@ -28,6 +28,7 @@ class Weibo:
         self.up_num = []  # 微博对应的点赞数
         self.retweet_num = []  # 微博对应的转发数
         self.comment_num = []  # 微博对应的评论数
+        self.publish_tool = []  # 微博发布工具
 
     # 获取用户昵称
     def get_username(self):
@@ -164,6 +165,14 @@ class Weibo:
                             publish_time = publish_time[:16]
                         self.publish_time.append(publish_time)
                         print u"微博发布时间: " + publish_time
+
+						# 微博发布工具
+                        if len(str_time.split(u'来自')) > 1:
+                            publish_tool = str_time.split(u'来自')[1]
+                        else:
+                            publish_tool = u"无"
+                        self.publish_tool.append(publish_tool)
+                        print u"微博发布工具: " + publish_tool
 						
                         str_footer = info[i].xpath("div")[-1]
                         str_footer = str_footer.xpath("string(.)").encode(
@@ -218,7 +227,8 @@ class Weibo:
                         u"发布时间: " + self.publish_time[i - 1] + "\n" +
                         u"点赞数: " + str(self.up_num[i - 1]) +
                         u"	 转发数: " + str(self.retweet_num[i - 1]) +
-                        u"	 评论数: " + str(self.comment_num[i - 1]) + "\n\n"
+                        u"	 评论数: " + str(self.comment_num[i - 1]) + "\n"
+                        u"发布工具: " + self.publish_tool[i-1] + "\n\n"
                         )
                 result = result + text
             file_dir = os.path.split(os.path.realpath(__file__))[
@@ -251,7 +261,7 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 5982879020  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 1054009064  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
@@ -265,6 +275,7 @@ def main():
             print u"最新/置顶 微博获得赞数: " + str(wb.up_num[0])
             print u"最新/置顶 微博获得转发数: " + str(wb.retweet_num[0])
             print u"最新/置顶 微博获得评论数: " + str(wb.comment_num[0])
+            print u"最新/置顶 微博发布工具: " + wb.publish_tool[0]
     except Exception, e:
         print "Error: ", e
         traceback.print_exc()
