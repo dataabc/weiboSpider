@@ -72,6 +72,7 @@ class Weibo:
             guid = re.findall(pattern, str_fs, re.M)
             self.followers = int(guid[0])
             print u"粉丝数: " + str(self.followers)
+            print "==========================================================================="
 
         except Exception, e:
             print "Error: ", e
@@ -130,7 +131,7 @@ class Weibo:
                                 if wb_content:
                                     weibo_content = wb_content
                         self.weibo_content.append(weibo_content)
-                        print u"微博内容：" + weibo_content
+                        print u"微博内容: " + weibo_content
 
                         # 微博发布时间
                         str_time = info[i].xpath("div/span[@class='ct']")
@@ -161,8 +162,8 @@ class Weibo:
                         else:
                             publish_time = publish_time[:16]
                         self.publish_time.append(publish_time)
-                        print u"微博发布时间：" + publish_time
-
+                        print u"微博发布时间: " + publish_time
+						
                         str_footer = info[i].xpath("div")[-1]
                         str_footer = str_footer.xpath("string(.)").encode(
                             sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
@@ -183,7 +184,8 @@ class Weibo:
                         comment_num = int(guid[2])
                         self.comment_num.append(comment_num)
                         print u"评论数: " + str(comment_num)
-
+                        print "==========================================================================="
+                        
                         self.weibo_num2 += 1
 
             if not self.filter:
@@ -200,22 +202,22 @@ class Weibo:
     def write_txt(self):
         try:
             if self.filter:
-                result_header = u"\n\n原创微博内容：\n"
+                result_header = u"\n\n原创微博内容: \n"
             else:
-                result_header = u"\n\n微博内容：\n"
+                result_header = u"\n\n微博内容: \n"
             result = (u"用户信息\n用户昵称：" + self.username +
-                      u"\n用户id：" + str(self.user_id) +
-                      u"\n微博数：" + str(self.weibo_num) +
-                      u"\n关注数：" + str(self.following) +
-                      u"\n粉丝数：" + str(self.followers) +
+                      u"\n用户id: " + str(self.user_id) +
+                      u"\n微博数: " + str(self.weibo_num) +
+                      u"\n关注数: " + str(self.following) +
+                      u"\n粉丝数: " + str(self.followers) +
                       result_header
                       )
             for i in range(1, self.weibo_num2 + 1):
                 text = (str(i) + ":" + self.weibo_content[i - 1] + "\n" +
-                        u"发布时间：" + self.publish_time[i - 1] + "\n" +
-                        u"点赞数：" + str(self.up_num[i - 1]) +
-                        u"	 转发数：" + str(self.retweet_num[i - 1]) +
-                        u"	 评论数：" + str(self.comment_num[i - 1]) + "\n\n"
+                        u"发布时间: " + self.publish_time[i - 1] + "\n" +
+                        u"点赞数: " + str(self.up_num[i - 1]) +
+                        u"	 转发数: " + str(self.retweet_num[i - 1]) +
+                        u"	 评论数: " + str(self.comment_num[i - 1]) + "\n\n"
                         )
                 result = result + text
             file_dir = os.path.split(os.path.realpath(__file__))[
@@ -252,16 +254,16 @@ def main():
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
-        print u"用户名：" + wb.username
-        print u"全部微博数：" + str(wb.weibo_num)
-        print u"关注数：" + str(wb.following)
-        print u"粉丝数：" + str(wb.followers)
+        print u"用户名: " + wb.username
+        print u"全部微博数: " + str(wb.weibo_num)
+        print u"关注数: " + str(wb.following)
+        print u"粉丝数: " + str(wb.followers)
         if wb.weibo_content:
-            print u"最新/置顶 微博为：" + wb.weibo_content[0]
-            print u"最新/置顶 微博发布时间：" + wb.publish_time[0]
-            print u"最新/置顶 微博获得赞数：" + str(wb.up_num[0])
-            print u"最新/置顶 微博获得转发数：" + str(wb.retweet_num[0])
-            print u"最新/置顶 微博获得评论数：" + str(wb.comment_num[0])
+            print u"最新/置顶 微博为: " + wb.weibo_content[0]
+            print u"最新/置顶 微博发布时间: " + wb.publish_time[0]
+            print u"最新/置顶 微博获得赞数: " + str(wb.up_num[0])
+            print u"最新/置顶 微博获得转发数: " + str(wb.retweet_num[0])
+            print u"最新/置顶 微博获得评论数: " + str(wb.comment_num[0])
     except Exception, e:
         print "Error: ", e
         traceback.print_exc()
