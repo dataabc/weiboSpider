@@ -87,6 +87,7 @@ class Weibo:
             wb_content = info.xpath("div/span[@class='ctt']")[0].xpath(
                 "string(.)").encode(sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
+            wb_content = wb_content[1:]
             return wb_content
         except Exception, e:
             print "Error: ", e
