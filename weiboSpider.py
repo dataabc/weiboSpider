@@ -24,6 +24,7 @@ class Weibo:
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
         self.weibo_content = []  # 微博内容
+        self.weibo_place = []  # 微博位置
         self.publish_time = []  # 微博发布时间
         self.up_num = []  # 微博对应的点赞数
         self.retweet_num = []  # 微博对应的转发数
@@ -127,13 +128,31 @@ class Weibo:
                             "div/span[@class='ctt']/a/@href")
                         if a_link:
                             if (a_link[-1] == "/comment/" + weibo_id or
-                                "/comment/" + weibo_id + "?" in a_link[-1]):
+                                    "/comment/" + weibo_id + "?" in a_link[-1]):
                                 weibo_link = "https://weibo.cn" + a_link[-1]
                                 wb_content = self.get_long_weibo(weibo_link)
                                 if wb_content:
                                     weibo_content = wb_content
                         self.weibo_content.append(weibo_content)
                         print u"微博内容: " + weibo_content
+
+                        # 微博位置
+                        div_first = info[i].xpath("div")[0]
+                        a_list = div_first.xpath("a")
+                        weibo_place = u"无"
+                        for a in a_list:
+                            if ("http://place.weibo.com/imgmap/center" in a.xpath("@href")[0] and
+                                    a.xpath("text()")[0] == u"显示地图"):
+                                weibo_place = div_first.xpath(
+                                    "span[@class='ctt']/a")[-1]
+                                if u"的秒拍视频" in div_first.xpath("span[@class='ctt']/a/text()")[-1]:
+                                    weibo_place = div_first.xpath(
+                                        "span[@class='ctt']/a")[-2]
+                                weibo_place = weibo_place.xpath("string(.)").encode(
+                                    sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+                                break
+                        self.weibo_place.append(weibo_place)
+                        print u"微博位置: " + weibo_place
 
                         # 微博发布时间
                         str_time = info[i].xpath("div/span[@class='ct']")
@@ -166,14 +185,14 @@ class Weibo:
                         self.publish_time.append(publish_time)
                         print u"微博发布时间: " + publish_time
 
-						# 微博发布工具
+                        # 微博发布工具
                         if len(str_time.split(u'来自')) > 1:
                             publish_tool = str_time.split(u'来自')[1]
                         else:
                             publish_tool = u"无"
                         self.publish_tool.append(publish_tool)
                         print u"微博发布工具: " + publish_tool
-						
+
                         str_footer = info[i].xpath("div")[-1]
                         str_footer = str_footer.xpath("string(.)").encode(
                             sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
@@ -195,7 +214,7 @@ class Weibo:
                         self.comment_num.append(comment_num)
                         print u"评论数: " + str(comment_num)
                         print "==========================================================================="
-                        
+
                         self.weibo_num2 += 1
 
             if not self.filter:
@@ -224,11 +243,12 @@ class Weibo:
                       )
             for i in range(1, self.weibo_num2 + 1):
                 text = (str(i) + ":" + self.weibo_content[i - 1] + "\n" +
+                        u"微博位置: " + self.weibo_place[i - 1] + "\n" +
                         u"发布时间: " + self.publish_time[i - 1] + "\n" +
                         u"点赞数: " + str(self.up_num[i - 1]) +
                         u"	 转发数: " + str(self.retweet_num[i - 1]) +
                         u"	 评论数: " + str(self.comment_num[i - 1]) + "\n"
-                        u"发布工具: " + self.publish_tool[i-1] + "\n\n"
+                        u"发布工具: " + self.publish_tool[i - 1] + "\n\n"
                         )
                 result = result + text
             file_dir = os.path.split(os.path.realpath(__file__))[
@@ -271,6 +291,7 @@ def main():
         print u"粉丝数: " + str(wb.followers)
         if wb.weibo_content:
             print u"最新/置顶 微博为: " + wb.weibo_content[0]
+            print u"最新/置顶 微博位置: " + wb.weibo_place[0]
             print u"最新/置顶 微博发布时间: " + wb.publish_time[0]
             print u"最新/置顶 微博获得赞数: " + str(wb.up_num[0])
             print u"最新/置顶 微博获得转发数: " + str(wb.retweet_num[0])
