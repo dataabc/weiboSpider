@@ -89,7 +89,6 @@ class Weibo:
             wb_content = info.xpath("div/span[@class='ctt']")[0].xpath(
                 "string(.)").encode(sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
-            wb_content = wb_content[1:]
             return wb_content
         except Exception, e:
             print "Error: ", e
@@ -140,15 +139,16 @@ class Weibo:
                         weibo_content = weibo_content[:-1]
                         weibo_id = info[i].xpath("@id")[0][2:]
                         a_link = info[i].xpath(
-                            "div/span[@class='ctt']/a/@href")
+                            "div/span[@class='ctt']/a")
+                        is_retweet = info[i].xpath("div/span[@class='cmt']")
                         if a_link:
-                            if (a_link[-1] == "/comment/" + weibo_id or
-                                    "/comment/" + weibo_id + "?" in a_link[-1]):
-                                weibo_link = "https://weibo.cn" + a_link[-1]
+                            if a_link[-1].xpath("text()")[0] == u"全文":
+                                weibo_link = "https://weibo.cn/comment/" + weibo_id
                                 wb_content = self.get_long_weibo(weibo_link)
                                 if wb_content:
+                                    if not is_retweet:
+                                        wb_content = wb_content[1:]
                                     weibo_content = wb_content
-                        is_retweet = info[i].xpath("div/span[@class='cmt']")
                         if is_retweet:
                             weibo_content = self.get_retweet(
                                 is_retweet, info[i], weibo_content)
