@@ -20,10 +20,10 @@ class Weibo:
         self.filter = filter  # 取值范围为0、1，程序默认值为0，代表要爬取用户的全部微博，1代表只爬取用户的原创微博
         self.username = ''  # 用户名，如“Dear-迪丽热巴”
         self.weibo_num = 0  # 用户全部微博数
-        self.weibo_num2 = 0  # 爬取到的微博数
+        self.weibo_num2 = 0	 # 爬取到的微博数
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
-        self.weibo_content = []  # 微博内容
+        self.weibo_content = []	 # 微博内容
         self.weibo_place = []  # 微博位置
         self.publish_time = []  # 微博发布时间
         self.up_num = []  # 微博对应的点赞数
@@ -95,6 +95,21 @@ class Weibo:
             print "Error: ", e
             traceback.print_exc()
 
+    # 获取转发微博信息
+    def get_retweet(self, is_retweet, info, wb_content):
+        try:
+            original_user = is_retweet[0].xpath("a/text()")[0]
+            retweet_reason = info.xpath("div")[-1].xpath("string(.)").encode(
+                sys.stdout.encoding, "ignore").decode(
+                sys.stdout.encoding)
+            retweet_reason = retweet_reason[:retweet_reason.rindex(u"赞")]
+            wb_content = (retweet_reason + "\n" + u"原始用户: " +
+                          original_user + "\n" + u"转发内容: " + wb_content)
+            return wb_content
+        except Exception, e:
+            print "Error: ", e
+            traceback.print_exc()
+
     # 获取用户微博内容及对应的发布时间、点赞数、转发数、评论数
     def get_weibo_info(self):
         try:
@@ -133,8 +148,12 @@ class Weibo:
                                 wb_content = self.get_long_weibo(weibo_link)
                                 if wb_content:
                                     weibo_content = wb_content
+                        is_retweet = info[i].xpath("div/span[@class='cmt']")
+                        if is_retweet:
+                            weibo_content = self.get_retweet(
+                                is_retweet, info[i], weibo_content)
                         self.weibo_content.append(weibo_content)
-                        print u"微博内容: " + weibo_content
+                        print weibo_content
 
                         # 微博位置
                         div_first = info[i].xpath("div")[0]
@@ -247,7 +266,8 @@ class Weibo:
                         u"发布时间: " + self.publish_time[i - 1] + "\n" +
                         u"点赞数: " + str(self.up_num[i - 1]) +
                         u"	 转发数: " + str(self.retweet_num[i - 1]) +
-                        u"	 评论数: " + str(self.comment_num[i - 1]) + "\n"
+                        u"	 评论数: " +
+                        str(self.comment_num[i - 1]) + "\n"
                         u"发布工具: " + self.publish_tool[i - 1] + "\n\n"
                         )
                 result = result + text
@@ -281,9 +301,9 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1054009064  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
-        wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
+        user_id = 1729370543  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        wb = Weibo(user_id, filter)	 # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print u"用户名: " + wb.username
         print u"全部微博数: " + str(wb.weibo_num)
