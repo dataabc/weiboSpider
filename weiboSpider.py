@@ -97,7 +97,12 @@ class Weibo:
     # 获取转发微博信息
     def get_retweet(self, is_retweet, info, wb_content):
         try:
-            original_user = is_retweet[0].xpath("a/text()")[0]
+            original_user = is_retweet[0].xpath("a/text()")
+            if not original_user:
+                wb_content = u"转发微博已被删除"
+                return wb_content
+            else:
+                original_user = original_user[0]
             retweet_reason = info.xpath("div")[-1].xpath("string(.)").encode(
                 sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
@@ -266,8 +271,7 @@ class Weibo:
                         u"发布时间: " + self.publish_time[i - 1] + "\n" +
                         u"点赞数: " + str(self.up_num[i - 1]) +
                         u"	 转发数: " + str(self.retweet_num[i - 1]) +
-                        u"	 评论数: " +
-                        str(self.comment_num[i - 1]) + "\n"
+                        u"	 评论数: " + str(self.comment_num[i - 1]) + "\n" +
                         u"发布工具: " + self.publish_tool[i - 1] + "\n\n"
                         )
                 result = result + text
@@ -301,7 +305,7 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1729370543  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 5053084638  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)	 # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
