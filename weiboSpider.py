@@ -165,7 +165,7 @@ class Weibo:
                         a_list = div_first.xpath("a")
                         weibo_place = u"无"
                         for a in a_list:
-                            if ("http://place.weibo.com/imgmap/center" in a.xpath("@href")[0] and
+                            if ("place.weibo.com" in a.xpath("@href")[0] and
                                     a.xpath("text()")[0] == u"显示地图"):
                                 weibo_place = div_first.xpath(
                                     "span[@class='ctt']/a")[-1]
