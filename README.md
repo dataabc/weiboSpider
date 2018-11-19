@@ -18,7 +18,7 @@
 - 结果文件：保存在当前目录的weibo文件夹里，名字为"user_id.txt"的形式
 
 # 运行环境
-- 开发语言：python2.7
+- 开发语言：python2/python3
 - 系统： Windows/Linux
 
 # 使用说明
