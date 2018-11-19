@@ -39,9 +39,9 @@ class Weibo:
             selector = etree.HTML(html)
             username = selector.xpath("//title/text()")[0]
             self.username = username[:-3]
-            print u"用户名: " + self.username
-        except Exception, e:
-            print "Error: ", e
+            print(u"用户名: " + self.username)
+        except Exception as e:
+            print("Error: ", e)
             traceback.print_exc()
 
     # 获取用户微博数、关注数、粉丝数
@@ -61,23 +61,24 @@ class Weibo:
                 num_wb = int(value)
                 break
             self.weibo_num = num_wb
-            print u"微博数: " + str(self.weibo_num)
+            print(u"微博数: " + str(self.weibo_num))
 
             # 关注数
             str_gz = selector.xpath("//div[@class='tip2']/a/text()")[0]
             guid = re.findall(pattern, str_gz, re.M)
             self.following = int(guid[0])
-            print u"关注数: " + str(self.following)
+            print(u"关注数: " + str(self.following))
 
             # 粉丝数
             str_fs = selector.xpath("//div[@class='tip2']/a/text()")[1]
             guid = re.findall(pattern, str_fs, re.M)
             self.followers = int(guid[0])
-            print u"粉丝数: " + str(self.followers)
-            print "==========================================================================="
+            print(u"粉丝数: " + str(self.followers))
+            print(
+                "===========================================================================")
 
-        except Exception, e:
-            print "Error: ", e
+        except Exception as e:
+            print("Error: ", e)
             traceback.print_exc()
 
     # 获取"长微博"全部文字内容
@@ -90,8 +91,8 @@ class Weibo:
                 "string(.)").encode(sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
             return wb_content
-        except Exception, e:
-            print "Error: ", e
+        except Exception as e:
+            print("Error: ", e)
             traceback.print_exc()
 
     # 获取转发微博信息
@@ -110,8 +111,8 @@ class Weibo:
             wb_content = (retweet_reason + "\n" + u"原始用户: " +
                           original_user + "\n" + u"转发内容: " + wb_content)
             return wb_content
-        except Exception, e:
-            print "Error: ", e
+        except Exception as e:
+            print("Error: ", e)
             traceback.print_exc()
 
     # 获取用户微博内容及对应的发布时间、点赞数、转发数、评论数
@@ -158,7 +159,7 @@ class Weibo:
                             weibo_content = self.get_retweet(
                                 is_retweet, info[i], weibo_content)
                         self.weibo_content.append(weibo_content)
-                        print weibo_content
+                        print(weibo_content)
 
                         # 微博位置
                         div_first = info[i].xpath("div")[0]
@@ -176,7 +177,7 @@ class Weibo:
                                     sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
                                 break
                         self.weibo_place.append(weibo_place)
-                        print u"微博位置: " + weibo_place
+                        print(u"微博位置: " + weibo_place)
 
                         # 微博发布时间
                         str_time = info[i].xpath("div/span[@class='ct']")
@@ -207,7 +208,7 @@ class Weibo:
                         else:
                             publish_time = publish_time[:16]
                         self.publish_time.append(publish_time)
-                        print u"微博发布时间: " + publish_time
+                        print(u"微博发布时间: " + publish_time)
 
                         # 微博发布工具
                         if len(str_time.split(u'来自')) > 1:
@@ -215,7 +216,7 @@ class Weibo:
                         else:
                             publish_tool = u"无"
                         self.publish_tool.append(publish_tool)
-                        print u"微博发布工具: " + publish_tool
+                        print(u"微博发布工具: " + publish_tool)
 
                         str_footer = info[i].xpath("div")[-1]
                         str_footer = str_footer.xpath("string(.)").encode(
@@ -226,29 +227,30 @@ class Weibo:
                         # 点赞数
                         up_num = int(guid[0])
                         self.up_num.append(up_num)
-                        print u"点赞数: " + str(up_num)
+                        print(u"点赞数: " + str(up_num))
 
                         # 转发数
                         retweet_num = int(guid[1])
                         self.retweet_num.append(retweet_num)
-                        print u"转发数: " + str(retweet_num)
+                        print(u"转发数: " + str(retweet_num))
 
                         # 评论数
                         comment_num = int(guid[2])
                         self.comment_num.append(comment_num)
-                        print u"评论数: " + str(comment_num)
-                        print "==========================================================================="
+                        print(u"评论数: " + str(comment_num))
+                        print(
+                            "===========================================================================")
 
                         self.weibo_num2 += 1
 
             if not self.filter:
-                print u"共" + str(self.weibo_num2) + u"条微博"
+                print(u"共" + str(self.weibo_num2) + u"条微博")
             else:
-                print (u"共" + str(self.weibo_num) + u"条微博，其中" +
-                       str(self.weibo_num2) + u"条为原创微博"
-                       )
-        except Exception, e:
-            print "Error: ", e
+                print(u"共" + str(self.weibo_num) + u"条微博，其中" +
+                      str(self.weibo_num2) + u"条为原创微博"
+                      )
+        except Exception as e:
+            print("Error: ", e)
             traceback.print_exc()
 
     # 将爬取的信息写入文件
@@ -283,10 +285,10 @@ class Weibo:
             f = open(file_path, "wb")
             f.write(result.encode(sys.stdout.encoding))
             f.close()
-            print u"微博写入文件完毕，保存路径:"
-            print file_path
-        except Exception, e:
-            print "Error: ", e
+            print(u"微博写入文件完毕，保存路径:")
+            print(file_path)
+        except Exception as e:
+            print("Error: ", e)
             traceback.print_exc()
 
     # 运行爬虫
@@ -296,10 +298,11 @@ class Weibo:
             self.get_user_info()
             self.get_weibo_info()
             self.write_txt()
-            print u"信息抓取完毕"
-            print "==========================================================================="
-        except Exception, e:
-            print "Error: ", e
+            print(u"信息抓取完毕")
+            print(
+                "===========================================================================")
+        except Exception as e:
+            print("Error: ", e)
 
 
 def main():
@@ -309,20 +312,20 @@ def main():
         filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)	 # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
-        print u"用户名: " + wb.username
-        print u"全部微博数: " + str(wb.weibo_num)
-        print u"关注数: " + str(wb.following)
-        print u"粉丝数: " + str(wb.followers)
+        print(u"用户名: " + wb.username)
+        print(u"全部微博数: " + str(wb.weibo_num))
+        print(u"关注数: " + str(wb.following))
+        print(u"粉丝数: " + str(wb.followers))
         if wb.weibo_content:
-            print u"最新/置顶 微博为: " + wb.weibo_content[0]
-            print u"最新/置顶 微博位置: " + wb.weibo_place[0]
-            print u"最新/置顶 微博发布时间: " + wb.publish_time[0]
-            print u"最新/置顶 微博获得赞数: " + str(wb.up_num[0])
-            print u"最新/置顶 微博获得转发数: " + str(wb.retweet_num[0])
-            print u"最新/置顶 微博获得评论数: " + str(wb.comment_num[0])
-            print u"最新/置顶 微博发布工具: " + wb.publish_tool[0]
-    except Exception, e:
-        print "Error: ", e
+            print(u"最新/置顶 微博为: " + wb.weibo_content[0])
+            print(u"最新/置顶 微博位置: " + wb.weibo_place[0])
+            print(u"最新/置顶 微博发布时间: " + wb.publish_time[0])
+            print(u"最新/置顶 微博获得赞数: " + str(wb.up_num[0]))
+            print(u"最新/置顶 微博获得转发数: " + str(wb.retweet_num[0]))
+            print(u"最新/置顶 微博获得评论数: " + str(wb.comment_num[0]))
+            print(u"最新/置顶 微博发布工具: " + wb.publish_tool[0])
+    except Exception as e:
+        print("Error: ", e)
         traceback.print_exc()
 
 
