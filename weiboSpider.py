@@ -88,7 +88,7 @@ class Weibo:
             selector = etree.HTML(html)
             info = selector.xpath("//div[@class='c']")[1]
             wb_content = info.xpath("div/span[@class='ctt']")[0].xpath(
-                "string(.)").encode(sys.stdout.encoding, "ignore").decode(
+                "string(.)").replace(u"\u200b", "").encode(sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
             return wb_content
         except Exception as e:
@@ -104,7 +104,7 @@ class Weibo:
                 return wb_content
             else:
                 original_user = original_user[0]
-            retweet_reason = info.xpath("div")[-1].xpath("string(.)").encode(
+            retweet_reason = info.xpath("div")[-1].xpath("string(.)").replace(u"\u200b", "").encode(
                 sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
             retweet_reason = retweet_reason[:retweet_reason.rindex(u"赞")]
@@ -139,7 +139,7 @@ class Weibo:
                     for i in range(0, len(info) - 2):
                         # 微博内容
                         str_t = info[i].xpath("div/span[@class='ctt']")
-                        weibo_content = str_t[0].xpath("string(.)").encode(
+                        weibo_content = str_t[0].xpath("string(.)").replace(u"\u200b", "").encode(
                             sys.stdout.encoding, "ignore").decode(
                             sys.stdout.encoding)
                         weibo_content = weibo_content[:-1]
