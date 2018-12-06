@@ -168,14 +168,18 @@ class Weibo:
                         for a in a_list:
                             if ("place.weibo.com" in a.xpath("@href")[0] and
                                     a.xpath("text()")[0] == u"显示地图"):
-                                weibo_place = div_first.xpath(
-                                    "span[@class='ctt']/a")[-1]
-                                if u"的秒拍视频" in div_first.xpath("span[@class='ctt']/a/text()")[-1]:
-                                    weibo_place = div_first.xpath(
-                                        "span[@class='ctt']/a")[-2]
-                                weibo_place = weibo_place.xpath("string(.)").encode(
-                                    sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
-                                break
+                                weibo_a = div_first.xpath(
+                                    "span[@class='ctt']/a")
+                                if len(weibo_a) >= 1:
+                                    weibo_place = weibo_a[-1]
+                                    if u"的秒拍视频" in div_first.xpath("span[@class='ctt']/a/text()")[-1]:
+                                        if len(weibo_a) >= 2:
+                                            weibo_place = weibo_a[-2]
+                                        else:
+                                            weibo_place = u"无"
+                                    weibo_place = weibo_place.xpath("string(.)").encode(
+                                        sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+                                    break
                         self.weibo_place.append(weibo_place)
                         print(u"微博位置: " + weibo_place)
 
@@ -308,8 +312,8 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 5053084638  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        user_id = 1476938315  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)	 # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户名: " + wb.username)
