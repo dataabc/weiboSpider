@@ -11,10 +11,12 @@
 - 关注数：用户关注的微博账号数量
 - 粉丝数：用户的粉丝数
 - 微博内容：以list的形式存储了用户所有微博内容
+- 微博位置：以list的形式存储了用户所有微博的发布位置
 - 微博发布时间：以list的形式存储了用户所有微博的发布时间
 - 微博对应的点赞数：以list的形式存储了用户所有微博对应的点赞数
 - 微博对应的转发数：以list的形式存储了用户所有微博对应的转发数
 - 微博对应的评论数：以list的形式存储了用户所有微博对应的评论数
+- 微博发布工具：以list的形式存储了用户所有微博的发布工具,如iPhone客户端、HUAWEI Mate 20 Pro等
 - 结果文件：保存在当前目录的weibo文件夹里，名字为"user_id.txt"的形式
 
 # 运行环境
@@ -22,15 +24,21 @@
 - 系统： Windows/Linux
 
 # 使用说明
-1.下载脚本
+## 1.下载脚本
 ```bash
 $ git clone https://github.com/dataabc/weibospider.git
 ```
-运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；<br>
-2.用文本编辑器打开weibospider文件夹下的"weibospider.py"文件；<br>
-3.将"weibospider.py"文件中的“your cookie”替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；<br>
-4.将"weibospider.py"文件中的user_id替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id；<br>
-5.按需求调用脚本。本脚本是一个Weibo类，用户可以按照自己的需求调用Weibo类。
+运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；
+## 2.设置cookie和user_id
+打开weibospider文件夹下的"**weibospider.py**"文件,将“**your cookie**”替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；将**user_id**替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id;
+## 3.运行脚本
+大家可以根据自己的运行环境选择运行方式,Linux可以通过
+```bash
+$ python weibospider.py
+```
+运行;
+## 4.按需求修改脚本（可选）
+本脚本是一个Weibo类，用户可以按照自己的需求调用Weibo类。
 例如用户可以直接在"weibospider.py"文件中调用Weibo类，具体调用代码示例如下：
 ```python
 user_id = 1669879400
@@ -38,32 +46,26 @@ filter = 1
 wb = Weibo(user_id,filter) #调用Weibo类，创建微博实例wb
 wb.start()  #爬取微博信息
 ```
-user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter默认值为0，表示爬取所有微博信息（转发微博+原创微博），为1表示只爬取用户的所有原创微博；wb是Weibo类的一个实例，也可以是其它名字，只要符合python的命名规范即可；通过执行wb.start() 完成了微博的爬取工作。在上述代码之后，我们可以得到很多信息：<br>
+user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter默认值为0，表示爬取所有微博信息（转发微博+原创微博），为1表示只爬取用户的所有原创微博；wb是Weibo类的一个实例，也可以是其它名字，只要符合python的命名规范即可；通过执行wb.start() 完成了微博的爬取工作。在上述代码执行后，我们可以得到很多信息：<br>
 **wb.username**：用户名；<br>
 **wb.weibo_num**：微博数；<br>
 **wb.following**：关注数；<br>
 **wb.followers**：粉丝数；<br>
-**wb.weibo_content**：存储用户的所有微博，为list形式，若filter=1， wb.weibo_content[0]为最新一条**原创**微博，filter=0为最新一条微博，wb.weibo_content[1]、wb.weibo_content[2]分别表示第二新和第三新的微博，以此类推。当然如果用户没有发过微博，wb.weibo_content则为[]；<br>
+**wb.weibo_content**：存储用户的所有微博，为list形式，若filter=1， wb.weibo_content[0]为最新一条**原创**微博，filter=0为最新一条微博，wb.weibo_content[1]、wb.weibo_content[2]分别表示第二新和第三新的微博，以此类推。当然如果用户没有发过微博，则wb.weibo_content为[]；<br>
+**wb.weibo_place**: 存储微博的发布位置，为list形式，如wb.weibo_place[0]为最新一条微博的发布位置，与wb.weibo_content[0]对应，如果该条微博没有位置信息，则weibo_place内容为无,其它用法同wb.weibo_content；<br>
 **wb.publish_time**: 存储微博的发布时间，为list形式，如wb.publish_time[0]为最新一条微博的发布时间，与wb.weibo_content[0]对应，其它用法同wb.weibo_content；<br>
 **wb.up_num**：存储微博获得的点赞数，为list形式，如wb.up_num[0]为最新一条微博获得的点赞数，与wb.weibo_content[0]对应，其它用法同wb.weibo_content；<br>
 **wb.retweet_num**：存储微博获得的转发数，为list形式，如wb.retweet_num[0]为最新一条微博获得的转发数，与wb.weibo_content[0]对应，其它用法同wb.weibo_content；<br>
 **wb.comment_num**：存储微博获得的评论数，为list形式，如wb.comment_num[0]为最新一条微博获得的评论数，与wb.weibo_content[0]对应，其它用法同wb.weibo_content。<br>
-6.运行脚本。我的运行环境是IPython,通过
-```bash
-$ run filepath/weibospider.py
-```
-即可运行脚本，大家可以根据自己的运行环境选择运行方式；
-Linux可以通过
-```bash
-$ python filepath/weibospider.py
-```
+**wb.publish_tool**：存储微博的发布工具，为list形式，如wb.publish_tool[0]为最新一条微博的发布工具，与wb.weibo_content[0]对应，其它用法同wb.weibo_content。
+
 
 # 如何获取cookie
 1.用Chrome打开<https://passport.weibo.cn/signin/login>；<br>
 2.输入微博的用户名、密码，登录，如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie1.png)
-登录成功后会跳转到<https://m.weibo.cn/>;<br>
-3.按F12键打开Chrome开发者工具,在地址栏输入并跳转到<https://weibo.cn>,跳转后会显示如下类似界面:<br>
+登录成功后会跳转到<https://m.weibo.cn>;<br>
+3.按F12键打开Chrome开发者工具,在地址栏输入并跳转到<https://weibo.cn>,跳转后会显示如下类似界面:
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie2.png)
 4.点击Chrome开发者工具“Name"列表中的"weibo.cn",点击"Headers"，其中"Request Headers"下，"Cookie"后的值即为我们要找的cookie值，复制即可，如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie3.png)
