@@ -60,11 +60,13 @@ $ python filepath/weibospider.py
 
 # 如何获取cookie
 1.用Chrome打开<https://passport.weibo.cn/signin/login>；<br>
-2.按F12键打开Chrome开发者工具；<br>
-3.点开“Network”，将“Preserve log”选中，输入微博的用户名、密码，登录，如图所示：
+2.输入微博的用户名、密码，登录，如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie1.png)
-4.点击Chrome开发者工具“Name"列表中的"m.weibo.cn",点击"Headers"，其中"Request Headers"下，"Cookie"后的值即为我们要找的cookie值，复制即可，如图所示：
+登录成功后会跳转到<https://m.weibo.cn/>;<br>
+3.按F12键打开Chrome开发者工具,在地址栏输入并跳转到<https://weibo.cn>,跳转后会显示如下类似界面:<br>
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie2.png)
+4.点击Chrome开发者工具“Name"列表中的"weibo.cn",点击"Headers"，其中"Request Headers"下，"Cookie"后的值即为我们要找的cookie值，复制即可，如图所示：
+![](https://picture.cognize.me/cognize/github/weibospider/cookie3.png)
 
 # 如何获取user_id
 1.打开网址<https://weibo.cn>，搜索我们要找的人，如”郭碧婷“，进入她的主页；<br>
