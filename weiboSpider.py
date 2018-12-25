@@ -20,10 +20,10 @@ class Weibo:
         self.filter = filter  # 取值范围为0、1，程序默认值为0，代表要爬取用户的全部微博，1代表只爬取用户的原创微博
         self.username = ''  # 用户名，如“Dear-迪丽热巴”
         self.weibo_num = 0  # 用户全部微博数
-        self.weibo_num2 = 0	 # 爬取到的微博数
+        self.weibo_num2 = 0  # 爬取到的微博数
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
-        self.weibo_content = []	 # 微博内容
+        self.weibo_content = []  # 微博内容
         self.weibo_place = []  # 微博位置
         self.publish_time = []  # 微博发布时间
         self.up_num = []  # 微博对应的点赞数
@@ -115,7 +115,110 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取用户微博内容及对应的发布时间、点赞数、转发数、评论数
+    # 获取微博内容
+    def get_weibo_content(self, info):
+        try:
+            str_t = info.xpath("div/span[@class='ctt']")
+            weibo_content = str_t[0].xpath("string(.)").replace(u"\u200b", "").encode(
+                sys.stdout.encoding, "ignore").decode(
+                sys.stdout.encoding)
+            weibo_content = weibo_content[:-1]
+            weibo_id = info.xpath("@id")[0][2:]
+            a_link = info.xpath("div/span[@class='ctt']/a")
+            is_retweet = info.xpath("div/span[@class='cmt']")
+            if a_link:
+                if a_link[-1].xpath("text()")[0] == u"全文":
+                    weibo_link = "https://weibo.cn/comment/" + weibo_id
+                    wb_content = self.get_long_weibo(weibo_link)
+                    if wb_content:
+                        if not is_retweet:
+                            wb_content = wb_content[1:]
+                        weibo_content = wb_content
+            if is_retweet:
+                weibo_content = self.get_retweet(
+                    is_retweet, info, weibo_content)
+            self.weibo_content.append(weibo_content)
+            print(weibo_content)
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    # 获取微博发布位置
+    def get_weibo_place(self, info):
+        try:
+            div_first = info.xpath("div")[0]
+            a_list = div_first.xpath("a")
+            weibo_place = u"无"
+            for a in a_list:
+                if ("place.weibo.com" in a.xpath("@href")[0] and
+                        a.xpath("text()")[0] == u"显示地图"):
+                    weibo_a = div_first.xpath("span[@class='ctt']/a")
+                    if len(weibo_a) >= 1:
+                        weibo_place = weibo_a[-1]
+                        if u"的秒拍视频" in div_first.xpath("span[@class='ctt']/a/text()")[-1]:
+                            if len(weibo_a) >= 2:
+                                weibo_place = weibo_a[-2]
+                            else:
+                                weibo_place = u"无"
+                        weibo_place = weibo_place.xpath("string(.)").encode(
+                            sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+                        break
+            self.weibo_place.append(weibo_place)
+            print(u"微博位置: " + weibo_place)
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    # 获取微博发布时间
+    def get_publish_time(self, info):
+        try:
+            str_time = info.xpath("div/span[@class='ct']")
+            str_time = str_time[0].xpath("string(.)").encode(
+                sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+            publish_time = str_time.split(u'来自')[0]
+            if u"刚刚" in publish_time:
+                publish_time = datetime.now().strftime(
+                    '%Y-%m-%d %H:%M')
+            elif u"分钟" in publish_time:
+                minute = publish_time[:publish_time.find(u"分钟")]
+                minute = timedelta(minutes=int(minute))
+                publish_time = (datetime.now() - minute).strftime(
+                    "%Y-%m-%d %H:%M")
+            elif u"今天" in publish_time:
+                today = datetime.now().strftime("%Y-%m-%d")
+                time = publish_time[3:]
+                publish_time = today + " " + time
+            elif u"月" in publish_time:
+                year = datetime.now().strftime("%Y")
+                month = publish_time[0:2]
+                day = publish_time[3:5]
+                time = publish_time[7:12]
+                publish_time = (year + "-" + month + "-" + day + " " + time)
+            else:
+                publish_time = publish_time[:16]
+            self.publish_time.append(publish_time)
+            print(u"微博发布时间: " + publish_time)
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    # 获取微博发布工具
+    def get_publish_tool(self, info):
+        try:
+            str_time = info.xpath("div/span[@class='ct']")
+            str_time = str_time[0].xpath("string(.)").encode(
+                sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+            if len(str_time.split(u'来自')) > 1:
+                publish_tool = str_time.split(u'来自')[1]
+            else:
+                publish_tool = u"无"
+            self.publish_tool.append(publish_tool)
+            print(u"微博发布工具: " + publish_tool)
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    # 获取用户微博信息
     def get_weibo_info(self):
         try:
             url = "https://weibo.cn/u/%d?filter=%d&page=1" % (
@@ -137,90 +240,18 @@ class Weibo:
                 is_empty = info[0].xpath("div/span[@class='ctt']")
                 if is_empty:
                     for i in range(0, len(info) - 2):
+
                         # 微博内容
-                        str_t = info[i].xpath("div/span[@class='ctt']")
-                        weibo_content = str_t[0].xpath("string(.)").replace(u"\u200b", "").encode(
-                            sys.stdout.encoding, "ignore").decode(
-                            sys.stdout.encoding)
-                        weibo_content = weibo_content[:-1]
-                        weibo_id = info[i].xpath("@id")[0][2:]
-                        a_link = info[i].xpath(
-                            "div/span[@class='ctt']/a")
-                        is_retweet = info[i].xpath("div/span[@class='cmt']")
-                        if a_link:
-                            if a_link[-1].xpath("text()")[0] == u"全文":
-                                weibo_link = "https://weibo.cn/comment/" + weibo_id
-                                wb_content = self.get_long_weibo(weibo_link)
-                                if wb_content:
-                                    if not is_retweet:
-                                        wb_content = wb_content[1:]
-                                    weibo_content = wb_content
-                        if is_retweet:
-                            weibo_content = self.get_retweet(
-                                is_retweet, info[i], weibo_content)
-                        self.weibo_content.append(weibo_content)
-                        print(weibo_content)
+                        self.get_weibo_content(info[i])
 
                         # 微博位置
-                        div_first = info[i].xpath("div")[0]
-                        a_list = div_first.xpath("a")
-                        weibo_place = u"无"
-                        for a in a_list:
-                            if ("place.weibo.com" in a.xpath("@href")[0] and
-                                    a.xpath("text()")[0] == u"显示地图"):
-                                weibo_a = div_first.xpath(
-                                    "span[@class='ctt']/a")
-                                if len(weibo_a) >= 1:
-                                    weibo_place = weibo_a[-1]
-                                    if u"的秒拍视频" in div_first.xpath("span[@class='ctt']/a/text()")[-1]:
-                                        if len(weibo_a) >= 2:
-                                            weibo_place = weibo_a[-2]
-                                        else:
-                                            weibo_place = u"无"
-                                    weibo_place = weibo_place.xpath("string(.)").encode(
-                                        sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
-                                    break
-                        self.weibo_place.append(weibo_place)
-                        print(u"微博位置: " + weibo_place)
+                        self.get_weibo_place(info[i])
 
                         # 微博发布时间
-                        str_time = info[i].xpath("div/span[@class='ct']")
-                        str_time = str_time[0].xpath("string(.)").encode(
-                            sys.stdout.encoding, "ignore").decode(
-                            sys.stdout.encoding)
-                        publish_time = str_time.split(u'来自')[0]
-                        if u"刚刚" in publish_time:
-                            publish_time = datetime.now().strftime(
-                                '%Y-%m-%d %H:%M')
-                        elif u"分钟" in publish_time:
-                            minute = publish_time[:publish_time.find(u"分钟")]
-                            minute = timedelta(minutes=int(minute))
-                            publish_time = (
-                                datetime.now() - minute).strftime(
-                                "%Y-%m-%d %H:%M")
-                        elif u"今天" in publish_time:
-                            today = datetime.now().strftime("%Y-%m-%d")
-                            time = publish_time[3:]
-                            publish_time = today + " " + time
-                        elif u"月" in publish_time:
-                            year = datetime.now().strftime("%Y")
-                            month = publish_time[0:2]
-                            day = publish_time[3:5]
-                            time = publish_time[7:12]
-                            publish_time = (
-                                year + "-" + month + "-" + day + " " + time)
-                        else:
-                            publish_time = publish_time[:16]
-                        self.publish_time.append(publish_time)
-                        print(u"微博发布时间: " + publish_time)
+                        self.get_publish_time(info[i])
 
                         # 微博发布工具
-                        if len(str_time.split(u'来自')) > 1:
-                            publish_tool = str_time.split(u'来自')[1]
-                        else:
-                            publish_tool = u"无"
-                        self.publish_tool.append(publish_tool)
-                        print(u"微博发布工具: " + publish_tool)
+                        self.get_publish_tool(info[i])
 
                         str_footer = info[i].xpath("div")[-1]
                         str_footer = str_footer.xpath("string(.)").encode(
@@ -276,8 +307,8 @@ class Weibo:
                         u"微博位置: " + self.weibo_place[i - 1] + "\n" +
                         u"发布时间: " + self.publish_time[i - 1] + "\n" +
                         u"点赞数: " + str(self.up_num[i - 1]) +
-                        u"	 转发数: " + str(self.retweet_num[i - 1]) +
-                        u"	 评论数: " + str(self.comment_num[i - 1]) + "\n" +
+                        u"   转发数: " + str(self.retweet_num[i - 1]) +
+                        u"   评论数: " + str(self.comment_num[i - 1]) + "\n" +
                         u"发布工具: " + self.publish_tool[i - 1] + "\n\n"
                         )
                 result = result + text
@@ -314,7 +345,7 @@ def main():
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
         user_id = 1476938315  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
-        wb = Weibo(user_id, filter)	 # 调用Weibo类，创建微博实例wb
+        wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户名: " + wb.username)
         print(u"全部微博数: " + str(wb.weibo_num))
