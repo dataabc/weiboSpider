@@ -9,6 +9,7 @@ import traceback
 from datetime import datetime
 from datetime import timedelta
 from lxml import etree
+from tqdm import tqdm
 
 
 class Weibo:
@@ -20,10 +21,10 @@ class Weibo:
         self.filter = filter  # 取值范围为0、1，程序默认值为0，代表要爬取用户的全部微博，1代表只爬取用户的原创微博
         self.username = ''  # 用户名，如“Dear-迪丽热巴”
         self.weibo_num = 0  # 用户全部微博数
-        self.weibo_num2 = 0	 # 爬取到的微博数
+        self.weibo_num2 = 0  # 爬取到的微博数
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
-        self.weibo_content = []	 # 微博内容
+        self.weibo_content = []  # 微博内容
         self.weibo_place = []  # 微博位置
         self.publish_time = []  # 微博发布时间
         self.up_num = []  # 微博对应的点赞数
@@ -230,7 +231,7 @@ class Weibo:
                 page_num = (int)(selector.xpath(
                     "//input[@name='mp']")[0].attrib["value"])
             pattern = r"\d+\.?\d*"
-            for page in range(1, page_num + 1):
+            for page in tqdm(range(1, page_num + 1), desc=u"进度"):
                 url2 = "https://weibo.cn/u/%d?filter=%d&page=%d" % (
                     self.user_id, self.filter, page)
                 html2 = requests.get(url2, cookies=self.cookie).content
@@ -306,8 +307,8 @@ class Weibo:
                         u"微博位置: " + self.weibo_place[i - 1] + "\n" +
                         u"发布时间: " + self.publish_time[i - 1] + "\n" +
                         u"点赞数: " + str(self.up_num[i - 1]) +
-                        u"	 转发数: " + str(self.retweet_num[i - 1]) +
-                        u"	 评论数: " + str(self.comment_num[i - 1]) + "\n" +
+                        u"   转发数: " + str(self.retweet_num[i - 1]) +
+                        u"   评论数: " + str(self.comment_num[i - 1]) + "\n" +
                         u"发布工具: " + self.publish_tool[i - 1] + "\n\n"
                         )
                 result = result + text
@@ -342,9 +343,9 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1476938315  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 5019711860  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
-        wb = Weibo(user_id, filter)	 # 调用Weibo类，创建微博实例wb
+        wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户名: " + wb.username)
         print(u"全部微博数: " + str(wb.weibo_num))
