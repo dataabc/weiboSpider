@@ -48,8 +48,8 @@ class Weibo:
     # 获取用户微博数、关注数、粉丝数
     def get_user_info(self):
         try:
-            url = "https://weibo.cn/u/%d?filter=%d&page=1" % (
-                self.user_id, self.filter)
+            url = "https://weibo.cn/u/%d?page=1" % (
+                self.user_id)
             html = requests.get(url, cookies=self.cookie).content
             selector = etree.HTML(html)
             pattern = r"\d+\.?\d*"
@@ -221,8 +221,8 @@ class Weibo:
     # 获取用户微博信息
     def get_weibo_info(self):
         try:
-            url = "https://weibo.cn/u/%d?filter=%d&page=1" % (
-                self.user_id, self.filter)
+            url = "https://weibo.cn/u/%d?page=1" % (
+                self.user_id)
             html = requests.get(url, cookies=self.cookie).content
             selector = etree.HTML(html)
             if selector.xpath("//input[@name='mp']") == []:
@@ -232,51 +232,52 @@ class Weibo:
                     "//input[@name='mp']")[0].attrib["value"])
             pattern = r"\d+\.?\d*"
             for page in tqdm(range(1, page_num + 1), desc=u"进度"):
-                url2 = "https://weibo.cn/u/%d?filter=%d&page=%d" % (
-                    self.user_id, self.filter, page)
+                url2 = "https://weibo.cn/u/%d?page=%d" % (self.user_id, page)
                 html2 = requests.get(url2, cookies=self.cookie).content
                 selector2 = etree.HTML(html2)
                 info = selector2.xpath("//div[@class='c']")
                 is_empty = info[0].xpath("div/span[@class='ctt']")
                 if is_empty:
                     for i in range(0, len(info) - 2):
+                        is_retweet = info[i].xpath("div/span[@class='cmt']")
+                        if (not self.filter) or (not is_retweet):
 
-                        # 微博内容
-                        self.get_weibo_content(info[i])
+                            # 微博内容
+                            self.get_weibo_content(info[i])
 
-                        # 微博位置
-                        self.get_weibo_place(info[i])
+                            # 微博位置
+                            self.get_weibo_place(info[i])
 
-                        # 微博发布时间
-                        self.get_publish_time(info[i])
+                            # 微博发布时间
+                            self.get_publish_time(info[i])
 
-                        # 微博发布工具
-                        self.get_publish_tool(info[i])
+                            # 微博发布工具
+                            self.get_publish_tool(info[i])
 
-                        str_footer = info[i].xpath("div")[-1]
-                        str_footer = str_footer.xpath("string(.)").encode(
-                            sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
-                        str_footer = str_footer[str_footer.rfind(u'赞'):]
-                        guid = re.findall(pattern, str_footer, re.M)
+                            str_footer = info[i].xpath("div")[-1]
+                            str_footer = str_footer.xpath("string(.)").encode(
+                                sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+                            str_footer = str_footer[str_footer.rfind(u'赞'):]
+                            guid = re.findall(pattern, str_footer, re.M)
 
-                        # 点赞数
-                        up_num = int(guid[0])
-                        self.up_num.append(up_num)
-                        print(u"点赞数: " + str(up_num))
+                            # 点赞数
+                            up_num = int(guid[0])
+                            self.up_num.append(up_num)
+                            print(u"点赞数: " + str(up_num))
 
-                        # 转发数
-                        retweet_num = int(guid[1])
-                        self.retweet_num.append(retweet_num)
-                        print(u"转发数: " + str(retweet_num))
+                            # 转发数
+                            retweet_num = int(guid[1])
+                            self.retweet_num.append(retweet_num)
+                            print(u"转发数: " + str(retweet_num))
 
-                        # 评论数
-                        comment_num = int(guid[2])
-                        self.comment_num.append(comment_num)
-                        print(u"评论数: " + str(comment_num))
-                        print(
-                            "===========================================================================")
+                            # 评论数
+                            comment_num = int(guid[2])
+                            self.comment_num.append(comment_num)
+                            print(u"评论数: " + str(comment_num))
 
-                        self.weibo_num2 += 1
+                            self.weibo_num2 += 1
+                            print(
+                                "===========================================================================")
 
             if not self.filter:
                 print(u"共" + str(self.weibo_num2) + u"条微博")
@@ -343,7 +344,7 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 5019711860  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 1655747731  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
