@@ -127,7 +127,7 @@ class Weibo:
                 sys.stdout.encoding)
             weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
             weibo_id = info.xpath("@id")[0][2:]
-            a_text = info.xpath("//a/text()")
+            a_text = info.xpath("div//a/text()")
             is_retweet = info.xpath("div/span[@class='cmt']")
             if u"全文" in a_text:
                 weibo_link = "https://weibo.cn/comment/" + weibo_id
