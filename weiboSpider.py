@@ -77,12 +77,11 @@ class Weibo:
             print(u"粉丝数: " + str(self.followers))
             print(
                 "===========================================================================")
-
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取"长微博"全部文字内容
+    # 获取"长原创微博"
     def get_long_weibo(self, weibo_link):
         try:
             html = requests.get(weibo_link, cookies=self.cookie).content
@@ -99,15 +98,57 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取转发微博信息
-    def get_retweet(self, is_retweet, info, wb_content):
+    # 获取原创微博
+    def get_original_weibo(self, info):
         try:
-            original_user = is_retweet[0].xpath("a/text()")
+            weibo_content = info.xpath("string(.)").replace(u"\u200b", "").encode(
+                sys.stdout.encoding, "ignore").decode(
+                sys.stdout.encoding)
+            weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
+            a_text = info.xpath("div//a/text()")
+            if u"全文" in a_text:
+                weibo_id = info.xpath("@id")[0][2:]
+                weibo_link = "https://weibo.cn/comment/" + weibo_id
+                wb_content = self.get_long_weibo(weibo_link)
+                if wb_content:
+                    weibo_content = wb_content
+            return weibo_content
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    # 获取"长转发微博"
+    def get_long_retweet(self, weibo_link):
+        try:
+            wb_content = self.get_long_weibo(weibo_link)
+            wb_content = wb_content[:wb_content.rfind(u"原文转发")]
+            return wb_content
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    # 获取转发微博
+    def get_retweet(self, info):
+        try:
+            original_user = info.xpath("div/span[@class='cmt']/a/text()")
             if not original_user:
                 wb_content = u"转发微博已被删除"
                 return wb_content
             else:
                 original_user = original_user[0]
+            wb_content = info.xpath("string(.)").replace(u"\u200b", "").encode(
+                sys.stdout.encoding, "ignore").decode(
+                sys.stdout.encoding)
+            wb_content = wb_content[wb_content.find(
+                ":") + 1:wb_content.rfind(u"赞")]
+            wb_content = wb_content[:wb_content.rfind(u"赞")]
+            a_text = info.xpath("div//a/text()")
+            if u"全文" in a_text:
+                weibo_id = info.xpath("@id")[0][2:]
+                weibo_link = "https://weibo.cn/comment/" + weibo_id
+                wb_content = self.get_long_retweet(weibo_link)
+                if wb_content:
+                    weibo_content = wb_content
             retweet_reason = info.xpath("div")[-1].xpath("string(.)").replace(u"\u200b", "").encode(
                 sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
@@ -122,21 +163,11 @@ class Weibo:
     # 获取微博内容
     def get_weibo_content(self, info):
         try:
-            weibo_content = info.xpath("string(.)").replace(u"\u200b", "").encode(
-                sys.stdout.encoding, "ignore").decode(
-                sys.stdout.encoding)
-            weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
-            weibo_id = info.xpath("@id")[0][2:]
-            a_text = info.xpath("div//a/text()")
             is_retweet = info.xpath("div/span[@class='cmt']")
-            if u"全文" in a_text:
-                weibo_link = "https://weibo.cn/comment/" + weibo_id
-                wb_content = self.get_long_weibo(weibo_link)
-                if wb_content:
-                    weibo_content = wb_content
             if is_retweet:
-                weibo_content = self.get_retweet(
-                    is_retweet, info, weibo_content)
+                weibo_content = self.get_retweet(info)
+            else:
+                weibo_content = self.get_original_weibo(info)
             self.weibo_content.append(weibo_content)
             print(weibo_content)
         except Exception as e:
@@ -344,8 +375,8 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 3937348351  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        user_id = 2992050891  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户名: " + wb.username)
