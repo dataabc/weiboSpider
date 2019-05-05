@@ -23,7 +23,7 @@ from tqdm import tqdm
 class Weibo:
     cookie = {
         "Cookie":
-        "Your Cookie Here"
+        "Your Cookies Here"
     }  # 将your cookie替换成自己的cookie
 
     # Weibo类初始化
@@ -457,11 +457,11 @@ class Weibo:
     # 运行爬虫
     def start(self):
         try:
-            '''self.get_username()
+            self.get_username()
             self.get_user_info()
             self.get_weibo_info()
-            self.write_txt()'''
-            self.get_weibo_pic()
+            self.write_txt()
+            #self.get_weibo_pic()
             print(u"信息抓取完毕")
             print(
                 "==========================================================================="
@@ -473,7 +473,7 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 0000000000000  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 00000000000000  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
