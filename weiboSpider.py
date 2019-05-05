@@ -461,7 +461,7 @@ class Weibo:
             self.get_user_info()
             self.get_weibo_info()
             self.write_txt()
-            #self.get_weibo_pic()
+            self.get_weibo_pic()
             print(u"信息抓取完毕")
             print(
                 "==========================================================================="
