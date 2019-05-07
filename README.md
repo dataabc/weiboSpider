@@ -90,3 +90,7 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter
 2. 建立微博和对应评论的关系
 3. 评论存储效率的优化
 4. 某些情况下微博位置无法被正确捕捉
+
+---
+爬取图片功能默认关闭，
+如需开启则在weiboSpider.py的第496行取消掉`#self.get_weibo_pic()`的注释改为`self.get_weibo_pic()`
