@@ -344,7 +344,7 @@ class Weibo:
                     comment_selector  = etree.HTML(comment_html)
                     # comment_list = comment_selector.xpath('//span[@class="ctt"]') 
                     # 这里是微博正文和评论一起爬取 但其关联性有待优化 TODO
-                    comment_list = comment_selector.xpath('//div[@class="c"]/span[@class="ctt"]/text()') #只爬取评论内容
+                    comment_list = comment_selector.xpath('//div[@class="c"]/span[@class="ctt"]') #只爬取评论内容
                     cmt_list = []
                     for item in comment_list:
                         try:
