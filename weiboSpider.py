@@ -15,15 +15,15 @@ from tqdm import tqdm
 
 # 优化了get_user_info() 获取用户微博数、关注数、粉丝数的 方法
 
-# ToD01ist 修复某些情况下微博位置不正确存储
-# ToD01ist mySQL存储--微博和配图建立对应关系
-# ToD01ist 微博和对应评论的关系
-# ToD01ist 图片打印完毕时退出程序接口有问题 要重做。
+# TODO 修复某些情况下微博位置不正确存储 05/07 BUG原因未排清
+# TODO mySQL存储--微博和配图建立对应关系
+# TODO 微博和对应评论的关系
+# TODO 评论存储方式优化
 
 class Weibo:
     cookie = {
         "Cookie":
-        "Your Cookies Here"
+        'Your cookie here'
     }  # 将your cookie替换成自己的cookie
 
     # Weibo类初始化
@@ -43,7 +43,7 @@ class Weibo:
         self.comment_num = []  # 微博对应的评论数
         self.comment = []  # 爬取该微博下的评论
         self.publish_tool = []  # 微博发布工具
-        self.pic = []  # 微博的配图
+        self.page = 0  #用户的微博页数 通过微博数来计算
 
     # 获取用户昵称
     def get_username(self):
@@ -71,6 +71,7 @@ class Weibo:
             value = int(str_wb[3:-1])
             num_wb = int(value)
             self.weibo_num = num_wb
+            self.page = (self.weibo_num + 10 - 1) // 10
             print(u"微博数: " + str(self.weibo_num))
 
             # 关注数
@@ -328,10 +329,20 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取微博的评论内容
+    # 获取微博的评论内容 暂时只爬取第一页评论
     def get_weibo_comment(self):
         try:
-            pass
+            for cnt in range(1, self.page + 1):
+                root = 'https://weibo.cn/u/'+str(self.user_id)+'?page='
+                url = root + str(cnt)
+                html = requests.get(url, cookies=self.cookie).content
+                selector = etree.HTML(html)
+                urlList = selector.xpath('//div[@class="c"]/div/a[@class="cc"]/@href')
+                for comment_url in urlList:
+                    comment_html = requests.get(comment_url,cookies=self.cookie).content
+                    comment_selector  = etree.HTML(comment_html)
+                    comment_list = comment_selector.xpath('//div[@class="c"]/span[@class="ctt"]/text()')
+                    self.comment.extend(comment_list)
         except Exception as e:
             print("Error:", e)
             traceback.print_exc()
@@ -445,8 +456,13 @@ class Weibo:
             if not os.path.isdir(file_dir):
                 os.mkdir(file_dir)
             file_path = file_dir + os.sep + "%d" % self.user_id + ".txt"
+            comment_path = file_dir + os.sep + "%d" % self.user_id + "_comment.txt"
             f = open(file_path, "wb")
             f.write(result.encode(sys.stdout.encoding))
+            for cmts in self.comment:
+                with open(comment_path,"a+") as f2:
+                    f2.write(cmts)
+                    f2.write("\n")
             f.close()
             print(u"微博写入文件完毕，保存路径:")
             print(file_path)
@@ -460,6 +476,7 @@ class Weibo:
             self.get_username()
             self.get_user_info()
             self.get_weibo_info()
+            self.get_weibo_comment()
             self.write_txt()
             self.get_weibo_pic()
             print(u"信息抓取完毕")
@@ -473,7 +490,7 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 00000000000000  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 0000000000000  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
