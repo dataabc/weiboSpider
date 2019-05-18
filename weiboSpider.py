@@ -32,12 +32,32 @@ class Weibo:
         self.comment_num = []  # 微博对应的评论数
         self.publish_tool = []  # 微博发布工具
 
+    # 处理html
+    def deal_html(self, url):
+        try:
+            html = requests.get(url, cookies=self.cookie).content
+            selector = etree.HTML(html)
+            return selector
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    # 处理乱码
+    def deal_garbled(self, info):
+        try:
+            info = info.xpath(
+                "string(.)").replace(u"\u200b", "").encode(sys.stdout.encoding, "ignore").decode(
+                sys.stdout.encoding)
+            return info
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
     # 获取用户昵称
     def get_username(self):
         try:
             url = "https://weibo.cn/%d/info" % (self.user_id)
-            html = requests.get(url, cookies=self.cookie).content
-            selector = etree.HTML(html)
+            selector = self.deal_html(url)
             username = selector.xpath("//title/text()")[0]
             self.username = username[:-3]
             print(u"用户名: " + self.username)
@@ -48,10 +68,8 @@ class Weibo:
     # 获取用户微博数、关注数、粉丝数
     def get_user_info(self):
         try:
-            url = "https://weibo.cn/u/%d?page=1" % (
-                self.user_id)
-            html = requests.get(url, cookies=self.cookie).content
-            selector = etree.HTML(html)
+            url = "https://weibo.cn/u/%d?page=1" % (self.user_id)
+            selector = self.deal_html(url)
             pattern = r"\d+\.?\d*"
 
             # 微博数
@@ -84,12 +102,9 @@ class Weibo:
     # 获取"长原创微博"
     def get_long_weibo(self, weibo_link):
         try:
-            html = requests.get(weibo_link, cookies=self.cookie).content
-            selector = etree.HTML(html)
+            selector = self.deal_html(weibo_link)
             info = selector.xpath("//div[@class='c']")[1]
-            wb_content = info.xpath(
-                "string(.)").replace(u"\u200b", "").encode(sys.stdout.encoding, "ignore").decode(
-                sys.stdout.encoding)
+            wb_content = self.deal_garbled(info)
             wb_time = info.xpath("//span[@class='ct']/text()")[0]
             wb_content = wb_content[wb_content.find(
                 ":") + 1:wb_content.rfind(wb_time)]
@@ -101,9 +116,7 @@ class Weibo:
     # 获取原创微博
     def get_original_weibo(self, info):
         try:
-            weibo_content = info.xpath("string(.)").replace(u"\u200b", "").encode(
-                sys.stdout.encoding, "ignore").decode(
-                sys.stdout.encoding)
+            weibo_content = self.deal_garbled(info)
             weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
             a_text = info.xpath("div//a/text()")
             if u"全文" in a_text:
@@ -136,9 +149,7 @@ class Weibo:
                 return wb_content
             else:
                 original_user = original_user[0]
-            wb_content = info.xpath("string(.)").replace(u"\u200b", "").encode(
-                sys.stdout.encoding, "ignore").decode(
-                sys.stdout.encoding)
+            wb_content = self.deal_garbled(info)
             wb_content = wb_content[wb_content.find(
                 ":") + 1:wb_content.rfind(u"赞")]
             wb_content = wb_content[:wb_content.rfind(u"赞")]
@@ -149,9 +160,7 @@ class Weibo:
                 wb_content = self.get_long_retweet(weibo_link)
                 if wb_content:
                     weibo_content = wb_content
-            retweet_reason = info.xpath("div")[-1].xpath("string(.)").replace(u"\u200b", "").encode(
-                sys.stdout.encoding, "ignore").decode(
-                sys.stdout.encoding)
+            retweet_reason = self.deal_garbled(info.xpath("div")[-1])
             retweet_reason = retweet_reason[:retweet_reason.rindex(u"赞")]
             wb_content = (retweet_reason + "\n" + u"原始用户: " +
                           original_user + "\n" + u"转发内容: " + wb_content)
@@ -191,8 +200,7 @@ class Weibo:
                                 weibo_place = weibo_a[-2]
                             else:
                                 weibo_place = u"无"
-                        weibo_place = weibo_place.xpath("string(.)").encode(
-                            sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+                        weibo_place = self.deal_garbled(weibo_place)
                         break
             self.weibo_place.append(weibo_place)
             print(u"微博位置: " + weibo_place)
@@ -204,8 +212,7 @@ class Weibo:
     def get_publish_time(self, info):
         try:
             str_time = info.xpath("div/span[@class='ct']")
-            str_time = str_time[0].xpath("string(.)").encode(
-                sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+            str_time = self.deal_garbled(str_time[0])
             publish_time = str_time.split(u'来自')[0]
             if u"刚刚" in publish_time:
                 publish_time = datetime.now().strftime(
@@ -237,8 +244,7 @@ class Weibo:
     def get_publish_tool(self, info):
         try:
             str_time = info.xpath("div/span[@class='ct']")
-            str_time = str_time[0].xpath("string(.)").encode(
-                sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+            str_time = self.deal_garbled(str_time[0])
             if len(str_time.split(u'来自')) > 1:
                 publish_tool = str_time.split(u'来自')[1]
             else:
@@ -252,10 +258,8 @@ class Weibo:
     # 获取用户微博信息
     def get_weibo_info(self):
         try:
-            url = "https://weibo.cn/u/%d?page=1" % (
-                self.user_id)
-            html = requests.get(url, cookies=self.cookie).content
-            selector = etree.HTML(html)
+            url = "https://weibo.cn/u/%d?page=1" % (self.user_id)
+            selector = self.deal_html(url)
             if selector.xpath("//input[@name='mp']") == []:
                 page_num = 1
             else:
@@ -264,8 +268,7 @@ class Weibo:
             pattern = r"\d+\.?\d*"
             for page in tqdm(range(1, page_num + 1), desc=u"进度"):
                 url2 = "https://weibo.cn/u/%d?page=%d" % (self.user_id, page)
-                html2 = requests.get(url2, cookies=self.cookie).content
-                selector2 = etree.HTML(html2)
+                selector2 = self.deal_html(url2)
                 info = selector2.xpath("//div[@class='c']")
                 is_empty = info[0].xpath("div/span[@class='ctt']")
                 if is_empty:
@@ -286,8 +289,7 @@ class Weibo:
                             self.get_publish_tool(info[i])
 
                             str_footer = info[i].xpath("div")[-1]
-                            str_footer = str_footer.xpath("string(.)").encode(
-                                sys.stdout.encoding, "ignore").decode(sys.stdout.encoding)
+                            str_footer = self.deal_garbled(str_footer)
                             str_footer = str_footer[str_footer.rfind(u'赞'):]
                             guid = re.findall(pattern, str_footer, re.M)
 
@@ -375,8 +377,8 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 2992050891  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        user_id = 1711243680  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户名: " + wb.username)
