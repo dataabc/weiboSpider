@@ -15,8 +15,8 @@ from tqdm import tqdm
 class Weibo:
     cookie = {"Cookie": "your cookie"}  # 将your cookie替换成自己的cookie
 
-    # Weibo类初始化
     def __init__(self, user_id, filter=0):
+        """Weibo类初始化"""
         self.user_id = user_id  # 用户id，即需要我们输入的数字，如昵称为“Dear-迪丽热巴”的id为1669879400
         self.filter = filter  # 取值范围为0、1，程序默认值为0，代表要爬取用户的全部微博，1代表只爬取用户的原创微博
         self.username = ''  # 用户名，如“Dear-迪丽热巴”
@@ -32,8 +32,8 @@ class Weibo:
         self.comment_num = []  # 微博对应的评论数
         self.publish_tool = []  # 微博发布工具
 
-    # 处理html
     def deal_html(self, url):
+        """处理html"""
         try:
             html = requests.get(url, cookies=self.cookie).content
             selector = etree.HTML(html)
@@ -42,8 +42,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 处理乱码
     def deal_garbled(self, info):
+        """处理乱码"""
         try:
             info = info.xpath(
                 "string(.)").replace(u"\u200b", "").encode(sys.stdout.encoding, "ignore").decode(
@@ -53,8 +53,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取用户昵称
     def get_username(self):
+        """获取用户昵称"""
         try:
             url = "https://weibo.cn/%d/info" % (self.user_id)
             selector = self.deal_html(url)
@@ -65,8 +65,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取用户微博数、关注数、粉丝数
     def get_user_info(self):
+        """获取用户微博数、关注数、粉丝数"""
         try:
             url = "https://weibo.cn/u/%d?page=1" % (self.user_id)
             selector = self.deal_html(url)
@@ -99,8 +99,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取"长原创微博"
     def get_long_weibo(self, weibo_link):
+        """获取长原创微博"""
         try:
             selector = self.deal_html(weibo_link)
             info = selector.xpath("//div[@class='c']")[1]
@@ -113,8 +113,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取原创微博
     def get_original_weibo(self, info):
+        """获取原创微博"""
         try:
             weibo_content = self.deal_garbled(info)
             weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
@@ -130,8 +130,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取"长转发微博"
     def get_long_retweet(self, weibo_link):
+        """获取长转发微博"""
         try:
             wb_content = self.get_long_weibo(weibo_link)
             wb_content = wb_content[:wb_content.rfind(u"原文转发")]
@@ -140,8 +140,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取转发微博
     def get_retweet(self, info):
+        """获取转发微博"""
         try:
             original_user = info.xpath("div/span[@class='cmt']/a/text()")
             if not original_user:
@@ -169,8 +169,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取微博内容
     def get_weibo_content(self, info):
+        """获取微博内容"""
         try:
             is_retweet = info.xpath("div/span[@class='cmt']")
             if is_retweet:
@@ -183,8 +183,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取微博发布位置
     def get_weibo_place(self, info):
+        """获取微博发布位置"""
         try:
             div_first = info.xpath("div")[0]
             a_list = div_first.xpath("a")
@@ -208,8 +208,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取微博发布时间
     def get_publish_time(self, info):
+        """获取微博发布时间"""
         try:
             str_time = info.xpath("div/span[@class='ct']")
             str_time = self.deal_garbled(str_time[0])
@@ -240,8 +240,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取微博发布工具
     def get_publish_tool(self, info):
+        """获取微博发布工具"""
         try:
             str_time = info.xpath("div/span[@class='ct']")
             str_time = self.deal_garbled(str_time[0])
@@ -255,8 +255,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 获取用户微博信息
     def get_weibo_info(self):
+        """获取用户微博信息"""
         try:
             url = "https://weibo.cn/u/%d?page=1" % (self.user_id)
             selector = self.deal_html(url)
@@ -322,8 +322,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 将爬取的信息写入文件
     def write_txt(self):
+        """将爬取的信息写入文件"""
         try:
             if self.filter:
                 result_header = u"\n\n原创微博内容: \n"
@@ -362,8 +362,8 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    # 运行爬虫
     def start(self):
+        """运行爬虫"""
         try:
             self.get_username()
             self.get_user_info()
