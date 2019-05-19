@@ -329,23 +329,25 @@ class Weibo:
                 result_header = u"\n\n原创微博内容: \n"
             else:
                 result_header = u"\n\n微博内容: \n"
-            result = (u"用户信息\n用户昵称：" + self.username +
-                      u"\n用户id: " + str(self.user_id) +
-                      u"\n微博数: " + str(self.weibo_num) +
-                      u"\n关注数: " + str(self.following) +
-                      u"\n粉丝数: " + str(self.followers) +
-                      result_header
-                      )
+            temp_result = []
+            temp_result.append(u"用户信息\n用户昵称：" + self.username +
+                               u"\n用户id: " + str(self.user_id) +
+                               u"\n微博数: " + str(self.weibo_num) +
+                               u"\n关注数: " + str(self.following) +
+                               u"\n粉丝数: " + str(self.followers) +
+                               result_header
+                               )
             for i in range(1, self.weibo_num2 + 1):
-                text = (str(i) + ":" + self.weibo_content[i - 1] + "\n" +
-                        u"微博位置: " + self.weibo_place[i - 1] + "\n" +
-                        u"发布时间: " + self.publish_time[i - 1] + "\n" +
-                        u"点赞数: " + str(self.up_num[i - 1]) +
-                        u"   转发数: " + str(self.retweet_num[i - 1]) +
-                        u"   评论数: " + str(self.comment_num[i - 1]) + "\n" +
-                        u"发布工具: " + self.publish_tool[i - 1] + "\n\n"
-                        )
-                result = result + text
+                temp_result.append(str(i) + ":" + self.weibo_content[i - 1] + "\n" +
+                                   u"微博位置: " + self.weibo_place[i - 1] + "\n" +
+                                   u"发布时间: " + self.publish_time[i - 1] + "\n" +
+                                   u"点赞数: " + str(self.up_num[i - 1]) +
+                                   u"   转发数: " + str(self.retweet_num[i - 1]) +
+                                   u"   评论数: " + str(self.comment_num[i - 1]) + "\n" +
+                                   u"发布工具: " +
+                                   self.publish_tool[i - 1] + "\n\n"
+                                   )
+            result = ''.join(temp_result)
             file_dir = os.path.split(os.path.realpath(__file__))[
                 0] + os.sep + "weibo"
             if not os.path.isdir(file_dir):
