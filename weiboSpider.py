@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+import codecs
+import csv
 import os
 import re
 import requests
@@ -322,8 +324,21 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
+    def get_filepath(self, type):
+        """获取结果文件路径"""
+        try:
+            file_dir = os.path.split(os.path.realpath(__file__))[
+                0] + os.sep + "weibo"
+            if not os.path.isdir(file_dir):
+                os.mkdir(file_dir)
+            file_path = file_dir + os.sep + "%d" % self.user_id + "." + type
+            return file_path
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
     def write_txt(self):
-        """将爬取的信息写入文件"""
+        """将爬取的信息写入txt文件"""
         try:
             if self.filter:
                 result_header = u"\n\n原创微博内容: \n"
@@ -348,16 +363,36 @@ class Weibo:
                                    self.publish_tool[i - 1] + "\n\n"
                                    )
             result = ''.join(temp_result)
-            file_dir = os.path.split(os.path.realpath(__file__))[
-                0] + os.sep + "weibo"
-            if not os.path.isdir(file_dir):
-                os.mkdir(file_dir)
-            file_path = file_dir + os.sep + "%d" % self.user_id + ".txt"
-            f = open(file_path, "wb")
-            f.write(result.encode(sys.stdout.encoding))
-            f.close()
-            print(u"微博写入文件完毕，保存路径:")
-            print(file_path)
+            with open(self.get_filepath("txt"), "wb") as f:
+                f.write(result.encode(sys.stdout.encoding))
+            print(u"微博写入txt文件完毕，保存路径:")
+            print(self.get_filepath("txt"))
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    def write_csv(self):
+        """将爬取的信息写入csv文件"""
+        try:
+            result_headers = ["微博正文", "发布位置",
+                              "发布时间", "发布工具", "点赞数", "转发数", "评论数"]
+            result_data = zip(self.weibo_content, self.weibo_place, self.publish_time,
+                              self.publish_tool, self.up_num, self.retweet_num, self.comment_num)
+            if sys.version < '3':   # python2.x
+                reload(sys)
+                sys.setdefaultencoding('utf-8')
+                with open(self.get_filepath("csv"), "wb") as f:
+                    f.write(codecs.BOM_UTF8)
+                    writer = csv.writer(f)
+                    writer.writerows([result_headers])
+                    writer.writerows(result_data)
+            else:   # python3.x
+                with open(self.get_filepath("csv"), "w", encoding="utf-8-sig", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerows([result_headers])
+                    writer.writerows(result_data)
+            print(u"微博写入csv文件完毕，保存路径:")
+            print(self.get_filepath("csv"))
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -369,11 +404,13 @@ class Weibo:
             self.get_user_info()
             self.get_weibo_info()
             self.write_txt()
+            self.write_csv()
             print(u"信息抓取完毕")
             print(
                 "===========================================================================")
         except Exception as e:
             print("Error: ", e)
+            traceback.print_exc()
 
 
 def main():
