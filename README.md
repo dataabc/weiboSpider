@@ -5,7 +5,7 @@ csv文件结果如下所示:
 ![](https://picture.cognize.me/cognize/github/weibospider/weibo_csv.png)*1669879400.csv*
 
 txt文件结果如下所示：
-![](https://picture.cognize.me/cognize/github/weibospider/weibotxt.png)*1669879400.txt*
+![](https://picture.cognize.me/cognize/github/weibospider/weibo_txt.png)*1669879400.txt*
 
 # 输入
 用户id，例如新浪微博昵称为“Dear-迪丽热巴”的id为“1669879400”
