@@ -1,6 +1,11 @@
 # 功能
-爬取新浪微博信息：爬取微博信息，并写入文件，文件结果如图所示：
-![](https://picture.cognize.me/cognize/github/weibospider/weibotxt.png)
+爬取新浪微博信息，并写入csv/txt文件，文件名为目标用户id加".csv"或".txt"的形式。<br>
+<br>
+csv文件结果如下所示:
+![](https://picture.cognize.me/cognize/github/weibospider/weibo_csv.png)*1669879400.csv*
+
+txt文件结果如下所示：
+![](https://picture.cognize.me/cognize/github/weibospider/weibotxt.png)*1669879400.txt*
 
 # 输入
 用户id，例如新浪微博昵称为“Dear-迪丽热巴”的id为“1669879400”
@@ -17,7 +22,7 @@
 - 微博对应的转发数：以list的形式存储了用户所有微博对应的转发数
 - 微博对应的评论数：以list的形式存储了用户所有微博对应的评论数
 - 微博发布工具：以list的形式存储了用户所有微博的发布工具,如iPhone客户端、HUAWEI Mate 20 Pro等
-- 结果文件：保存在当前目录的weibo文件夹里，名字为"user_id.txt"的形式
+- 结果文件：保存在当前目录的weibo文件夹里，名字为"user_id.csv"和"user_id.txt"的形式
 
 # 运行环境
 - 开发语言：python2/python3
