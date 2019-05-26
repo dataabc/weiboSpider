@@ -70,30 +70,20 @@ class Weibo:
     def get_user_info(self):
         """获取用户微博数、关注数、粉丝数"""
         try:
-            url = "https://weibo.cn/u/%d?page=1" % (self.user_id)
+            url = "https://weibo.cn/u/%d" % (self.user_id)
             selector = self.deal_html(url)
-            pattern = r"\d+\.?\d*"
+            weibo_footer = selector.xpath("//div[@class='tip2']/*/text()")
 
             # 微博数
-            str_wb = selector.xpath(
-                "//div[@class='tip2']/span[@class='tc']/text()")[0]
-            guid = re.findall(pattern, str_wb, re.S | re.M)
-            for value in guid:
-                num_wb = int(value)
-                break
-            self.weibo_num = num_wb
+            self.weibo_num = int(weibo_footer[0][3:-1])
             print(u"微博数: " + str(self.weibo_num))
 
             # 关注数
-            str_gz = selector.xpath("//div[@class='tip2']/a/text()")[0]
-            guid = re.findall(pattern, str_gz, re.M)
-            self.following = int(guid[0])
+            self.following = int(weibo_footer[1][3:-1])
             print(u"关注数: " + str(self.following))
 
             # 粉丝数
-            str_fs = selector.xpath("//div[@class='tip2']/a/text()")[1]
-            guid = re.findall(pattern, str_fs, re.M)
-            self.followers = int(guid[0])
+            self.followers = int(weibo_footer[2][3:-1])
             print(u"粉丝数: " + str(self.followers))
             print(
                 "===========================================================================")
@@ -416,7 +406,7 @@ class Weibo:
 def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1711243680  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
