@@ -195,7 +195,7 @@ class Weibo:
                     weibo_a = div_first.xpath("span[@class='ctt']/a")
                     if len(weibo_a) >= 1:
                         weibo_place = weibo_a[-1]
-                        if u"的秒拍视频" in div_first.xpath("span[@class='ctt']/a/text()")[-1]:
+                        if u"视频" == div_first.xpath("span[@class='ctt']/a/text()")[-1][-2:]:
                             if len(weibo_a) >= 2:
                                 weibo_place = weibo_a[-2]
                             else:
