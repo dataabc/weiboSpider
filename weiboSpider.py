@@ -4,6 +4,7 @@
 import codecs
 import csv
 import os
+import random
 import re
 import requests
 import sys
@@ -11,6 +12,7 @@ import traceback
 from datetime import datetime
 from datetime import timedelta
 from lxml import etree
+from time import sleep
 from tqdm import tqdm
 
 
@@ -308,8 +310,19 @@ class Weibo:
             selector = self.deal_html(url)
             self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
             page_num = self.get_page_num(selector)  # 获取微博总页数
+            page1 = 0
+            random_pages = random.randint(1, 5)
             for page in tqdm(range(1, page_num + 1), desc=u"进度"):
                 self.get_one_page(page)  # 获取第page页的全部微博
+
+                # 通过加入随机等待避免被限制。爬虫速度过快容易被系统限制(一段时间后限
+                # 制会自动解除)，加入随机等待模拟人的操作，可降低被系统限制的风险。默
+                # 认是每爬取1到5页随机等待6到10秒，如果仍然被限，可适当增加sleep时间
+                if page - page1 == random_pages:
+                    sleep(random.randint(6, 10))
+                    page1 = page
+                    random_pages = random.randint(1, 5)
+
             if not self.filter:
                 print(u"共爬取" + str(self.got_num) + u"条微博")
             else:
