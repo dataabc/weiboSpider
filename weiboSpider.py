@@ -64,6 +64,8 @@ class Weibo:
             selector = self.deal_html(url)
             nickname = selector.xpath("//title/text()")[0]
             self.nickname = nickname[:-3]
+            if self.nickname == u"登录 - 新":
+                sys.exit(u"cookie错误或已过期,请按照README中方法重新获取")
             print(u"用户昵称: " + self.nickname)
         except Exception as e:
             print("Error: ", e)
