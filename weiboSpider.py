@@ -161,9 +161,9 @@ class Weibo:
             if u"全文" in a_text:
                 weibo_id = info.xpath("@id")[0][2:]
                 weibo_link = "https://weibo.cn/comment/" + weibo_id
-                wb_content = self.get_long_retweet(weibo_link)
-                if wb_content:
-                    weibo_content = wb_content
+                weibo_content = self.get_long_retweet(weibo_link)
+                if weibo_content:
+                    wb_content = weibo_content
             retweet_reason = self.deal_garbled(info.xpath("div")[-1])
             retweet_reason = retweet_reason[:retweet_reason.rindex(u"赞")]
             wb_content = (retweet_reason + "\n" + u"原始用户: " +
@@ -423,7 +423,7 @@ def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
         user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户昵称: " + wb.nickname)
