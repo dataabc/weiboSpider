@@ -6,13 +6,13 @@ import csv
 import os
 import random
 import re
-import requests
 import sys
 import traceback
-from datetime import datetime
-from datetime import timedelta
-from lxml import etree
+from datetime import datetime, timedelta
 from time import sleep
+
+import requests
+from lxml import etree
 from tqdm import tqdm
 
 
