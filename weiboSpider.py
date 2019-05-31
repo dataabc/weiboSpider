@@ -23,11 +23,12 @@ class Weibo:
         """Weibo类初始化"""
         self.user_id = user_id  # 用户id，即需要我们输入的数字，如昵称为“Dear-迪丽热巴”的id为1669879400
         self.filter = filter  # 取值范围为0、1，程序默认值为0，代表要爬取用户的全部微博，1代表只爬取用户的原创微博
-        self.nickname = ''  # 用户昵称，如“Dear-迪丽热巴”
+        self.nickname = ""  # 用户昵称，如“Dear-迪丽热巴”
         self.weibo_num = 0  # 用户全部微博数
         self.got_num = 0  # 爬取到的微博数
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
+        self.weibo_id = []  # 微博id
         self.weibo_content = []  # 微博内容
         self.weibo_place = []  # 微博位置
         self.publish_time = []  # 微博发布时间
@@ -49,9 +50,8 @@ class Weibo:
     def deal_garbled(self, info):
         """处理乱码"""
         try:
-            info = info.xpath(
-                "string(.)").replace(u"\u200b", "").encode(sys.stdout.encoding, "ignore").decode(
-                sys.stdout.encoding)
+            info = (info.xpath("string(.)").replace(u"\u200b", "").encode(
+                sys.stdout.encoding, "ignore").decode(sys.stdout.encoding))
             return info
         except Exception as e:
             print("Error: ", e)
@@ -96,8 +96,8 @@ class Weibo:
             if selector.xpath("//input[@name='mp']") == []:
                 page_num = 1
             else:
-                page_num = (int)(selector.xpath(
-                    "//input[@name='mp']")[0].attrib["value"])
+                page_num = (int)(
+                    selector.xpath("//input[@name='mp']")[0].attrib["value"])
             return page_num
         except Exception as e:
             print("Error: ", e)
@@ -110,21 +110,20 @@ class Weibo:
             info = selector.xpath("//div[@class='c']")[1]
             wb_content = self.deal_garbled(info)
             wb_time = info.xpath("//span[@class='ct']/text()")[0]
-            wb_content = wb_content[wb_content.find(
-                ":") + 1:wb_content.rfind(wb_time)]
+            wb_content = wb_content[wb_content.find(":") +
+                                    1:wb_content.rfind(wb_time)]
             return wb_content
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
 
-    def get_original_weibo(self, info):
+    def get_original_weibo(self, info, weibo_id):
         """获取原创微博"""
         try:
             weibo_content = self.deal_garbled(info)
             weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
             a_text = info.xpath("div//a/text()")
             if u"全文" in a_text:
-                weibo_id = info.xpath("@id")[0][2:]
                 weibo_link = "https://weibo.cn/comment/" + weibo_id
                 wb_content = self.get_long_weibo(weibo_link)
                 if wb_content:
@@ -144,7 +143,7 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    def get_retweet(self, info):
+    def get_retweet(self, info, weibo_id):
         """获取转发微博"""
         try:
             original_user = info.xpath("div/span[@class='cmt']/a/text()")
@@ -154,20 +153,19 @@ class Weibo:
             else:
                 original_user = original_user[0]
             wb_content = self.deal_garbled(info)
-            wb_content = wb_content[wb_content.find(
-                ":") + 1:wb_content.rfind(u"赞")]
+            wb_content = wb_content[wb_content.find(":") +
+                                    1:wb_content.rfind(u"赞")]
             wb_content = wb_content[:wb_content.rfind(u"赞")]
             a_text = info.xpath("div//a/text()")
             if u"全文" in a_text:
-                weibo_id = info.xpath("@id")[0][2:]
                 weibo_link = "https://weibo.cn/comment/" + weibo_id
                 weibo_content = self.get_long_retweet(weibo_link)
                 if weibo_content:
                     wb_content = weibo_content
             retweet_reason = self.deal_garbled(info.xpath("div")[-1])
             retweet_reason = retweet_reason[:retweet_reason.rindex(u"赞")]
-            wb_content = (retweet_reason + "\n" + u"原始用户: " +
-                          original_user + "\n" + u"转发内容: " + wb_content)
+            wb_content = (retweet_reason + "\n" + u"原始用户: " + original_user +
+                          "\n" + u"转发内容: " + wb_content)
             return wb_content
         except Exception as e:
             print("Error: ", e)
@@ -176,11 +174,13 @@ class Weibo:
     def get_weibo_content(self, info):
         """获取微博内容"""
         try:
+            weibo_id = info.xpath("@id")[0][2:]
+            self.weibo_id.append(weibo_id)
             is_retweet = info.xpath("div/span[@class='cmt']")
             if is_retweet:
-                weibo_content = self.get_retweet(info)
+                weibo_content = self.get_retweet(info, weibo_id)
             else:
-                weibo_content = self.get_original_weibo(info)
+                weibo_content = self.get_original_weibo(info, weibo_id)
             self.weibo_content.append(weibo_content)
             print(weibo_content)
         except Exception as e:
@@ -194,12 +194,13 @@ class Weibo:
             a_list = div_first.xpath("a")
             weibo_place = u"无"
             for a in a_list:
-                if ("place.weibo.com" in a.xpath("@href")[0] and
-                        a.xpath("text()")[0] == u"显示地图"):
+                if ("place.weibo.com" in a.xpath("@href")[0]
+                        and a.xpath("text()")[0] == u"显示地图"):
                     weibo_a = div_first.xpath("span[@class='ctt']/a")
                     if len(weibo_a) >= 1:
                         weibo_place = weibo_a[-1]
-                        if u"视频" == div_first.xpath("span[@class='ctt']/a/text()")[-1][-2:]:
+                        if (u"视频" == div_first.xpath(
+                                "span[@class='ctt']/a/text()")[-1][-2:]):
                             if len(weibo_a) >= 2:
                                 weibo_place = weibo_a[-2]
                             else:
@@ -217,15 +218,14 @@ class Weibo:
         try:
             str_time = info.xpath("div/span[@class='ct']")
             str_time = self.deal_garbled(str_time[0])
-            publish_time = str_time.split(u'来自')[0]
+            publish_time = str_time.split(u"来自")[0]
             if u"刚刚" in publish_time:
-                publish_time = datetime.now().strftime(
-                    '%Y-%m-%d %H:%M')
+                publish_time = datetime.now().strftime("%Y-%m-%d %H:%M")
             elif u"分钟" in publish_time:
                 minute = publish_time[:publish_time.find(u"分钟")]
                 minute = timedelta(minutes=int(minute))
-                publish_time = (datetime.now() - minute).strftime(
-                    "%Y-%m-%d %H:%M")
+                publish_time = (datetime.now() -
+                                minute).strftime("%Y-%m-%d %H:%M")
             elif u"今天" in publish_time:
                 today = datetime.now().strftime("%Y-%m-%d")
                 time = publish_time[3:]
@@ -235,7 +235,7 @@ class Weibo:
                 month = publish_time[0:2]
                 day = publish_time[3:5]
                 time = publish_time[7:12]
-                publish_time = (year + "-" + month + "-" + day + " " + time)
+                publish_time = year + "-" + month + "-" + day + " " + time
             else:
                 publish_time = publish_time[:16]
             self.publish_time.append(publish_time)
@@ -249,8 +249,8 @@ class Weibo:
         try:
             str_time = info.xpath("div/span[@class='ct']")
             str_time = self.deal_garbled(str_time[0])
-            if len(str_time.split(u'来自')) > 1:
-                publish_tool = str_time.split(u'来自')[1]
+            if len(str_time.split(u"来自")) > 1:
+                publish_tool = str_time.split(u"来自")[1]
             else:
                 publish_tool = u"无"
             self.publish_tool.append(publish_tool)
@@ -265,7 +265,7 @@ class Weibo:
             pattern = r"\d+"
             str_footer = info.xpath("div")[-1]
             str_footer = self.deal_garbled(str_footer)
-            str_footer = str_footer[str_footer.rfind(u'赞'):]
+            str_footer = str_footer[str_footer.rfind(u"赞"):]
             weibo_footer = re.findall(pattern, str_footer, re.M)
 
             up_num = int(weibo_footer[0])
@@ -336,8 +336,8 @@ class Weibo:
     def get_filepath(self, type):
         """获取结果文件路径"""
         try:
-            file_dir = os.path.split(os.path.realpath(__file__))[
-                0] + os.sep + "weibo"
+            file_dir = os.path.split(
+                os.path.realpath(__file__))[0] + os.sep + "weibo"
             if not os.path.isdir(file_dir):
                 os.mkdir(file_dir)
             file_path = file_dir + os.sep + "%d" % self.user_id + "." + type
@@ -354,24 +354,21 @@ class Weibo:
             else:
                 result_header = u"\n\n微博内容: \n"
             temp_result = []
-            temp_result.append(u"用户信息\n用户昵称：" + self.nickname +
-                               u"\n用户id: " + str(self.user_id) +
-                               u"\n微博数: " + str(self.weibo_num) +
-                               u"\n关注数: " + str(self.following) +
-                               u"\n粉丝数: " + str(self.followers) +
-                               result_header
-                               )
+            temp_result.append(u"用户信息\n用户昵称：" + self.nickname + u"\n用户id: " +
+                               str(self.user_id) + u"\n微博数: " +
+                               str(self.weibo_num) + u"\n关注数: " +
+                               str(self.following) + u"\n粉丝数: " +
+                               str(self.followers) + result_header)
             for i in range(1, self.got_num + 1):
-                temp_result.append(str(i) + ":" + self.weibo_content[i - 1] + "\n" +
-                                   u"微博位置: " + self.weibo_place[i - 1] + "\n" +
-                                   u"发布时间: " + self.publish_time[i - 1] + "\n" +
-                                   u"点赞数: " + str(self.up_num[i - 1]) +
-                                   u"   转发数: " + str(self.retweet_num[i - 1]) +
-                                   u"   评论数: " + str(self.comment_num[i - 1]) + "\n" +
-                                   u"发布工具: " +
-                                   self.publish_tool[i - 1] + "\n\n"
-                                   )
-            result = ''.join(temp_result)
+                temp_result.append(
+                    str(i) + ":" + self.weibo_content[i - 1] + "\n" +
+                    u"微博位置: " + self.weibo_place[i - 1] + "\n" + u"发布时间: " +
+                    self.publish_time[i - 1] + "\n" + u"点赞数: " +
+                    str(self.up_num[i - 1]) + u"   转发数: " +
+                    str(self.retweet_num[i - 1]) + u"   评论数: " +
+                    str(self.comment_num[i - 1]) + "\n" + u"发布工具: " +
+                    self.publish_tool[i - 1] + "\n\n")
+            result = "".join(temp_result)
             with open(self.get_filepath("txt"), "wb") as f:
                 f.write(result.encode(sys.stdout.encoding))
             print(u"微博写入txt文件完毕，保存路径:")
@@ -383,20 +380,39 @@ class Weibo:
     def write_csv(self):
         """将爬取的信息写入csv文件"""
         try:
-            result_headers = ["微博正文", "发布位置",
-                              "发布时间", "发布工具", "点赞数", "转发数", "评论数"]
-            result_data = zip(self.weibo_content, self.weibo_place, self.publish_time,
-                              self.publish_tool, self.up_num, self.retweet_num, self.comment_num)
-            if sys.version < '3':   # python2.x
+            result_headers = [
+                "微博id",
+                "微博正文",
+                "发布位置",
+                "发布时间",
+                "发布工具",
+                "点赞数",
+                "转发数",
+                "评论数",
+            ]
+            result_data = zip(
+                self.weibo_id,
+                self.weibo_content,
+                self.weibo_place,
+                self.publish_time,
+                self.publish_tool,
+                self.up_num,
+                self.retweet_num,
+                self.comment_num,
+            )
+            if sys.version < "3":  # python2.x
                 reload(sys)
-                sys.setdefaultencoding('utf-8')
+                sys.setdefaultencoding("utf-8")
                 with open(self.get_filepath("csv"), "wb") as f:
                     f.write(codecs.BOM_UTF8)
                     writer = csv.writer(f)
                     writer.writerows([result_headers])
                     writer.writerows(result_data)
-            else:   # python3.x
-                with open(self.get_filepath("csv"), "w", encoding="utf-8-sig", newline="") as f:
+            else:  # python3.x
+                with open(self.get_filepath("csv"),
+                          "w",
+                          encoding="utf-8-sig",
+                          newline="") as f:
                     writer = csv.writer(f)
                     writer.writerows([result_headers])
                     writer.writerows(result_data)
@@ -423,7 +439,7 @@ def main():
     try:
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
         user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
-        filter = 0  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户昵称: " + wb.nickname)
