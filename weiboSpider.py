@@ -305,34 +305,6 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    def get_weibo_info(self):
-        """获取微博信息"""
-        try:
-            url = "https://weibo.cn/u/%d" % (self.user_id)
-            selector = self.deal_html(url)
-            self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
-            page_num = self.get_page_num(selector)  # 获取微博总页数
-            page1 = 0
-            random_pages = random.randint(1, 5)
-            for page in tqdm(range(1, page_num + 1), desc=u"进度"):
-                self.get_one_page(page)  # 获取第page页的全部微博
-
-                # 通过加入随机等待避免被限制。爬虫速度过快容易被系统限制(一段时间后限
-                # 制会自动解除)，加入随机等待模拟人的操作，可降低被系统限制的风险。默
-                # 认是每爬取1到5页随机等待6到10秒，如果仍然被限，可适当增加sleep时间
-                if page - page1 == random_pages:
-                    sleep(random.randint(6, 10))
-                    page1 = page
-                    random_pages = random.randint(1, 5)
-
-            if not self.filter:
-                print(u"共爬取" + str(self.got_num) + u"条微博")
-            else:
-                print(u"共爬取" + str(self.got_num) + u"条原创微博")
-        except Exception as e:
-            print("Error: ", e)
-            traceback.print_exc()
-
     def get_filepath(self, type):
         """获取结果文件路径"""
         try:
@@ -346,38 +318,7 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    def write_txt(self):
-        """将爬取的信息写入txt文件"""
-        try:
-            if self.filter:
-                result_header = u"\n\n原创微博内容: \n"
-            else:
-                result_header = u"\n\n微博内容: \n"
-            temp_result = []
-            temp_result.append(u"用户信息\n用户昵称：" + self.nickname + u"\n用户id: " +
-                               str(self.user_id) + u"\n微博数: " +
-                               str(self.weibo_num) + u"\n关注数: " +
-                               str(self.following) + u"\n粉丝数: " +
-                               str(self.followers) + result_header)
-            for i in range(1, self.got_num + 1):
-                temp_result.append(
-                    str(i) + ":" + self.weibo_content[i - 1] + "\n" +
-                    u"微博位置: " + self.weibo_place[i - 1] + "\n" + u"发布时间: " +
-                    self.publish_time[i - 1] + "\n" + u"点赞数: " +
-                    str(self.up_num[i - 1]) + u"   转发数: " +
-                    str(self.retweet_num[i - 1]) + u"   评论数: " +
-                    str(self.comment_num[i - 1]) + "\n" + u"发布工具: " +
-                    self.publish_tool[i - 1] + "\n\n")
-            result = "".join(temp_result)
-            with open(self.get_filepath("txt"), "wb") as f:
-                f.write(result.encode(sys.stdout.encoding))
-            print(u"微博写入txt文件完毕，保存路径:")
-            print(self.get_filepath("txt"))
-        except Exception as e:
-            print("Error: ", e)
-            traceback.print_exc()
-
-    def write_csv(self):
+    def write_csv(self, wrote_num):
         """将爬取的信息写入csv文件"""
         try:
             result_headers = [
@@ -391,33 +332,108 @@ class Weibo:
                 "评论数",
             ]
             result_data = zip(
-                self.weibo_id,
-                self.weibo_content,
-                self.weibo_place,
-                self.publish_time,
-                self.publish_tool,
-                self.up_num,
-                self.retweet_num,
-                self.comment_num,
+                self.weibo_id[wrote_num:],
+                self.weibo_content[wrote_num:],
+                self.weibo_place[wrote_num:],
+                self.publish_time[wrote_num:],
+                self.publish_tool[wrote_num:],
+                self.up_num[wrote_num:],
+                self.retweet_num[wrote_num:],
+                self.comment_num[wrote_num:],
             )
             if sys.version < "3":  # python2.x
                 reload(sys)
                 sys.setdefaultencoding("utf-8")
-                with open(self.get_filepath("csv"), "wb") as f:
+                with open(self.get_filepath("csv"), "ab") as f:
                     f.write(codecs.BOM_UTF8)
                     writer = csv.writer(f)
-                    writer.writerows([result_headers])
+                    if wrote_num == 0:
+                        writer.writerows([result_headers])
                     writer.writerows(result_data)
             else:  # python3.x
                 with open(self.get_filepath("csv"),
-                          "w",
+                          "a",
                           encoding="utf-8-sig",
                           newline="") as f:
                     writer = csv.writer(f)
-                    writer.writerows([result_headers])
+                    if wrote_num == 0:
+                        writer.writerows([result_headers])
                     writer.writerows(result_data)
-            print(u"微博写入csv文件完毕，保存路径:")
+            print(u"%d条微博写入csv文件完毕,保存路径:" % self.got_num)
             print(self.get_filepath("csv"))
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    def write_txt(self, wrote_num):
+        """将爬取的信息写入txt文件"""
+        try:
+            temp_result = []
+            if wrote_num == 0:
+                if self.filter:
+                    result_header = u"\n\n原创微博内容: \n"
+                else:
+                    result_header = u"\n\n微博内容: \n"
+                result_header = (u"用户信息\n用户昵称：" + self.nickname + u"\n用户id: " +
+                                 str(self.user_id) + u"\n微博数: " +
+                                 str(self.weibo_num) + u"\n关注数: " +
+                                 str(self.following) + u"\n粉丝数: " +
+                                 str(self.followers) + result_header)
+                temp_result.append(result_header)
+            for i in range(wrote_num, self.got_num):
+                temp_result.append(
+                    str(i + 1) + ":" + self.weibo_content[i] + "\n" +
+                    u"微博位置: " + self.weibo_place[i] + "\n" + u"发布时间: " +
+                    self.publish_time[i] + "\n" + u"点赞数: " +
+                    str(self.up_num[i]) + u"   转发数: " +
+                    str(self.retweet_num[i]) + u"   评论数: " +
+                    str(self.comment_num[i]) + "\n" + u"发布工具: " +
+                    self.publish_tool[i] + "\n\n")
+            result = "".join(temp_result)
+            with open(self.get_filepath("txt"), "ab") as f:
+                f.write(result.encode(sys.stdout.encoding))
+            print(u"%d条微博写入txt文件完毕,保存路径:" % self.got_num)
+            print(self.get_filepath("txt"))
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    def write_file(self, wrote_num):
+        """写文件"""
+        if self.got_num > wrote_num:
+            self.write_csv(wrote_num)
+            self.write_txt(wrote_num)
+
+    def get_weibo_info(self):
+        """获取微博信息"""
+        try:
+            url = "https://weibo.cn/u/%d" % (self.user_id)
+            selector = self.deal_html(url)
+            self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
+            page_num = self.get_page_num(selector)  # 获取微博总页数
+            wrote_num = 0
+            page1 = 0
+            random_pages = random.randint(1, 5)
+            for page in tqdm(range(1, page_num + 1), desc=u"进度"):
+                self.get_one_page(page)  # 获取第page页的全部微博
+
+                if page % 20 == 0:  # 每爬20页写入一次文件
+                    self.write_file(wrote_num)
+                    wrote_num = self.got_num
+
+                # 通过加入随机等待避免被限制。爬虫速度过快容易被系统限制(一段时间后限
+                # 制会自动解除)，加入随机等待模拟人的操作，可降低被系统限制的风险。默
+                # 认是每爬取1到5页随机等待6到10秒，如果仍然被限，可适当增加sleep时间
+                if page - page1 == random_pages:
+                    sleep(random.randint(6, 10))
+                    page1 = page
+                    random_pages = random.randint(1, 5)
+
+            self.write_file(wrote_num)  # 将剩余不足20页的微博写入文件
+            if not self.filter:
+                print(u"共爬取" + str(self.got_num) + u"条微博")
+            else:
+                print(u"共爬取" + str(self.got_num) + u"条原创微博")
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -426,8 +442,6 @@ class Weibo:
         """运行爬虫"""
         try:
             self.get_weibo_info()
-            self.write_txt()
-            self.write_csv()
             print(u"信息抓取完毕")
             print("*" * 100)
         except Exception as e:
