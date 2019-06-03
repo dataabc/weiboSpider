@@ -30,6 +30,7 @@ class Weibo:
         self.followers = 0  # 用户粉丝数
         self.weibo_id = []  # 微博id
         self.weibo_content = []  # 微博内容
+        self.weibo_pictures = []  # 微博原始图片的url
         self.weibo_place = []  # 微博位置
         self.publish_time = []  # 微博发布时间
         self.up_num = []  # 微博对应的点赞数
@@ -283,6 +284,26 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
+    def get_picture_urls(self, info):
+        """获取微博原始图片url"""
+        weibo_id = info.xpath("@id")[0][2:]
+        a_list = info.xpath("./div/a/@href")
+        first_pic = "https://weibo.cn/mblog/pic/" + weibo_id + "?rl=0"
+        all_pic = "https://weibo.cn/mblog/picAll/" + weibo_id + "?rl=1"
+        if first_pic in a_list:
+            if all_pic in a_list:
+                selector = self.deal_html(all_pic)
+                preview_picture = selector.xpath("//img/@src")
+                original_picture = [
+                    p.replace("thumb180", "large") for p in preview_picture
+                ]
+            else:
+                preview_picture = info.xpath("./div/a/img/@src")[0]
+                original_picture = preview_picture.replace("wap180", "large")
+        else:
+            original_picture = "无"
+        self.weibo_pictures.append(original_picture)
+
     def get_one_page(self, page):
         """获取第page页的全部微博"""
         try:
@@ -295,6 +316,7 @@ class Weibo:
                     is_retweet = info[i].xpath("div/span[@class='cmt']")
                     if (not self.filter) or (not is_retweet):
                         self.get_weibo_content(info[i])  # 微博内容
+                        self.get_picture_urls(info[i])  # 微博原始图片url
                         self.get_weibo_place(info[i])  # 微博位置
                         self.get_publish_time(info[i])  # 微博发布时间
                         self.get_publish_tool(info[i])  # 微博发布工具
@@ -324,6 +346,7 @@ class Weibo:
             result_headers = [
                 "微博id",
                 "微博正文",
+                "原始图片url",
                 "发布位置",
                 "发布时间",
                 "发布工具",
@@ -334,6 +357,7 @@ class Weibo:
             result_data = zip(
                 self.weibo_id[wrote_num:],
                 self.weibo_content[wrote_num:],
+                self.weibo_pictures[wrote_num:],
                 self.weibo_place[wrote_num:],
                 self.publish_time[wrote_num:],
                 self.publish_tool[wrote_num:],
