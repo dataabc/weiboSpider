@@ -21,16 +21,18 @@ class Weibo:
 
     def __init__(self, user_id, filter=0):
         """Weibo类初始化"""
-        self.user_id = user_id  # 用户id，即需要我们输入的数字，如昵称为“Dear-迪丽热巴”的id为1669879400
-        self.filter = filter  # 取值范围为0、1，程序默认值为0，代表要爬取用户的全部微博，1代表只爬取用户的原创微博
-        self.nickname = ""  # 用户昵称，如“Dear-迪丽热巴”
+        self.user_id = user_id  # 用户id,即需要我们输入的数字,如昵称为"Dear-迪丽热巴"的id为1669879400
+        self.filter = filter  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
+        self.nickname = ""  # 用户昵称,如“Dear-迪丽热巴”
         self.weibo_num = 0  # 用户全部微博数
         self.got_num = 0  # 爬取到的微博数
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
         self.weibo_id = []  # 微博id
         self.weibo_content = []  # 微博内容
-        self.weibo_pictures = []  # 微博原始图片的url
+        self.weibo_pictures = []  # 微博原始图片的url,包括原创微博的原始图片url和转发微博"转发理由"中图片的url
+        self.retweet_pictures = []  # 被转发微博中原始图片的url
+        self.original = []  # 是否为原创微博
         self.weibo_place = []  # 微博位置
         self.publish_time = []  # 微博发布时间
         self.up_num = []  # 微博对应的点赞数
@@ -172,24 +174,23 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    def is_retweet(self, info):
-        """判断微博是否为转发微博"""
-        is_retweet = info.xpath("div/span[@class='cmt']")
-        if len(is_retweet) > 3:
-            return True
-        else:
+    def is_original(self, info):
+        """判断微博是否为原创微博"""
+        is_original = info.xpath("div/span[@class='cmt']")
+        if len(is_original) > 3:
             return False
+        else:
+            return True
 
-    def get_weibo_content(self, info):
+    def get_weibo_content(self, info, is_original):
         """获取微博内容"""
         try:
             weibo_id = info.xpath("@id")[0][2:]
             self.weibo_id.append(weibo_id)
-            is_retweet = self.is_retweet(info)
-            if is_retweet:
-                weibo_content = self.get_retweet(info, weibo_id)
-            else:
+            if is_original:
                 weibo_content = self.get_original_weibo(info, weibo_id)
+            else:
+                weibo_content = self.get_retweet(info, weibo_id)
             self.weibo_content.append(weibo_content)
             print(weibo_content)
         except Exception as e:
@@ -292,25 +293,47 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    def get_picture_urls(self, info):
-        """获取微博原始图片url"""
-        weibo_id = info.xpath("@id")[0][2:]
+    def extract_picture_urls(self, info, weibo_id):
+        """提取微博原始图片url"""
         a_list = info.xpath("div/a/@href")
         first_pic = "https://weibo.cn/mblog/pic/" + weibo_id + "?rl=0"
         all_pic = "https://weibo.cn/mblog/picAll/" + weibo_id + "?rl=1"
         if first_pic in a_list:
             if all_pic in a_list:
                 selector = self.deal_html(all_pic)
-                preview_picture = selector.xpath("//img/@src")
-                original_picture = [
-                    p.replace("/thumb180/", "/large/") for p in preview_picture
+                preview_picture_list = selector.xpath("//img/@src")
+                picture_list = [
+                    p.replace("/thumb180/", "/large/")
+                    for p in preview_picture_list
                 ]
+                picture = ",".join(picture_list)
             else:
                 preview_picture = info.xpath("div/a/img/@src")[0]
-                original_picture = preview_picture.replace("wap180", "large")
+                picture = preview_picture.replace("/wap180/", "/large/")
         else:
+            picture = "无"
+        return picture
+
+    def get_picture_urls(self, info, is_original):
+        """获取微博原始图片url"""
+        weibo_id = info.xpath("@id")[0][2:]
+        if is_original:
+            original_picture = self.extract_picture_urls(info, weibo_id)
+            self.weibo_pictures.append(original_picture)
+            if not self.filter:
+                self.retweet_pictures.append("无")
+        else:
+            retweet_url = info.xpath("div/a[@class='cc']/@href")[0]
+            retweet_id = retweet_url.split("/")[-1].split("?")[0]
+            retweet_pictures = self.extract_picture_urls(info, retweet_id)
+            self.retweet_pictures.append(retweet_pictures)
+            a_list = info.xpath("div[last()]/a/@href")
             original_picture = "无"
-        self.weibo_pictures.append(original_picture)
+            for a in a_list:
+                if a.endswith(".jpg"):
+                    original_picture = a
+                    break
+            self.weibo_pictures.append(original_picture)
 
     def get_one_page(self, page):
         """获取第page页的全部微博"""
@@ -321,10 +344,11 @@ class Weibo:
             is_empty = info[0].xpath("div/span[@class='ctt']")
             if is_empty:
                 for i in range(0, len(info) - 2):
-                    is_retweet = self.is_retweet(info[i])
-                    if (not self.filter) or (not is_retweet):
-                        self.get_weibo_content(info[i])  # 微博内容
-                        self.get_picture_urls(info[i])  # 微博原始图片url
+                    is_original = self.is_original(info[i])
+                    self.original.append(is_original)
+                    if (not self.filter) or is_original:
+                        self.get_weibo_content(info[i], is_original)  # 微博内容
+                        self.get_picture_urls(info[i], is_original)  # 微博图片url
                         self.get_weibo_place(info[i])  # 微博位置
                         self.get_publish_time(info[i])  # 微博发布时间
                         self.get_publish_tool(info[i])  # 微博发布工具
@@ -351,28 +375,56 @@ class Weibo:
     def write_csv(self, wrote_num):
         """将爬取的信息写入csv文件"""
         try:
-            result_headers = [
-                "微博id",
-                "微博正文",
-                "原始图片url",
-                "发布位置",
-                "发布时间",
-                "发布工具",
-                "点赞数",
-                "转发数",
-                "评论数",
-            ]
-            result_data = zip(
-                self.weibo_id[wrote_num:],
-                self.weibo_content[wrote_num:],
-                self.weibo_pictures[wrote_num:],
-                self.weibo_place[wrote_num:],
-                self.publish_time[wrote_num:],
-                self.publish_tool[wrote_num:],
-                self.up_num[wrote_num:],
-                self.retweet_num[wrote_num:],
-                self.comment_num[wrote_num:],
-            )
+            if self.filter:
+                result_headers = [
+                    "微博id",
+                    "微博正文",
+                    "原始图片url",
+                    "发布位置",
+                    "发布时间",
+                    "发布工具",
+                    "点赞数",
+                    "转发数",
+                    "评论数",
+                ]
+                result_data = zip(
+                    self.weibo_id[wrote_num:],
+                    self.weibo_content[wrote_num:],
+                    self.weibo_pictures[wrote_num:],
+                    self.weibo_place[wrote_num:],
+                    self.publish_time[wrote_num:],
+                    self.publish_tool[wrote_num:],
+                    self.up_num[wrote_num:],
+                    self.retweet_num[wrote_num:],
+                    self.comment_num[wrote_num:],
+                )
+            else:
+                result_headers = [
+                    "微博id",
+                    "微博正文",
+                    "原始图片url",
+                    "被转发微博原始图片url",
+                    "是否为原创微博",
+                    "发布位置",
+                    "发布时间",
+                    "发布工具",
+                    "点赞数",
+                    "转发数",
+                    "评论数",
+                ]
+                result_data = zip(
+                    self.weibo_id[wrote_num:],
+                    self.weibo_content[wrote_num:],
+                    self.weibo_pictures[wrote_num:],
+                    self.retweet_pictures[wrote_num:],
+                    self.original[wrote_num:],
+                    self.weibo_place[wrote_num:],
+                    self.publish_time[wrote_num:],
+                    self.publish_tool[wrote_num:],
+                    self.up_num[wrote_num:],
+                    self.retweet_num[wrote_num:],
+                    self.comment_num[wrote_num:],
+                )
             if sys.version < "3":  # python2.x
                 reload(sys)
                 sys.setdefaultencoding("utf-8")
