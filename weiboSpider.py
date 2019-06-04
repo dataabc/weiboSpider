@@ -172,12 +172,20 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
+    def is_retweet(self, info):
+        """判断微博是否为转发微博"""
+        is_retweet = info.xpath("div/span[@class='cmt']")
+        if len(is_retweet) > 3:
+            return True
+        else:
+            return False
+
     def get_weibo_content(self, info):
         """获取微博内容"""
         try:
             weibo_id = info.xpath("@id")[0][2:]
             self.weibo_id.append(weibo_id)
-            is_retweet = info.xpath("div/span[@class='cmt']")
+            is_retweet = self.is_retweet(info)
             if is_retweet:
                 weibo_content = self.get_retweet(info, weibo_id)
             else:
@@ -287,7 +295,7 @@ class Weibo:
     def get_picture_urls(self, info):
         """获取微博原始图片url"""
         weibo_id = info.xpath("@id")[0][2:]
-        a_list = info.xpath("./div/a/@href")
+        a_list = info.xpath("div/a/@href")
         first_pic = "https://weibo.cn/mblog/pic/" + weibo_id + "?rl=0"
         all_pic = "https://weibo.cn/mblog/picAll/" + weibo_id + "?rl=1"
         if first_pic in a_list:
@@ -295,10 +303,10 @@ class Weibo:
                 selector = self.deal_html(all_pic)
                 preview_picture = selector.xpath("//img/@src")
                 original_picture = [
-                    p.replace("thumb180", "large") for p in preview_picture
+                    p.replace("/thumb180/", "/large/") for p in preview_picture
                 ]
             else:
-                preview_picture = info.xpath("./div/a/img/@src")[0]
+                preview_picture = info.xpath("div/a/img/@src")[0]
                 original_picture = preview_picture.replace("wap180", "large")
         else:
             original_picture = "无"
@@ -313,7 +321,7 @@ class Weibo:
             is_empty = info[0].xpath("div/span[@class='ctt']")
             if is_empty:
                 for i in range(0, len(info) - 2):
-                    is_retweet = info[i].xpath("div/span[@class='cmt']")
+                    is_retweet = self.is_retweet(info[i])
                     if (not self.filter) or (not is_retweet):
                         self.get_weibo_content(info[i])  # 微博内容
                         self.get_picture_urls(info[i])  # 微博原始图片url
