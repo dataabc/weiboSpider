@@ -295,45 +295,54 @@ class Weibo:
 
     def extract_picture_urls(self, info, weibo_id):
         """提取微博原始图片url"""
-        a_list = info.xpath("div/a/@href")
-        first_pic = "https://weibo.cn/mblog/pic/" + weibo_id + "?rl=0"
-        all_pic = "https://weibo.cn/mblog/picAll/" + weibo_id + "?rl=1"
-        if first_pic in a_list:
-            if all_pic in a_list:
-                selector = self.deal_html(all_pic)
-                preview_picture_list = selector.xpath("//img/@src")
-                picture_list = [
-                    p.replace("/thumb180/", "/large/")
-                    for p in preview_picture_list
-                ]
-                picture = ",".join(picture_list)
+        try:
+            a_list = info.xpath("div/a/@href")
+            first_pic = "https://weibo.cn/mblog/pic/" + weibo_id + "?rl=0"
+            all_pic = "https://weibo.cn/mblog/picAll/" + weibo_id + "?rl=1"
+            if first_pic in a_list:
+                if all_pic in a_list:
+                    selector = self.deal_html(all_pic)
+                    preview_picture_list = selector.xpath("//img/@src")
+                    picture_list = [
+                        p.replace("/thumb180/", "/large/")
+                        for p in preview_picture_list
+                    ]
+                    picture_urls = ",".join(picture_list)
+                else:
+                    preview_picture = info.xpath(".//img/@src")[-1]
+                    picture_urls = preview_picture.replace(
+                        "/wap180/", "/large/")
             else:
-                preview_picture = info.xpath("div/a/img/@src")[0]
-                picture = preview_picture.replace("/wap180/", "/large/")
-        else:
-            picture = "无"
-        return picture
+                picture_urls = "无"
+            return picture_urls
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
 
     def get_picture_urls(self, info, is_original):
         """获取微博原始图片url"""
-        weibo_id = info.xpath("@id")[0][2:]
-        if is_original:
-            original_picture = self.extract_picture_urls(info, weibo_id)
-            self.weibo_pictures.append(original_picture)
-            if not self.filter:
-                self.retweet_pictures.append("无")
-        else:
-            retweet_url = info.xpath("div/a[@class='cc']/@href")[0]
-            retweet_id = retweet_url.split("/")[-1].split("?")[0]
-            retweet_pictures = self.extract_picture_urls(info, retweet_id)
-            self.retweet_pictures.append(retweet_pictures)
-            a_list = info.xpath("div[last()]/a/@href")
-            original_picture = "无"
-            for a in a_list:
-                if a.endswith(".jpg"):
-                    original_picture = a
-                    break
-            self.weibo_pictures.append(original_picture)
+        try:
+            weibo_id = info.xpath("@id")[0][2:]
+            if is_original:
+                original_pictures = self.extract_picture_urls(info, weibo_id)
+                self.weibo_pictures.append(original_pictures)
+                if not self.filter:
+                    self.retweet_pictures.append("无")
+            else:
+                retweet_url = info.xpath("div/a[@class='cc']/@href")[0]
+                retweet_id = retweet_url.split("/")[-1].split("?")[0]
+                retweet_pictures = self.extract_picture_urls(info, retweet_id)
+                self.retweet_pictures.append(retweet_pictures)
+                a_list = info.xpath("div[last()]/a/@href")
+                original_picture = "无"
+                for a in a_list:
+                    if a.endswith(".jpg"):
+                        original_picture = a
+                        break
+                self.weibo_pictures.append(original_picture)
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
 
     def get_one_page(self, page):
         """获取第page页的全部微博"""
