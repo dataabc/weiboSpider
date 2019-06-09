@@ -336,7 +336,7 @@ class Weibo:
                 a_list = info.xpath("div[last()]/a/@href")
                 original_picture = "无"
                 for a in a_list:
-                    if a.endswith(".jpg"):
+                    if a.endswith((".gif", ".jpeg", ".jpg", ".png")):
                         original_picture = a
                         break
                 self.weibo_pictures.append(original_picture)
