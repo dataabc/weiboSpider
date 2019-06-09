@@ -344,6 +344,49 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
+    def download_pic(self, url, pic_name):
+        """下载单张图片"""
+        try:
+            p = requests.get(url)
+            with open("img/" + pic_name, "wb") as f:
+                f.write(p.content)
+        except Exception as e:
+            with open("img/not_downloaded_pictures.txt", "ab") as f:
+                url = url + "\n"
+                f.write(url.encode(sys.stdout.encoding))
+            print("Error: ", e)
+            traceback.print_exc()
+
+    def download_pictures(self):
+        """下载微博图片"""
+        try:
+            print(u"即将进行图片下载")
+            file_dir = os.path.split(
+                os.path.realpath(__file__))[0] + os.sep + "img"
+            if not os.path.isdir(file_dir):
+                os.mkdir(file_dir)
+            for i, urls in enumerate(tqdm(self.weibo_pictures,
+                                          desc=u"图片下载进度")):
+                if urls != "无":
+                    pic_prefix = str(self.user_id) + "_" + self.publish_time[
+                        i][:][:11].replace("-", "") + "_" + self.weibo_id[i]
+                    if "," in urls:
+                        urls = urls.split(",")
+                    if isinstance(urls, list):
+                        for j, url in enumerate(urls):
+                            pic_suffix = url[url.rfind("."):]
+                            pic_name = pic_prefix + "_" + str(j) + pic_suffix
+                            self.download_pic(url, pic_name)
+                    else:
+                        pic_suffix = urls[urls.rfind("."):]
+                        pic_name = pic_prefix + pic_suffix
+                        self.download_pic(urls, pic_name)
+            print(u"图片下载完毕,保存路径:")
+            print(file_dir)
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
     def get_one_page(self, page):
         """获取第page页的全部微博"""
         try:
@@ -537,6 +580,7 @@ class Weibo:
             self.get_weibo_info()
             print(u"信息抓取完毕")
             print("*" * 100)
+            self.download_pictures()
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
