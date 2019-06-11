@@ -344,14 +344,16 @@ class Weibo:
             print("Error: ", e)
             traceback.print_exc()
 
-    def download_pic(self, url, pic_name):
+    def download_pic(self, url, pic_path):
         """下载单张图片"""
         try:
             p = requests.get(url)
-            with open("img/" + pic_name, "wb") as f:
+            with open(pic_path, "wb") as f:
                 f.write(p.content)
         except Exception as e:
-            with open("img/not_downloaded_pictures.txt", "ab") as f:
+            error_file = self.get_filepath(
+                "img") + os.sep + "not_downloaded_pictures.txt"
+            with open(error_file, "ab") as f:
                 url = url + "\n"
                 f.write(url.encode(sys.stdout.encoding))
             print("Error: ", e)
@@ -361,28 +363,27 @@ class Weibo:
         """下载微博图片"""
         try:
             print(u"即将进行图片下载")
-            file_dir = os.path.split(
-                os.path.realpath(__file__))[0] + os.sep + "img"
-            if not os.path.isdir(file_dir):
-                os.mkdir(file_dir)
+            img_dir = self.get_filepath("img")
             for i, urls in enumerate(tqdm(self.weibo_pictures,
                                           desc=u"图片下载进度")):
                 if urls != "无":
-                    pic_prefix = str(self.user_id) + "_" + self.publish_time[
-                        i][:][:11].replace("-", "") + "_" + self.weibo_id[i]
+                    pic_prefix = self.publish_time[i][:][:11].replace(
+                        "-", "") + "_" + self.weibo_id[i]
                     if "," in urls:
                         urls = urls.split(",")
-                    if isinstance(urls, list):
                         for j, url in enumerate(urls):
                             pic_suffix = url[url.rfind("."):]
-                            pic_name = pic_prefix + "_" + str(j) + pic_suffix
-                            self.download_pic(url, pic_name)
+                            pic_name = pic_prefix + "_" + str(j +
+                                                              1) + pic_suffix
+                            pic_path = img_dir + os.sep + pic_name
+                            self.download_pic(url, pic_path)
                     else:
                         pic_suffix = urls[urls.rfind("."):]
                         pic_name = pic_prefix + pic_suffix
-                        self.download_pic(urls, pic_name)
+                        pic_path = img_dir + os.sep + pic_name
+                        self.download_pic(urls, pic_path)
             print(u"图片下载完毕,保存路径:")
-            print(file_dir)
+            print(img_dir)
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -414,10 +415,14 @@ class Weibo:
     def get_filepath(self, type):
         """获取结果文件路径"""
         try:
-            file_dir = os.path.split(
-                os.path.realpath(__file__))[0] + os.sep + "weibo"
+            file_dir = os.path.split(os.path.realpath(
+                __file__))[0] + os.sep + "weibo" + os.sep + self.nickname
+            if type == "img":
+                file_dir = file_dir + os.sep + "img"
             if not os.path.isdir(file_dir):
-                os.mkdir(file_dir)
+                os.makedirs(file_dir)
+            if type == "img":
+                return file_dir
             file_path = file_dir + os.sep + "%d" % self.user_id + "." + type
             return file_path
         except Exception as e:
