@@ -19,10 +19,17 @@ from tqdm import tqdm
 class Weibo:
     cookie = {"Cookie": "your cookie"}  # 将your cookie替换成自己的cookie
 
-    def __init__(self, user_id, filter=0):
+    def __init__(self, user_id, filter=0, pic_download=0):
         """Weibo类初始化"""
+        if not isinstance(user_id, int):
+            sys.exit(u"user_id值应为一串数字形式,请重新输入")
+        if filter != 0 and filter != 1:
+            sys.exit(u"filter值应为0或1,请重新输入")
+        if pic_download != 0 and pic_download != 1:
+            sys.exit(u"pic_download值应为0或1,请重新输入")
         self.user_id = user_id  # 用户id,即需要我们输入的数字,如昵称为"Dear-迪丽热巴"的id为1669879400
         self.filter = filter  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
+        self.pic_download = pic_download  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
         self.nickname = ""  # 用户昵称,如“Dear-迪丽热巴”
         self.weibo_num = 0  # 用户全部微博数
         self.got_num = 0  # 爬取到的微博数
@@ -585,7 +592,8 @@ class Weibo:
             self.get_weibo_info()
             print(u"信息抓取完毕")
             print("*" * 100)
-            self.download_pictures()
+            if self.pic_download == 1:
+                self.download_pictures()
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -596,7 +604,8 @@ def main():
         # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
         user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
-        wb = Weibo(user_id, filter)  # 调用Weibo类，创建微博实例wb
+        pic_download = 1  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
+        wb = Weibo(user_id, filter, pic_download)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u"用户昵称: " + wb.nickname)
         print(u"全部微博数: " + str(wb.weibo_num))
