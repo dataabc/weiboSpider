@@ -8,6 +8,7 @@ import random
 import re
 import sys
 import traceback
+from collections import OrderedDict
 from datetime import datetime, timedelta
 from time import sleep
 
@@ -35,17 +36,7 @@ class Weibo:
         self.got_num = 0  # 爬取到的微博数
         self.following = 0  # 用户关注数
         self.followers = 0  # 用户粉丝数
-        self.weibo_id = []  # 微博id
-        self.weibo_content = []  # 微博内容
-        self.weibo_pictures = []  # 微博原始图片的url,包括原创微博的原始图片url和转发微博"转发理由"中图片的url
-        self.retweet_pictures = []  # 被转发微博中原始图片的url
-        self.original = []  # 是否为原创微博
-        self.weibo_place = []  # 微博位置
-        self.publish_time = []  # 微博发布时间
-        self.up_num = []  # 微博对应的点赞数
-        self.retweet_num = []  # 微博对应的转发数
-        self.comment_num = []  # 微博对应的评论数
-        self.publish_tool = []  # 微博发布工具
+        self.weibo = []  # 存储爬取到的所有微博信息
 
     def deal_html(self, url):
         """处理html"""
@@ -120,9 +111,9 @@ class Weibo:
             info = selector.xpath("//div[@class='c']")[1]
             wb_content = self.deal_garbled(info)
             wb_time = info.xpath("//span[@class='ct']/text()")[0]
-            wb_content = wb_content[wb_content.find(":") +
-                                    1:wb_content.rfind(wb_time)]
-            return wb_content
+            weibo_content = wb_content[wb_content.find(":") +
+                                       1:wb_content.rfind(wb_time)]
+            return weibo_content
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -147,8 +138,8 @@ class Weibo:
         """获取长转发微博"""
         try:
             wb_content = self.get_long_weibo(weibo_link)
-            wb_content = wb_content[:wb_content.rfind(u"原文转发")]
-            return wb_content
+            weibo_content = wb_content[:wb_content.rfind(u"原文转发")]
+            return weibo_content
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -193,39 +184,38 @@ class Weibo:
         """获取微博内容"""
         try:
             weibo_id = info.xpath("@id")[0][2:]
-            self.weibo_id.append(weibo_id)
             if is_original:
                 weibo_content = self.get_original_weibo(info, weibo_id)
             else:
                 weibo_content = self.get_retweet(info, weibo_id)
-            self.weibo_content.append(weibo_content)
             print(weibo_content)
+            return weibo_content
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
 
-    def get_weibo_place(self, info):
+    def get_publish_place(self, info):
         """获取微博发布位置"""
         try:
             div_first = info.xpath("div")[0]
             a_list = div_first.xpath("a")
-            weibo_place = u"无"
+            publish_place = u"无"
             for a in a_list:
                 if ("place.weibo.com" in a.xpath("@href")[0]
                         and a.xpath("text()")[0] == u"显示地图"):
                     weibo_a = div_first.xpath("span[@class='ctt']/a")
                     if len(weibo_a) >= 1:
-                        weibo_place = weibo_a[-1]
+                        publish_place = weibo_a[-1]
                         if (u"视频" == div_first.xpath(
                                 "span[@class='ctt']/a/text()")[-1][-2:]):
                             if len(weibo_a) >= 2:
-                                weibo_place = weibo_a[-2]
+                                publish_place = weibo_a[-2]
                             else:
-                                weibo_place = u"无"
-                        weibo_place = self.deal_garbled(weibo_place)
+                                publish_place = u"无"
+                        publish_place = self.deal_garbled(publish_place)
                         break
-            self.weibo_place.append(weibo_place)
-            print(u"微博位置: " + weibo_place)
+            print(u"微博发布位置: " + publish_place)
+            return publish_place
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -255,8 +245,8 @@ class Weibo:
                 publish_time = year + "-" + month + "-" + day + " " + time
             else:
                 publish_time = publish_time[:16]
-            self.publish_time.append(publish_time)
             print(u"微博发布时间: " + publish_time)
+            return publish_time
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -270,8 +260,8 @@ class Weibo:
                 publish_tool = str_time.split(u"来自")[1]
             else:
                 publish_tool = u"无"
-            self.publish_tool.append(publish_tool)
             print(u"微博发布工具: " + publish_tool)
+            return publish_tool
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -279,6 +269,7 @@ class Weibo:
     def get_weibo_footer(self, info):
         """获取微博点赞数、转发数、评论数"""
         try:
+            footer = {}
             pattern = r"\d+"
             str_footer = info.xpath("div")[-1]
             str_footer = self.deal_garbled(str_footer)
@@ -286,16 +277,17 @@ class Weibo:
             weibo_footer = re.findall(pattern, str_footer, re.M)
 
             up_num = int(weibo_footer[0])
-            self.up_num.append(up_num)
             print(u"点赞数: " + str(up_num))
+            footer["up_num"] = up_num
 
             retweet_num = int(weibo_footer[1])
-            self.retweet_num.append(retweet_num)
             print(u"转发数: " + str(retweet_num))
+            footer["retweet_num"] = retweet_num
 
             comment_num = int(weibo_footer[2])
-            self.comment_num.append(comment_num)
             print(u"评论数: " + str(comment_num))
+            footer["comment_num"] = comment_num
+            return footer
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -330,23 +322,25 @@ class Weibo:
         """获取微博原始图片url"""
         try:
             weibo_id = info.xpath("@id")[0][2:]
+            picture_urls = {}
             if is_original:
                 original_pictures = self.extract_picture_urls(info, weibo_id)
-                self.weibo_pictures.append(original_pictures)
+                picture_urls["original_pictures"] = original_pictures
                 if not self.filter:
-                    self.retweet_pictures.append("无")
+                    picture_urls["retweet_pictures"] = "无"
             else:
                 retweet_url = info.xpath("div/a[@class='cc']/@href")[0]
                 retweet_id = retweet_url.split("/")[-1].split("?")[0]
                 retweet_pictures = self.extract_picture_urls(info, retweet_id)
-                self.retweet_pictures.append(retweet_pictures)
+                picture_urls["retweet_pictures"] = retweet_pictures
                 a_list = info.xpath("div[last()]/a/@href")
                 original_picture = "无"
                 for a in a_list:
                     if a.endswith((".gif", ".jpeg", ".jpg", ".png")):
                         original_picture = a
                         break
-                self.weibo_pictures.append(original_picture)
+                picture_urls["original_pictures"] = original_picture
+            return picture_urls
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -371,26 +365,57 @@ class Weibo:
         try:
             print(u"即将进行图片下载")
             img_dir = self.get_filepath("img")
-            for i, urls in enumerate(tqdm(self.weibo_pictures,
-                                          desc=u"图片下载进度")):
-                if urls != "无":
-                    pic_prefix = self.publish_time[i][:][:11].replace(
-                        "-", "") + "_" + self.weibo_id[i]
-                    if "," in urls:
-                        urls = urls.split(",")
-                        for j, url in enumerate(urls):
+            for w in tqdm(self.weibo, desc=u"图片下载进度"):
+                if w["original_pictures"] != "无":
+                    pic_prefix = w["publish_time"][:11].replace(
+                        "-", "") + "_" + w["id"]
+                    if "," in w["original_pictures"]:
+                        w["original_pictures"] = w["original_pictures"].split(
+                            ",")
+                        for j, url in enumerate(w["original_pictures"]):
                             pic_suffix = url[url.rfind("."):]
                             pic_name = pic_prefix + "_" + str(j +
                                                               1) + pic_suffix
                             pic_path = img_dir + os.sep + pic_name
                             self.download_pic(url, pic_path)
                     else:
-                        pic_suffix = urls[urls.rfind("."):]
+                        pic_suffix = w["original_pictures"][
+                            w["original_pictures"].rfind("."):]
                         pic_name = pic_prefix + pic_suffix
                         pic_path = img_dir + os.sep + pic_name
-                        self.download_pic(urls, pic_path)
+                        self.download_pic(w["original_pictures"], pic_path)
             print(u"图片下载完毕,保存路径:")
             print(img_dir)
+        except Exception as e:
+            print("Error: ", e)
+            traceback.print_exc()
+
+    def get_one_weibo(self, info):
+        """获取一条微博的全部信息"""
+        try:
+            weibo = OrderedDict()
+            is_original = self.is_original(info)
+            if (not self.filter) or is_original:
+                weibo["id"] = info.xpath("@id")[0][2:]
+                weibo["content"] = self.get_weibo_content(info,
+                                                          is_original)  # 微博内容
+                picture_urls = self.get_picture_urls(info, is_original)
+                weibo["original_pictures"] = picture_urls[
+                    "original_pictures"]  # 原创图片url
+                if not self.filter:
+                    weibo["retweet_pictures"] = picture_urls[
+                        "retweet_pictures"]  # 转发图片url
+                    weibo["original"] = is_original  # 是否原创微博
+                weibo["publish_place"] = self.get_publish_place(info)  # 微博发布位置
+                weibo["publish_time"] = self.get_publish_time(info)  # 微博发布时间
+                weibo["publish_tool"] = self.get_publish_tool(info)  # 微博发布工具
+                footer = self.get_weibo_footer(info)
+                weibo["up_num"] = footer["up_num"]  # 微博点赞数
+                weibo["retweet_num"] = footer["retweet_num"]  # 转发数
+                weibo["comment_num"] = footer["comment_num"]  # 评论数
+            else:
+                weibo = None
+            return weibo
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -401,18 +426,12 @@ class Weibo:
             url = "https://weibo.cn/u/%d?page=%d" % (self.user_id, page)
             selector = self.deal_html(url)
             info = selector.xpath("//div[@class='c']")
-            is_empty = info[0].xpath("div/span[@class='ctt']")
-            if is_empty:
+            is_exist = info[0].xpath("div/span[@class='ctt']")
+            if is_exist:
                 for i in range(0, len(info) - 2):
-                    is_original = self.is_original(info[i])
-                    self.original.append(is_original)
-                    if (not self.filter) or is_original:
-                        self.get_weibo_content(info[i], is_original)  # 微博内容
-                        self.get_picture_urls(info[i], is_original)  # 微博图片url
-                        self.get_weibo_place(info[i])  # 微博位置
-                        self.get_publish_time(info[i])  # 微博发布时间
-                        self.get_publish_tool(info[i])  # 微博发布工具
-                        self.get_weibo_footer(info[i])  # 微博点赞数、转发数、评论数
+                    weibo = self.get_one_weibo(info[i])
+                    if weibo:
+                        self.weibo.append(weibo)
                         self.got_num += 1
                         print("-" * 100)
         except Exception as e:
@@ -439,56 +458,21 @@ class Weibo:
     def write_csv(self, wrote_num):
         """将爬取的信息写入csv文件"""
         try:
-            if self.filter:
-                result_headers = [
-                    "微博id",
-                    "微博正文",
-                    "原始图片url",
-                    "发布位置",
-                    "发布时间",
-                    "发布工具",
-                    "点赞数",
-                    "转发数",
-                    "评论数",
-                ]
-                result_data = zip(
-                    self.weibo_id[wrote_num:],
-                    self.weibo_content[wrote_num:],
-                    self.weibo_pictures[wrote_num:],
-                    self.weibo_place[wrote_num:],
-                    self.publish_time[wrote_num:],
-                    self.publish_tool[wrote_num:],
-                    self.up_num[wrote_num:],
-                    self.retweet_num[wrote_num:],
-                    self.comment_num[wrote_num:],
-                )
-            else:
-                result_headers = [
-                    "微博id",
-                    "微博正文",
-                    "原始图片url",
-                    "被转发微博原始图片url",
-                    "是否为原创微博",
-                    "发布位置",
-                    "发布时间",
-                    "发布工具",
-                    "点赞数",
-                    "转发数",
-                    "评论数",
-                ]
-                result_data = zip(
-                    self.weibo_id[wrote_num:],
-                    self.weibo_content[wrote_num:],
-                    self.weibo_pictures[wrote_num:],
-                    self.retweet_pictures[wrote_num:],
-                    self.original[wrote_num:],
-                    self.weibo_place[wrote_num:],
-                    self.publish_time[wrote_num:],
-                    self.publish_tool[wrote_num:],
-                    self.up_num[wrote_num:],
-                    self.retweet_num[wrote_num:],
-                    self.comment_num[wrote_num:],
-                )
+            result_headers = [
+                "微博id",
+                "微博正文",
+                "原始图片url",
+                "发布位置",
+                "发布时间",
+                "发布工具",
+                "点赞数",
+                "转发数",
+                "评论数",
+            ]
+            if not self.filter:
+                result_headers.insert(3, "被转发微博原始图片url")
+                result_headers.insert(4, "是否为原创微博")
+            result_data = [w.values() for w in self.weibo][wrote_num:]
             if sys.version < "3":  # python2.x
                 reload(sys)
                 sys.setdefaultencoding("utf-8")
@@ -528,15 +512,14 @@ class Weibo:
                                  str(self.following) + u"\n粉丝数: " +
                                  str(self.followers) + result_header)
                 temp_result.append(result_header)
-            for i in range(wrote_num, self.got_num):
+            for i, w in enumerate(self.weibo[wrote_num:]):
                 temp_result.append(
-                    str(i + 1) + ":" + self.weibo_content[i] + "\n" +
-                    u"微博位置: " + self.weibo_place[i] + "\n" + u"发布时间: " +
-                    self.publish_time[i] + "\n" + u"点赞数: " +
-                    str(self.up_num[i]) + u"   转发数: " +
-                    str(self.retweet_num[i]) + u"   评论数: " +
-                    str(self.comment_num[i]) + "\n" + u"发布工具: " +
-                    self.publish_tool[i] + "\n\n")
+                    str(wrote_num + i + 1) + ":" + w["content"] + "\n" +
+                    u"微博位置: " + w["publish_place"] + "\n" + u"发布时间: " +
+                    w["publish_time"] + "\n" + u"点赞数: " + str(w["up_num"]) +
+                    u"   转发数: " + str(w["retweet_num"]) + u"   评论数: " +
+                    str(w["comment_num"]) + "\n" + u"发布工具: " +
+                    w["publish_tool"] + "\n\n")
             result = "".join(temp_result)
             with open(self.get_filepath("txt"), "ab") as f:
                 f.write(result.encode(sys.stdout.encoding))
@@ -611,14 +594,14 @@ def main():
         print(u"全部微博数: " + str(wb.weibo_num))
         print(u"关注数: " + str(wb.following))
         print(u"粉丝数: " + str(wb.followers))
-        if wb.weibo_content:
-            print(u"最新/置顶 微博为: " + wb.weibo_content[0])
-            print(u"最新/置顶 微博位置: " + wb.weibo_place[0])
-            print(u"最新/置顶 微博发布时间: " + wb.publish_time[0])
-            print(u"最新/置顶 微博获得赞数: " + str(wb.up_num[0]))
-            print(u"最新/置顶 微博获得转发数: " + str(wb.retweet_num[0]))
-            print(u"最新/置顶 微博获得评论数: " + str(wb.comment_num[0]))
-            print(u"最新/置顶 微博发布工具: " + wb.publish_tool[0])
+        if wb.weibo:
+            print(u"最新/置顶 微博为: " + wb.weibo[0]["content"])
+            print(u"最新/置顶 微博位置: " + wb.weibo[0]["publish_place"])
+            print(u"最新/置顶 微博发布时间: " + wb.weibo[0]["publish_time"])
+            print(u"最新/置顶 微博获得赞数: " + str(wb.weibo[0]["up_num"]))
+            print(u"最新/置顶 微博获得转发数: " + str(wb.weibo[0]["retweet_num"]))
+            print(u"最新/置顶 微博获得评论数: " + str(wb.weibo[0]["comment_num"]))
+            print(u"最新/置顶 微博发布工具: " + wb.weibo[0]["publish_tool"])
     except Exception as e:
         print("Error: ", e)
         traceback.print_exc()
