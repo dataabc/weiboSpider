@@ -308,9 +308,15 @@ class Weibo(object):
                     ]
                     picture_urls = ','.join(picture_list)
                 else:
-                    preview_picture = info.xpath('.//img/@src')[-1]
-                    picture_urls = preview_picture.replace(
-                        '/wap180/', '/large/')
+                    if info.xpath('.//img/@src'):
+                        preview_picture = info.xpath('.//img/@src')[-1]
+                        picture_urls = preview_picture.replace(
+                            '/wap180/', '/large/')
+                    else:
+                        sys.exit(
+                            u"爬虫微博可能被设置成了'不显示图片'，请前往"
+                            u"'https://weibo.cn/account/customize/pic'，修改为'显示'"
+                        )
             else:
                 picture_urls = '无'
             return picture_urls
