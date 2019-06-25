@@ -561,7 +561,7 @@ class Weibo(object):
                 # 通过加入随机等待避免被限制。爬虫速度过快容易被系统限制(一段时间后限
                 # 制会自动解除)，加入随机等待模拟人的操作，可降低被系统限制的风险。默
                 # 认是每爬取1到5页随机等待6到10秒，如果仍然被限，可适当增加sleep时间
-                if page - page1 == random_pages:
+                if page - page1 == random_pages and page < page_num:
                     sleep(random.randint(6, 10))
                     page1 = page
                     random_pages = random.randint(1, 5)
