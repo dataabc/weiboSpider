@@ -1,6 +1,9 @@
 # 功能
 爬取新浪微博信息，并写入csv/txt文件，文件名为目标用户id加".csv"和".txt"的形式，同时还会下载该微博原始图片(可选)。<br>
 <br>
+本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需免cookie版，大家可以访问<https://github.com/dataabc/weibo-crawler>，
+二者功能类似，免cookie版因为不需要cookie，用法更简单，但功能却更多。<br>
+<br>
 以爬取迪丽热巴的微博为例，她的微博昵称为"Dear-迪丽热巴"，id为1669879400(后面会讲如何获取用户id)。我们选择爬取她的原创微博。程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件和一个img文件夹，img文件夹用来存储下载到的图片。<br>
 <br>
 csv文件结果如下所示：
@@ -12,7 +15,7 @@ txt文件结果如下所示：
 本次下载了766张图片，大小一共1.15GB，包括她原创微博中的图片和转发微博转发理由中的图片。图片名为yyyymmdd+微博id的形式，若某条微博存在多张图片，则图片名中还会包括它在微博图片中的序号。本次下载有一张图片因为超时没有下载下来，该图片url被写到了not_downloaded_pictures.txt。
 
 # 输入
-用户id，例如新浪微博昵称为“Dear-迪丽热巴”的id为“1669879400”
+用户id，例如新浪微博昵称为"Dear-迪丽热巴"的id为"1669879400"
 
 # 输出
 - 昵称：用户昵称，如"Dear-迪丽热巴"
@@ -42,7 +45,7 @@ $ git clone https://github.com/dataabc/weibospider.git
 ```
 运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；
 ## 2.设置cookie和user_id
-打开weibospider文件夹下的"**weibospider.py**"文件，将“**your cookie**”替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；将**user_id**替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id;
+打开weibospider文件夹下的"**weibospider.py**"文件，将"**your cookie**"替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；将**user_id**替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id;
 ## 3.运行脚本
 大家可以根据自己的运行环境选择运行方式，Linux可以通过
 ```bash
@@ -64,18 +67,23 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter
 **wb.weibo_num**：微博数；<br>
 **wb.following**：关注数；<br>
 **wb.followers**：粉丝数；<br>
-**wb.weibo**：除不包含上述信息外，wb.weibo包含爬取到的所有微博信息，如**微博id**、**微博正文**、**原始图片url**、**发布位置**、**发布时间**、**发布工具**、**点赞数**、**转发数**、**评论数**等。如果爬的是全部微博(原创+转发)，除上述信息之外，还包含被**转发微博原始图片url**、**是否为原创微博**等。wb.weibo是一个列表，包含了爬取的所有微博信息。wb.weibo[0]为爬取的第一条微博，wb.weibo[1]为爬取的第二条微博，以此类推。当filter=1时，wb.weibo[0]为爬取的第一条**原创**微博，以此类推。wb.weibo[0]["id"]为第一条微博的id，wb.weibo[0]["content"]为第一条微博的正文，wb.weibo[0]["publish_time"]为第一条微博的发布时间，还有其它很多信息不在赘述，大家可以点击下面的"详情"查看具体用法。
+**wb.weibo**：除不包含上述信息外，wb.weibo包含爬取到的所有微博信息，如**微博id**、**微博正文**、**原始图片url**、**发布位置**、**发布时间**、**发布工具**、**点赞数**、**转发数**、**评论数**等。如果爬的是全部微博(原创+转发)，除上述信息之外，还包含被**转发微博原始图片url**、**是否为原创微博**等。wb.weibo是一个列表，包含了爬取的所有微博信息。wb.weibo[0]为爬取的第一条微博，wb.weibo[1]为爬取的第二条微博，以此类推。当filter=1时，wb.weibo[0]为爬取的第一条**原创**微博，以此类推。wb.weibo[0]['id']为第一条微博的id，wb.weibo[0]['content']为第一条微博的正文，wb.weibo[0]['publish_time']为第一条微博的发布时间，还有其它很多信息不在赘述，大家可以点击下面的"详情"查看具体用法。
 <details>
   
 <summary>详情</summary>
-**original_pictures**：存储原创微博的原始图片url和转发微博转发理由中的图片url。如wb.weibo[0]["original_pictures"]为最新一条微博的原始图片url，若该条微博有多张图片，则存储多个url，以英文逗号分割；若该微博没有图片，则值为"无"；<br>
+
+若目标微博用户存在微博，则：<br>
+**id**：存储微博id。如wb.weibo[0]['id']为最新一条微博的id；<br>
+**content**：存储微博正文。如wb.weibo[0]['content']为最新一条微博的正文；<br>
+**original_pictures**：存储原创微博的原始图片url和转发微博转发理由中的图片url。如wb.weibo[0]['original_pictures']为最新一条微博的原始图片url，若该条微博有多张图片，则存储多个url，以英文逗号分割；若该微博没有图片，则值为"无"；<br>
 **retweet_pictures**：存储被转发微博中的原始图片url。当最新微博为原创微博或者为没有图片的转发微博时，则值为"无"，否则为被转发微博的图片url。若有多张图片，则存储多个url，以英文逗号分割；<br>
-**publish_place**：存储微博的发布位置。如wb.weibo[0]["publish_place"]为最新一条微博的发布位置，如果该条微博没有位置信息，则值为"无"；<br>
-**publish_time**：存储微博的发布时间。如wb.weibo[0]["publish_time"]为最新一条微博的发布时间；<br>
-**up_num**：存储微博获得的点赞数。如wb.weibo[0]["up_num"]为最新一条微博获得的点赞数；<br>
-**retweet_num**：存储微博获得的转发数。如wb.weibo[0]["retweet_num"]为最新一条微博获得的转发数；<br>
-**comment_num**：存储微博获得的评论数。如wb.weibo[0]["comment_num"]为最新一条微博获得的评论数；<br>
-**publish_tool**：存储微博的发布工具。如wb.weibo[0]["publish_tool"]为最新一条微博的发布工具。
+**publish_place**：存储微博的发布位置。如wb.weibo[0]['publish_place']为最新一条微博的发布位置，如果该条微博没有位置信息，则值为"无"；<br>
+**publish_time**：存储微博的发布时间。如wb.weibo[0]['publish_time']为最新一条微博的发布时间；<br>
+**up_num**：存储微博获得的点赞数。如wb.weibo[0]['up_num']为最新一条微博获得的点赞数；<br>
+**retweet_num**：存储微博获得的转发数。如wb.weibo[0]['retweet_num']为最新一条微博获得的转发数；<br>
+**comment_num**：存储微博获得的评论数。如wb.weibo[0]['comment_num']为最新一条微博获得的评论数；<br>
+**publish_tool**：存储微博的发布工具。如wb.weibo[0]['publish_tool']为最新一条微博的发布工具。
+
 </details>
 
 # 如何获取cookie
@@ -89,7 +97,7 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie3.png)
 
 # 如何获取user_id
-1.打开网址<https://weibo.cn>，搜索我们要找的人，如”迪丽热巴“，进入她的主页；<br>
+1.打开网址<https://weibo.cn>，搜索我们要找的人，如"迪丽热巴"，进入她的主页；<br>
 ![](https://picture.cognize.me/cognize/github/weibospider/user_home.png)
 2.按照上图箭头所指，点击"资料"链接，跳转到用户资料页面；<br>
 ![](https://picture.cognize.me/cognize/github/weibospider/user_info.png)
