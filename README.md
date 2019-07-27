@@ -44,15 +44,19 @@ txt文件结果如下所示：
 $ git clone https://github.com/dataabc/weibospider.git
 ```
 运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；
-## 2.设置cookie和user_id
+## 2.安装依赖
+```bash
+pip install -r requirements.txt
+```
+## 3.设置cookie和user_id
 打开weibospider文件夹下的"**weibospider.py**"文件，将"**your cookie**"替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；将**user_id**替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id;
-## 3.运行脚本
+## 4.运行脚本
 大家可以根据自己的运行环境选择运行方式，Linux可以通过
 ```bash
 $ python weibospider.py
 ```
 运行;
-## 4.按需求修改脚本（可选）
+## 5.按需求修改脚本（可选）
 本脚本是一个Weibo类，用户可以按照自己的需求调用Weibo类。
 例如用户可以直接在"weibospider.py"文件中调用Weibo类，具体调用代码示例如下：
 ```python
