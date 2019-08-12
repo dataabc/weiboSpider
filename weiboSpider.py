@@ -115,7 +115,7 @@ class Weibo(object):
                                        1:wb_content.rfind(wb_time)]
             return weibo_content
         except Exception as e:
-            return '网络出错'
+            return u'网络出错'
             print('Error: ', e)
             traceback.print_exc()
 
@@ -319,10 +319,10 @@ class Weibo(object):
                             u"'https://weibo.cn/account/customize/pic'，修改为'显示'"
                         )
             else:
-                picture_urls = '无'
+                picture_urls = u'无'
             return picture_urls
         except Exception as e:
-            return '无'
+            return u'无'
             print('Error: ', e)
             traceback.print_exc()
 
@@ -335,14 +335,14 @@ class Weibo(object):
                 original_pictures = self.extract_picture_urls(info, weibo_id)
                 picture_urls['original_pictures'] = original_pictures
                 if not self.filter:
-                    picture_urls['retweet_pictures'] = '无'
+                    picture_urls['retweet_pictures'] = u'无'
             else:
                 retweet_url = info.xpath("div/a[@class='cc']/@href")[0]
                 retweet_id = retweet_url.split('/')[-1].split('?')[0]
                 retweet_pictures = self.extract_picture_urls(info, retweet_id)
                 picture_urls['retweet_pictures'] = retweet_pictures
                 a_list = info.xpath('div[last()]/a/@href')
-                original_picture = '无'
+                original_picture = u'无'
                 for a in a_list:
                     if a.endswith(('.gif', '.jpeg', '.jpg', '.png')):
                         original_picture = a
@@ -350,6 +350,35 @@ class Weibo(object):
                 picture_urls['original_pictures'] = original_picture
             return picture_urls
         except Exception as e:
+            print('Error: ', e)
+            traceback.print_exc()
+
+    def get_video_url(self, info, is_original):
+        """获取微博视频url"""
+        try:
+            if is_original:
+                div_first = info.xpath('div')[0]
+                a_list = div_first.xpath('.//a')
+                video_link = u'无'
+                for a in a_list:
+                    if 'm.weibo.cn/s/video/show?object_id=' in a.xpath(
+                            '@href')[0]:
+                        video_link = a.xpath('@href')[0]
+                        break
+                if video_link != u'无':
+                    video_link = video_link.replace(
+                        'm.weibo.cn/s/video/show', 'm.weibo.cn/s/video/object')
+                    wb_info = requests.get(video_link,
+                                           cookies=self.cookie).json()
+                    video_url = wb_info['data']['object']['stream'].get(
+                        'hd_url')
+                    if not video_url:
+                        video_url = wb_info['data']['object']['stream']['url']
+            else:
+                video_url = u'无'
+            return video_url
+        except Exception as e:
+            return u'无'
             print('Error: ', e)
             traceback.print_exc()
 
@@ -374,7 +403,7 @@ class Weibo(object):
             print(u'即将进行图片下载')
             img_dir = self.get_filepath('img')
             for w in tqdm(self.weibo, desc=u'图片下载进度'):
-                if w['original_pictures'] != '无':
+                if w['original_pictures'] != u'无':
                     pic_prefix = w['publish_time'][:11].replace(
                         '-', '') + '_' + w['id']
                     if ',' in w['original_pictures']:
@@ -414,6 +443,8 @@ class Weibo(object):
                     weibo['retweet_pictures'] = picture_urls[
                         'retweet_pictures']  # 转发图片url
                     weibo['original'] = is_original  # 是否原创微博
+                weibo['video_url'] = self.get_video_url(info,
+                                                        is_original)  # 微博视频url
                 weibo['publish_place'] = self.get_publish_place(info)  # 微博发布位置
                 weibo['publish_time'] = self.get_publish_time(info)  # 微博发布时间
                 weibo['publish_tool'] = self.get_publish_tool(info)  # 微博发布工具
@@ -470,6 +501,7 @@ class Weibo(object):
                 '微博id',
                 '微博正文',
                 '原始图片url',
+                '微博视频url',
                 '发布位置',
                 '发布时间',
                 '发布工具',
