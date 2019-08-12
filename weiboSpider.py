@@ -115,6 +115,7 @@ class Weibo(object):
                                        1:wb_content.rfind(wb_time)]
             return weibo_content
         except Exception as e:
+            return '网络出错'
             print('Error: ', e)
             traceback.print_exc()
 
@@ -321,6 +322,7 @@ class Weibo(object):
                 picture_urls = '无'
             return picture_urls
         except Exception as e:
+            return '无'
             print('Error: ', e)
             traceback.print_exc()
 
