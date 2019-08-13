@@ -14,6 +14,7 @@ from time import sleep
 
 import requests
 from lxml import etree
+from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 
 
@@ -388,7 +389,9 @@ class Weibo(object):
     def download_one_file(self, url, file_path, type, weibo_id):
         """下载单个文件(图片/视频)"""
         try:
-            downloaded = requests.get(url)
+            s = requests.Session()
+            s.mount(url, HTTPAdapter(max_retries=5))
+            downloaded = s.get(url, timeout=(5, 10))
             with open(file_path, 'wb') as f:
                 f.write(downloaded.content)
         except Exception as e:
