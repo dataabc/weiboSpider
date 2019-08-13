@@ -20,7 +20,7 @@ from tqdm import tqdm
 class Weibo(object):
     cookie = {'Cookie': 'your cookie'}  # 将your cookie替换成自己的cookie
 
-    def __init__(self, user_id, filter=0, pic_download=0):
+    def __init__(self, user_id, filter=0, pic_download=0, video_download=0):
         """Weibo类初始化"""
         if not isinstance(user_id, int):
             sys.exit(u'user_id值应为一串数字形式,请重新输入')
@@ -28,9 +28,12 @@ class Weibo(object):
             sys.exit(u'filter值应为0或1,请重新输入')
         if pic_download != 0 and pic_download != 1:
             sys.exit(u'pic_download值应为0或1,请重新输入')
+        if video_download != 0 and video_download != 1:
+            sys.exit(u'video_download值应为0或1,请重新输入')
         self.user_id = user_id  # 用户id,即需要我们输入的数字,如昵称为"Dear-迪丽热巴"的id为1669879400
         self.filter = filter  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
         self.pic_download = pic_download  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
+        self.video_download = video_download  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
         self.nickname = ''  # 用户昵称,如“Dear-迪丽热巴”
         self.weibo_num = 0  # 用户全部微博数
         self.got_num = 0  # 爬取到的微博数
@@ -382,47 +385,56 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
-    def download_pic(self, url, pic_path):
-        """下载单张图片"""
+    def download_one_file(self, url, file_path, type, weibo_id):
+        """下载单个文件(图片/视频)"""
         try:
-            p = requests.get(url)
-            with open(pic_path, 'wb') as f:
-                f.write(p.content)
+            downloaded = requests.get(url)
+            with open(file_path, 'wb') as f:
+                f.write(downloaded.content)
         except Exception as e:
             error_file = self.get_filepath(
-                'img') + os.sep + 'not_downloaded_pictures.txt'
+                type) + os.sep + 'not_downloaded.txt'
             with open(error_file, 'ab') as f:
-                url = url + '\n'
+                url = weibo_id + ':' + url + '\n'
                 f.write(url.encode(sys.stdout.encoding))
             print('Error: ', e)
             traceback.print_exc()
 
-    def download_pictures(self):
-        """下载微博图片"""
+    def download_files(self, type):
+        """下载文件(图片/视频)"""
         try:
-            print(u'即将进行图片下载')
-            img_dir = self.get_filepath('img')
-            for w in tqdm(self.weibo, desc=u'图片下载进度'):
-                if w['original_pictures'] != u'无':
-                    pic_prefix = w['publish_time'][:11].replace(
+            if type == 'img':
+                describe = u'图片'
+                key = 'original_pictures'
+            else:
+                describe = u'视频'
+                key = 'video_url'
+            print(u'即将进行%s下载' % describe)
+            file_dir = self.get_filepath(type)
+            for w in tqdm(self.weibo, desc=u'%s下载进度' % describe):
+                if w[key] != u'无':
+                    file_prefix = w['publish_time'][:11].replace(
                         '-', '') + '_' + w['id']
-                    if ',' in w['original_pictures']:
-                        w['original_pictures'] = w['original_pictures'].split(
-                            ',')
-                        for j, url in enumerate(w['original_pictures']):
-                            pic_suffix = url[url.rfind('.'):]
-                            pic_name = pic_prefix + '_' + str(j +
-                                                              1) + pic_suffix
-                            pic_path = img_dir + os.sep + pic_name
-                            self.download_pic(url, pic_path)
+                    if type == 'img' and ',' in w[key]:
+                        w[key] = w[key].split(',')
+                        for j, url in enumerate(w[key]):
+                            file_suffix = url[url.rfind('.'):]
+                            file_name = file_prefix + '_' + str(
+                                j + 1) + file_suffix
+                            file_path = file_dir + os.sep + file_name
+                            self.download_one_file(url, file_path, type,
+                                                   w['id'])
                     else:
-                        pic_suffix = w['original_pictures'][
-                            w['original_pictures'].rfind('.'):]
-                        pic_name = pic_prefix + pic_suffix
-                        pic_path = img_dir + os.sep + pic_name
-                        self.download_pic(w['original_pictures'], pic_path)
-            print(u'图片下载完毕,保存路径:')
-            print(img_dir)
+                        if type == 'video':
+                            file_suffix = '.mp4'
+                        else:
+                            file_suffix = w[key][w[key].rfind('.'):]
+                        file_name = file_prefix + file_suffix
+                        file_path = file_dir + os.sep + file_name
+                        self.download_one_file(w[key], file_path, type,
+                                               w['id'])
+            print(u'%s下载完毕,保存路径:' % describe)
+            print(file_dir)
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
@@ -482,11 +494,11 @@ class Weibo(object):
         try:
             file_dir = os.path.split(os.path.realpath(
                 __file__))[0] + os.sep + 'weibo' + os.sep + self.nickname
-            if type == 'img':
-                file_dir = file_dir + os.sep + 'img'
+            if type == 'img' or type == 'video':
+                file_dir = file_dir + os.sep + type
             if not os.path.isdir(file_dir):
                 os.makedirs(file_dir)
-            if type == 'img':
+            if type == 'img' or type == 'video':
                 return file_dir
             file_path = file_dir + os.sep + '%d' % self.user_id + '.' + type
             return file_path
@@ -616,7 +628,9 @@ class Weibo(object):
             print(u'信息抓取完毕')
             print('*' * 100)
             if self.pic_download == 1:
-                self.download_pictures()
+                self.download_files('img')
+            if self.video_download == 1:
+                self.download_files('video')
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
@@ -628,7 +642,9 @@ def main():
         user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         pic_download = 1  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
-        wb = Weibo(user_id, filter, pic_download)  # 调用Weibo类，创建微博实例wb
+        video_download = 1  # 值为0代表不下载微博视频,1代表下载微博视频
+        wb = Weibo(user_id, filter, pic_download,
+                   video_download)  # 调用Weibo类，创建微博实例wb
         wb.start()  # 爬取微博信息
         print(u'用户昵称: ' + wb.nickname)
         print(u'全部微博数: ' + str(wb.weibo_num))
