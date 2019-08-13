@@ -378,6 +378,8 @@ class Weibo(object):
                         'hd_url')
                     if not video_url:
                         video_url = wb_info['data']['object']['stream']['url']
+                        if not video_url:  # 说明该视频为直播
+                            video_url = u'无'
             else:
                 video_url = u'无'
             return video_url
