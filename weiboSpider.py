@@ -209,7 +209,6 @@ class Weibo(object):
                 weibo_content = self.get_original_weibo(info, weibo_id)
             else:
                 weibo_content = self.get_retweet(info, weibo_id)
-            print(weibo_content)
             return weibo_content
         except Exception as e:
             print('Error: ', e)
@@ -235,7 +234,6 @@ class Weibo(object):
                                 publish_place = u'无'
                         publish_place = self.deal_garbled(publish_place)
                         break
-            print(u'微博发布位置: ' + publish_place)
             return publish_place
         except Exception as e:
             print('Error: ', e)
@@ -266,7 +264,6 @@ class Weibo(object):
                 publish_time = year + '-' + month + '-' + day + ' ' + time
             else:
                 publish_time = publish_time[:16]
-            print(u'微博发布时间: ' + publish_time)
             return publish_time
         except Exception as e:
             print('Error: ', e)
@@ -281,7 +278,6 @@ class Weibo(object):
                 publish_tool = str_time.split(u'来自')[1]
             else:
                 publish_tool = u'无'
-            print(u'微博发布工具: ' + publish_tool)
             return publish_tool
         except Exception as e:
             print('Error: ', e)
@@ -298,15 +294,12 @@ class Weibo(object):
             weibo_footer = re.findall(pattern, str_footer, re.M)
 
             up_num = int(weibo_footer[0])
-            print(u'点赞数: ' + str(up_num))
             footer['up_num'] = up_num
 
             retweet_num = int(weibo_footer[1])
-            print(u'转发数: ' + str(retweet_num))
             footer['retweet_num'] = retweet_num
 
             comment_num = int(weibo_footer[2])
-            print(u'评论数: ' + str(comment_num))
             footer['comment_num'] = comment_num
             return footer
         except Exception as e:
@@ -492,6 +485,16 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
+    def print_one_weibo(self, weibo):
+        """打印一条微博"""
+        print(weibo['content'])
+        print(u'微博发布位置：%s' % weibo['publish_place'])
+        print(u'发布发布时间：%s' % weibo['publish_time'])
+        print(u'发布发布工具：%s' % weibo['publish_tool'])
+        print(u'点赞数：%d' % weibo['up_num'])
+        print(u'转发数：%d' % weibo['retweet_num'])
+        print(u'评论数：%d' % weibo['comment_num'])
+
     def get_one_page(self, page):
         """获取第page页的全部微博"""
         try:
@@ -505,6 +508,7 @@ class Weibo(object):
                     if weibo:
                         if weibo['publish_time'] < self.since_date:
                             return True
+                        self.print_one_weibo(weibo)
                         self.weibo.append(weibo)
                         self.got_num += 1
                         print('-' * 100)
