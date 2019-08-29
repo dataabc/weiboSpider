@@ -22,14 +22,11 @@ class Weibo(object):
     cookie = {'Cookie': 'your cookie'}  # 将your cookie替换成自己的cookie
 
     def __init__(self,
-                 user_id,
                  filter=0,
                  since_date='1900-01-01',
                  pic_download=0,
                  video_download=0):
         """Weibo类初始化"""
-        if not isinstance(user_id, int):
-            sys.exit(u'user_id值应为一串数字形式,请重新输入')
         if filter != 0 and filter != 1:
             sys.exit(u'filter值应为0或1,请重新输入')
         if not self.is_date(since_date):
@@ -38,7 +35,7 @@ class Weibo(object):
             sys.exit(u'pic_download值应为0或1,请重新输入')
         if video_download != 0 and video_download != 1:
             sys.exit(u'video_download值应为0或1,请重新输入')
-        self.user_id = user_id  # 用户id,即需要我们输入的数字,如昵称为"Dear-迪丽热巴"的id为1669879400
+        self.user_id = ''  # 用户id,如昵称为"Dear-迪丽热巴"的id为'1669879400'
         self.filter = filter  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
         self.since_date = since_date  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
         self.pic_download = pic_download  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
@@ -81,7 +78,7 @@ class Weibo(object):
     def get_nickname(self):
         """获取用户昵称"""
         try:
-            url = 'https://weibo.cn/%d/info' % (self.user_id)
+            url = 'https://weibo.cn/%s/info' % (self.user_id)
             selector = self.deal_html(url)
             nickname = selector.xpath('//title/text()')[0]
             self.nickname = nickname[:-3]
@@ -499,7 +496,7 @@ class Weibo(object):
     def get_one_page(self, page):
         """获取第page页的全部微博"""
         try:
-            url = 'https://weibo.cn/u/%d?page=%d' % (self.user_id, page)
+            url = 'https://weibo.cn/u/%s?page=%d' % (self.user_id, page)
             selector = self.deal_html(url)
             info = selector.xpath("//div[@class='c']")
             is_exist = info[0].xpath("div/span[@class='ctt']")
@@ -528,7 +525,7 @@ class Weibo(object):
                 os.makedirs(file_dir)
             if type == 'img' or type == 'video':
                 return file_dir
-            file_path = file_dir + os.sep + '%d' % self.user_id + '.' + type
+            file_path = file_dir + os.sep + self.user_id + '.' + type
             return file_path
         except Exception as e:
             print('Error: ', e)
@@ -618,7 +615,7 @@ class Weibo(object):
     def get_weibo_info(self):
         """获取微博信息"""
         try:
-            url = 'https://weibo.cn/u/%d' % (self.user_id)
+            url = 'https://weibo.cn/u/%s' % (self.user_id)
             selector = self.deal_html(url)
             self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
             page_num = self.get_page_num(selector)  # 获取微博总页数
@@ -651,16 +648,34 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
-    def start(self):
+    def get_user_list(self, file_name):
+        """获取文件中的微博id信息"""
+        with open(file_name, 'r') as f:
+            user_id_list = f.read().splitlines()
+        return user_id_list
+
+    def initialize_info(self, user_id):
+        """初始化爬虫信息"""
+        self.nickname = ''
+        self.weibo_num = 0
+        self.got_num = 0
+        self.following = 0
+        self.followers = 0
+        self.weibo = []
+        self.user_id = user_id
+
+    def start(self, user_id_list):
         """运行爬虫"""
         try:
-            self.get_weibo_info()
-            print(u'信息抓取完毕')
-            print('*' * 100)
-            if self.pic_download == 1:
-                self.download_files('img')
-            if self.video_download == 1:
-                self.download_files('video')
+            for user_id in user_id_list:
+                self.initialize_info(user_id)
+                self.get_weibo_info()
+                print(u'信息抓取完毕')
+                print('*' * 100)
+                if self.pic_download == 1:
+                    self.download_files('img')
+                if self.video_download == 1:
+                    self.download_files('video')
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
@@ -668,27 +683,26 @@ class Weibo(object):
 
 def main():
     try:
-        # 使用实例,输入一个用户id，所有信息都会存储在wb实例中
-        user_id = 1669879400  # 可以改成任意合法的用户id（爬虫的微博id除外）
+        # 以下是程序配置信息，可以根据自己需求修改
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
         since_date = '2018-01-01'  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
         pic_download = 1  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
         video_download = 1  # 值为0代表不下载微博视频,1代表下载微博视频
-        wb = Weibo(user_id, filter, since_date, pic_download,
-                   video_download)  # 调用Weibo类，创建微博实例wb
-        wb.start()  # 爬取微博信息
-        print(u'用户昵称: ' + wb.nickname)
-        print(u'全部微博数: ' + str(wb.weibo_num))
-        print(u'关注数: ' + str(wb.following))
-        print(u'粉丝数: ' + str(wb.followers))
-        if wb.weibo:
-            print(u'最新/置顶 微博为: ' + wb.weibo[0]['content'])
-            print(u'最新/置顶 微博位置: ' + wb.weibo[0]['publish_place'])
-            print(u'最新/置顶 微博发布时间: ' + wb.weibo[0]['publish_time'])
-            print(u'最新/置顶 微博获得赞数: ' + str(wb.weibo[0]['up_num']))
-            print(u'最新/置顶 微博获得转发数: ' + str(wb.weibo[0]['retweet_num']))
-            print(u'最新/置顶 微博获得评论数: ' + str(wb.weibo[0]['comment_num']))
-            print(u'最新/置顶 微博发布工具: ' + wb.weibo[0]['publish_tool'])
+
+        wb = Weibo(filter, since_date, pic_download, video_download)
+
+        # user_id_list包含了要爬的目标微博id，可以是一个，也可以是多个，也可以从文件中读取
+        # 爬单个微博，user_id_list如下所示，可以改成任意合法的用户id
+        user_id_list = ['1669879400']
+
+        # 爬多个微博，user_id_list如下所示，可以改成任意合法的用户id
+        # user_id_list = ['1669879400', '1729370543']
+
+        # 也可以在文件中读取，文件中可以包含很多user_id，每个user_id占一行，文件名任意，类型为txt，位置位于本程序的同目录下，
+        # 比如文件可以叫user_id_list.txt，读取文件中的user_id_list如下所示:
+        # user_id_list = wb.get_user_list('user_id_list.txt')
+
+        wb.start(user_id_list)  # 爬取微博信息
     except Exception as e:
         print('Error: ', e)
         traceback.print_exc()
