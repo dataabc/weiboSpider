@@ -14,6 +14,7 @@ from time import sleep
 
 import requests
 from lxml import etree
+# from pymongo import MongoClient
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 
@@ -606,10 +607,22 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
+    # def write_mongodb(self, wrote_num):
+    #     """将爬取的信息写入MongoDB数据库"""
+    #     # 如果想使用此功能，请先确保已安装pymongo
+    #     # 若未安装请运行pip install pymongo
+    #     client = MongoClient()
+    #     db = client['weibo']
+    #     collection = db['weibo']
+    #     for w in self.weibo[wrote_num:]:
+    #         if not collection.find_one({'id': w['id']}):
+    #             collection.insert_one(w)
+
     def write_file(self, wrote_num):
         """写文件"""
         if self.got_num > wrote_num:
             self.write_csv(wrote_num)
+            # self.write_mongodb(wrote_num)
             self.write_txt(wrote_num)
 
     def get_weibo_info(self):
