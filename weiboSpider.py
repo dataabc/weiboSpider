@@ -14,7 +14,6 @@ from time import sleep
 
 import requests
 from lxml import etree
-# from pymongo import MongoClient
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 
@@ -611,18 +610,78 @@ class Weibo(object):
     #     """将爬取的信息写入MongoDB数据库"""
     #     # 如果想使用此功能，请先确保已安装pymongo
     #     # 若未安装请运行pip install pymongo
+    #     from pymongo import MongoClient
+
     #     client = MongoClient()
     #     db = client['weibo']
     #     collection = db['weibo']
     #     for w in self.weibo[wrote_num:]:
     #         if not collection.find_one({'id': w['id']}):
     #             collection.insert_one(w)
+    #     print(u'%d条微博写入MongoDB数据库文件完毕' % self.got_num)
+
+    # def write_mysql(self, wrote_num):
+    #     """将爬取的信息写入MySQL数据库"""
+    #     # 如果想使用此功能，请先确保已安装pymysql
+    #     # 若未安装请运行pip install pymysql
+    #     import pymysql
+
+    #     db = pymysql.connect(host='localhost',
+    #                          user='root',
+    #                          password='123456',
+    #                          port=3306)
+    #     cursor = db.cursor()
+    #     cursor.execute(
+    #         'CREATE DATABASE IF NOT EXISTS weibo DEFAULT CHARACTER SET utf8mb4'
+    #     )
+    #     db.close()
+    #     db1 = pymysql.connect(host='localhost',
+    #                           user='root',
+    #                           password='123456',
+    #                           port=3306,
+    #                           db='weibo')
+    #     cursor1 = db1.cursor()
+    #     cursor1.execute('''
+    #             CREATE TABLE IF NOT EXISTS weibo (
+    #             id varchar(10) NOT NULL,
+    #             content varchar(2000),
+    #             original_pictures varchar(1000),
+    #             retweet_pictures varchar(1000),
+    #             original BOOLEAN NOT NULL DEFAULT 1,
+    #             video_url varchar(300),
+    #             publish_place varchar(100),
+    #             publish_time DATETIME NOT NULL,
+    #             publish_tool varchar(30),
+    #             up_num INT NOT NULL,
+    #             retweet_num INT NOT NULL,
+    #             comment_num INT NOT NULL,
+    #             PRIMARY KEY (id)
+    #             )
+    #             ''')
+    #     for w in self.weibo[wrote_num:]:
+    #         table = 'weibo'
+    #         keys = ', '.join(w.keys())
+    #         values = ', '.join(['%s'] * len(w))
+    #         sql = 'INSERT INTO {table}({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'.format(
+    #             table=table, keys=keys, values=values)
+    #         update = ','.join([" {key} = %s".format(key=key) for key in w])
+    #         sql += update
+    #         try:
+    #             cursor1.execute(sql, tuple(w.values()) * 2)
+    #             db1.commit()
+    #         except Exception as e:
+    #             db1.rollback()
+    #             print('Error: ', e)
+    #             traceback.print_exc()
+    #     db1.close()
+    #     print(u'%d条微博写入MySQL数据库文件完毕' % self.got_num)
 
     def write_file(self, wrote_num):
         """写文件"""
         if self.got_num > wrote_num:
             self.write_csv(wrote_num)
             # self.write_mongodb(wrote_num)
+            # self.write_mysql(wrote_num)
             self.write_txt(wrote_num)
 
     def get_weibo_info(self):
