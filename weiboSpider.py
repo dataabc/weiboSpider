@@ -618,6 +618,8 @@ class Weibo(object):
     #     for w in self.weibo[wrote_num:]:
     #         if not collection.find_one({'id': w['id']}):
     #             collection.insert_one(w)
+    #         else:
+    #             collection.update_one({'id': w['id']}, {'$set': w})
     #     print(u'%d条微博写入MongoDB数据库文件完毕' % self.got_num)
 
     # def write_mysql(self, wrote_num):
@@ -662,8 +664,10 @@ class Weibo(object):
     #         table = 'weibo'
     #         keys = ', '.join(w.keys())
     #         values = ', '.join(['%s'] * len(w))
-    #         sql = 'INSERT INTO {table}({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'.format(
-    #             table=table, keys=keys, values=values)
+    #         sql = '''INSERT INTO {table}({keys}) VALUES ({values})
+    #                  ON DUPLICATE KEY UPDATE'''.format(table=table,
+    #                                                    keys=keys,
+    #                                                    values=values)
     #         update = ','.join([" {key} = %s".format(key=key) for key in w])
     #         sql += update
     #         try:
@@ -680,8 +684,8 @@ class Weibo(object):
         """写文件"""
         if self.got_num > wrote_num:
             self.write_csv(wrote_num)
-            # self.write_mongodb(wrote_num)
             # self.write_mysql(wrote_num)
+            # self.write_mongodb(wrote_num)
             self.write_txt(wrote_num)
 
     def get_weibo_info(self):
