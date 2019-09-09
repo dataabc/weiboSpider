@@ -503,6 +503,14 @@ class Weibo(object):
         print(u'转发数：%d' % weibo['retweet_num'])
         print(u'评论数：%d' % weibo['comment_num'])
 
+    def is_pinned_weibo(self, info):
+        """判断微博是否为置顶微博"""
+        kt = info.xpath(".//span[@class='kt']/text()")
+        if kt and kt[0] == u'置顶':
+            return True
+        else:
+            return False
+
     def get_one_page(self, page):
         """获取第page页的全部微博"""
         try:
@@ -514,8 +522,15 @@ class Weibo(object):
                 for i in range(0, len(info) - 2):
                     weibo = self.get_one_weibo(info[i])
                     if weibo:
-                        if weibo['publish_time'] < self.since_date:
-                            return True
+                        publish_time = datetime.strptime(
+                            weibo['publish_time'][:10], "%Y-%m-%d")
+                        since_date = datetime.strptime(self.since_date,
+                                                       "%Y-%m-%d")
+                        if publish_time < since_date:
+                            if self.is_pinned_weibo(info[i]):
+                                continue
+                            else:
+                                return True
                         self.print_one_weibo(weibo)
                         self.weibo.append(weibo)
                         self.got_num += 1
