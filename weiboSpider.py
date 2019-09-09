@@ -639,6 +639,7 @@ class Weibo(object):
         db = client['weibo']
         collection = db['weibo']
         for w in self.weibo[wrote_num:]:
+            w['user_id'] = self.user_id
             if not collection.find_one({'id': w['id']}):
                 collection.insert_one(w)
             else:
@@ -725,6 +726,7 @@ class Weibo(object):
         create_table = """
                 CREATE TABLE IF NOT EXISTS weibo (
                 id varchar(10) NOT NULL,
+                user_id varchar(12),
                 content varchar(2000),
                 original_pictures varchar(1000),
                 retweet_pictures varchar(1000),
@@ -740,7 +742,11 @@ class Weibo(object):
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
         self.mysql_create_table(mysql_config, create_table)
         # 在'weibo'表中插入或更新微博数据
-        self.mysql_insert(mysql_config, 'weibo', self.weibo[wrote_num:])
+        weibo_list = []
+        for weibo in self.weibo[wrote_num:]:
+            weibo['user_id'] = self.user_id
+            weibo_list.append(weibo)
+        self.mysql_insert(mysql_config, 'weibo', weibo_list)
         print(u'%d条微博写入MySQL数据库完毕' % self.got_num)
 
     def write_data(self, wrote_num):
