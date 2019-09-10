@@ -1,24 +1,50 @@
 * [功能](#功能)
-* [输入](#输入)
 * [输出](#输出)
+* [实例](#实例)
 * [运行环境](#运行环境)
 * [使用说明](#使用说明)
   * [下载脚本](#1下载脚本)
   * [安装依赖](#2安装依赖)
-  * [设置cookie和user_id](#3设置cookie和user_id)
-  * [运行脚本](#4运行脚本)
-  * [按需求修改脚本](#5按需求修改脚本可选)
+  * [设置cookie](#3设置cookie)
+  * [设置user_id](#4设置user_id)
+  * [运行脚本](#5运行脚本)
+  * [按需求修改脚本](#6按需求修改脚本可选)
 * [如何获取cookie](#如何获取cookie)
 * [如何获取user_id](#如何获取user_id)
 * [注意事项](#注意事项)
 
-# 功能
-爬取新浪微博信息，并写入csv/txt文件，文件名为目标用户id加".csv"和".txt"的形式，同时还会下载该微博原始图片和微博视频(可选)。<br>
+## 功能
+爬取**一个**或**多个**新浪微博用户的数据，并将结果信息写入文件。写入信息几乎包括了用户微博的所有数据，主要包含用户信息和微博信息两类，前者包含用户昵称、关注数、粉丝数、微博数等等；后者包含微博正文、发布时间、发布工具、评论数等等，因为内容太多，这里不再赘述，详细内容见[输出](#输出)部分。具体的写入文件类型如下：
+- 写入**txt文件**（默认）
+- 写入**csv文件**（默认）
+- 写入**MySQL数据库**（可选）
+- 写入**MongoDB数据库**（可选）
+- 下载用户微博中的原始**图片**（默认）
+- 下载用户微博中的**视频**（默认）
+本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需免cookie版，大家可以访问<https://github.com/dataabc/weibo-crawler>，二者功能类似，免cookie版获取的信息更多，用法更简单，而且不需要cookie。<br>
+## 输出
+**用户信息**
+- 昵称：用户昵称，如"Dear-迪丽热巴"
+- 微博数：用户的全部微博数（转发微博+原创微博）
+- 关注数：用户关注的微博数量
+- 粉丝数：用户的粉丝数
+***
+**微博信息**
+- 微博id：微博唯一标志
+- 微博内容：微博正文
+- 原始图片url：原创微博图片和转发微博转发理由中图片的url，若某条微博存在多张图片，每个url以英文逗号分隔，若没有图片则值为无
+- 微博发布位置：位置微博中的发布位置
+- 微博发布时间：微博发布时的时间，精确到分
+- 点赞数：微博被赞的数量
+- 转发数：微博被转发的数量
+- 评论数：微博被评论的数量
+- 微博发布工具：微博的发布工具，如iPhone客户端、HUAWEI Mate 20 Pro等
+- 结果文件：保存在当前目录weibo文件夹下以用户昵称为名的文件夹里，名字为"user_id.csv"和"user_id.txt"的形式
+- 微博图片：原创微博中的图片和转发微博转发理由中的图片，保存在以用户昵称为名的文件夹下的img文件夹里
+- 微博视频：原创微博中的视频，保存在以用户昵称为名的文件夹下的video文件夹里
 <br>
-本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需免cookie版，大家可以访问<https://github.com/dataabc/weibo-crawler>，
-二者功能类似，免cookie版因为不需要cookie，用法更简单，但功能却更多。<br>
-<br>
-以爬取迪丽热巴的微博为例，她的微博昵称为"Dear-迪丽热巴"，id为1669879400(后面会讲如何获取用户id)。我们选择爬取她的原创微博。程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。<br>
+## 实例
+以爬取迪丽热巴的微博为例，她的微博昵称为"Dear-迪丽热巴"，id为1669879400(后面会讲如何获取用户id)。我们选择爬取她的原创微博。程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。如果你设置了保存数据库功能，这些信息也会保存在数据库里，数据库设置见数据库部分。<br>
 <br>
 csv文件结果如下所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/weibo_csv.png)*1669879400.csv*<br>
@@ -34,60 +60,92 @@ txt文件结果如下所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/video.png)*video文件夹*<br>
 本次下载了70个视频，是她原创微博中的视频，视频名为yyyymmdd+微博id的形式。其中有一个视频因为网络原因下载失败，程序将它的微博id和视频url以“weibo_id:video_url”的形式写到了同文件夹下的not_downloaded.txt里。
 
-# 输入
-用户id，例如新浪微博昵称为"Dear-迪丽热巴"的id为"1669879400"
-
-# 输出
-- 昵称：用户昵称，如"Dear-迪丽热巴"
-- 微博数：用户的全部微博数（转发微博+原创微博）
-- 关注数：用户关注的微博数量
-- 粉丝数：用户的粉丝数
-- 微博id：微博唯一标志
-- 微博内容：微博正文
-- 原始图片url：原创微博图片和转发微博转发理由中图片的url，若某条微博存在多张图片，每个url以英文逗号分隔，若没有图片则值为无
-- 微博发布位置：位置微博中的发布位置
-- 微博发布时间：微博发布时的时间，精确到分
-- 点赞数：微博被赞的数量
-- 转发数：微博被转发的数量
-- 评论数：微博被评论的数量
-- 微博发布工具：微博的发布工具，如iPhone客户端、HUAWEI Mate 20 Pro等
-- 结果文件：保存在当前目录weibo文件夹下以用户昵称为名的文件夹里，名字为"user_id.csv"和"user_id.txt"的形式
-- 微博图片：原创微博中的图片和转发微博转发理由中的图片，保存在以用户昵称为名的文件夹下的img文件夹里
-- 微博视频：原创微博中的视频，保存在以用户昵称为名的文件夹下的video文件夹里
-
-# 运行环境
+## 运行环境
 - 开发语言：python2/python3
 - 系统： Windows/Linux/macOS
 
-# 使用说明
-## 1.下载脚本
+## 使用说明
+### 1.下载脚本
 ```bash
 $ git clone https://github.com/dataabc/weibospider.git
 ```
 运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；
-## 2.安装依赖
+### 2.安装依赖
 ```bash
 pip install -r requirements.txt
 ```
-## 3.设置cookie和user_id
-打开weibospider文件夹下的"**weibospider.py**"文件，将"**your cookie**"替换成爬虫微博的cookie，后面会详细讲解如何获取cookie；将**user_id**替换成想要爬取的微博的user_id，后面会详细讲解如何获取user_id;
-## 4.运行脚本
+### 3.设置cookie
+打开weibospider文件夹下的"**weibospider.py**"文件，将"**your cookie**"替换成爬虫微博的cookie，cookie获取方法见[如何获取cookie](#如何获取cookie)；
+### 4.设置user_id
+打开weibospider文件夹下的"**weibospider.py**"文件，将我们想要爬取的**一个**或**多个**微博的user_id赋值给user_id_list，user_id获取方法见[如何获取user_id](#如何获取user_id);
+user_id设置代码位于**weibospider.py**的main函数里，具体代码如下：
+```python
+# 爬单个微博用户
+user_id_list = ['1669879400']
+```
+```python
+# 爬多个微博用户
+user_id_list = ['1669879400', '1729370543']
+```
+```python
+"""也可以在文件中读取user_id_list，文件中可以包含很多user_id，
+每个user_id占一行，文件名任意，类型为txt，位置位于本程序的同目录下，
+比如文件可以叫user_id_list.txt"""
+user_id_list = wb.get_user_list('user_id_list.txt')
+```
+### 5.运行脚本
 大家可以根据自己的运行环境选择运行方式，Linux可以通过
 ```bash
 $ python weibospider.py
 ```
 运行;
-## 5.按需求修改脚本（可选）
+### 6.按需求修改脚本（可选）
 本脚本是一个Weibo类，用户可以按照自己的需求调用Weibo类。
 例如用户可以直接在"weibospider.py"文件中调用Weibo类，具体调用代码示例如下：
 ```python
-user_id = 1669879400
-filter = 1
-pic_download = 1
-wb = Weibo(user_id, filter, pic_download) #调用Weibo类，创建微博实例wb
-wb.start()  #爬取微博信息
+        # 以下是程序配置信息，可以根据自己需求修改
+        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        since_date = '2019-07-01'  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
+        """值为0代表不将结果写入MongoDB数据库,1代表写入；若要写入MongoDB数据库，
+        请先安装MongoDB数据库和pymongo，pymongo安装方法为命令行运行:pip install pymongo"""
+        mongodb_write = 1
+        """值为0代表不将结果写入MySQL数据库,1代表写入;若要写入MySQL数据库，
+        请先安装MySQL数据库和pymysql，pymysql安装方法为命令行运行:pip install pymysql"""
+        mysql_write = 1
+        pic_download = 0  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
+        video_download = 0  # 值为0代表不下载微博视频,1代表下载微博视频
+
+        wb = Weibo(filter, since_date, mongodb_write, mysql_write,
+                   pic_download, video_download)
+
+        # 下面是自定义MySQL数据库连接配置(可选)
+        """因为操作MySQL数据库需要用户名、密码等参数，本程序默认为:
+        mysql_config = {
+            'host': 'localhost',
+            'port': 3306,
+            'user': 'root',
+            'password': '123456',
+            'charset': 'utf8mb4'
+        }
+        大家的参数配置如果和默认值不同，可以将上面的参数值替换成自己的，
+        然后添加如下代码，使修改生效，如果你的参数和默认值相同则不需要下面的代码:
+        wb.change_mysql_config(mysql_config)"""
+
+        # 下面是配置user_id_list
+        """user_id_list包含了要爬的目标微博id，可以是一个，也可以是多个，也可以从文件中读取
+        爬单个微博，user_id_list如下所示，可以改成任意合法的用户id
+        user_id_list = ['1669879400']
+        爬多个微博，user_id_list如下所示，可以改成任意合法的用户id
+        user_id_list = ['1669879400', '1729370543']
+        也可以在文件中读取user_id_list，文件中可以包含很多user_id，
+        每个user_id占一行，文件名任意，类型为txt，位置位于本程序的同目录下，
+        比如文件可以叫user_id_list.txt，读取文件中的user_id_list如下所示:
+        user_id_list = wb.get_user_list('user_id_list.txt')"""
+        user_id_list = ['1669879400', '1729370543']
+
+        wb.start(user_id_list)  # 爬取微博信息
 ```
-user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter默认值为0，表示爬取所有微博信息（转发微博+原创微博），为1表示只爬取用户的所有原创微博；pic_download默认值为0，代表不下载微博原始图片，1代表下载；wb是Weibo类的一个实例，也可以是其它名字，只要符合python的命名规范即可；通过执行wb.start() 完成了微博的爬取工作。在上述代码执行后，我们可以得到很多信息：<br>
+通过执行wb.start() 完成了微博的爬取工作。在上述代码执行后，我们可以得到很多信息：<br>
 **wb.nickname**：用户昵称；<br>
 **wb.weibo_num**：微博数；<br>
 **wb.following**：关注数；<br>
@@ -111,7 +169,7 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter
 
 </details>
 
-# 如何获取cookie
+## 如何获取cookie
 1.用Chrome打开<https://passport.weibo.cn/signin/login>；<br>
 2.输入微博的用户名、密码，登录，如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie1.png)
@@ -121,7 +179,7 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter
 4.依此点击Chrome开发者工具中的Network->Name中的weibo.cn->Headers->Request Headers，"Cookie:"后的值即为我们要找的cookie值，复制即可，如图所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/cookie3.png)
 
-# 如何获取user_id
+## 如何获取user_id
 1.打开网址<https://weibo.cn>，搜索我们要找的人，如"迪丽热巴"，进入她的主页；<br>
 ![](https://picture.cognize.me/cognize/github/weibospider/user_home.png)
 2.按照上图箭头所指，点击"资料"链接，跳转到用户资料页面；<br>
@@ -129,6 +187,6 @@ user_id可以改成任意合法的用户id（爬虫的微博id除外）；filter
 如上图所示，迪丽热巴微博资料页的地址为"<https://weibo.cn/1669879400/info>"，其中的"1669879400"即为此微博的user_id。<br>
 事实上，此微博的user_id也包含在用户主页(<https://weibo.cn/u/1669879400?f=search_0>)中，之所以我们还要点击主页中的"资料"来获取user_id，是因为很多用户的主页不是"<https://weibo.cn/user_id?f=search_0>"的形式，而是"<https://weibo.cn/个性域名?f=search_0>"或"<https://weibo.cn/微号?f=search_0>"的形式。其中"微号"和user_id都是一串数字，如果仅仅通过主页地址提取user_id，很容易将"微号"误认为user_id。
 
-# 注意事项
+## 注意事项
 1.user_id不能为爬虫微博的user_id。因为要爬微博信息，必须先登录到某个微博账号，此账号我们姑且称为爬虫微博。爬虫微博访问自己的页面和访问其他用户的页面，得到的网页格式不同，所以无法爬取自己的微博信息；<br>
 2.cookie有期限限制，超过有效期需重新更新cookie。
