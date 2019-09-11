@@ -7,8 +7,9 @@
   * [安装依赖](#2安装依赖)
   * [设置cookie](#3设置cookie)
   * [设置user_id](#4设置user_id)
-  * [运行脚本](#5运行脚本)
-  * [按需求修改脚本](#6按需求修改脚本可选)
+  * [设置数据库（可选）](#5设置数据库可选)
+  * [运行脚本](#6运行脚本)
+  * [按需求修改脚本（可选）](#7按需求修改脚本可选)
 * [如何获取cookie](#如何获取cookie)
 * [如何获取user_id](#如何获取user_id)
 * [注意事项](#注意事项)
@@ -20,7 +21,7 @@
 - 写入**MySQL数据库**（可选）
 - 写入**MongoDB数据库**（可选）
 - 下载用户微博中的原始**图片**（默认）
-- 下载用户微博中的**视频**（默认）
+- 下载用户微博中的**视频**（默认）<br>
 本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需免cookie版，大家可以访问<https://github.com/dataabc/weibo-crawler>，二者功能类似，免cookie版获取的信息更多，用法更简单，而且不需要cookie。<br>
 ## 输出
 **用户信息**
@@ -45,7 +46,7 @@
 <br>
 
 ## 实例
-以爬取迪丽热巴的微博为例，她的微博昵称为"Dear-迪丽热巴"，id为1669879400(用户id获取方法见[如何获取user_id](#如何获取user_id))。我们选择爬取她的全部原创微博。具体方法为将**weibospider.py**文件的main函数主要部分修改为如下代码：
+以爬取迪丽热巴的微博为例。首先，我们需要为程序设置cookie值，cookie获取及设置方法见[设置cookie](#3设置cookie)。迪丽热巴的微博昵称为"Dear-迪丽热巴"，id为1669879400，用户id获取方法见[如何获取user_id](#如何获取user_id)。我们选择爬取她的全部原创微博。具体方法是将**weibospider.py**文件的main函数主要部分修改为如下代码：
 ```python
         # 以下是程序配置信息，可以根据自己需求修改
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
@@ -65,12 +66,11 @@
 
         wb.start(user_id_list)  # 爬取微博信息
 ```
-具体代码含义注释里都有，因为我本地没有安装MySQL数据库和MongoDB数据库，所以暂时设置成不写入数据库，如果你想要将爬取结果写入数据库，只要先安装数据库，然后将mongodb_write或mysql_write值设置为1即可。写入MySQL需要用户名、密码等配置，这些配置如何设置见数据库部分。
-设置完成后运行程序：
+代码具体含义注释里都有，不在赘述。设置完成后运行程序：
 ```bash
 $ python weibospider.py
 ```
-程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。如果你设置了保存数据库功能，这些信息也会保存在数据库里，数据库设置见数据库部分。<br>
+程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。如果你设置了保存数据库功能，这些信息也会保存在数据库里，数据库设置见[设置数据库](#5设置数据库可选)部分。<br>
 <br>
 csv文件结果如下所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/weibo_csv.png)*1669879400.csv*<br>
@@ -84,8 +84,8 @@ txt文件结果如下所示：
 <br>
 下载的视频如下所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/video.png)*video文件夹*<br>
-本次下载了70个视频，是她原创微博中的视频，视频名为yyyymmdd+微博id的形式。其中有一个视频因为网络原因下载失败，程序将它的微博id和视频url以“weibo_id:video_url”的形式写到了同文件夹下的not_downloaded.txt里。
-
+本次下载了70个视频，是她原创微博中的视频，视频名为yyyymmdd+微博id的形式。其中有一个视频因为网络原因下载失败，程序将它的微博id和视频url以“weibo_id:video_url”的形式写到了同文件夹下的not_downloaded.txt里。<br>
+因为我本地没有安装MySQL数据库和MongoDB数据库，所以暂时设置成不写入数据库。如果你想要将爬取结果写入数据库，只需要先安装数据库（MySQL或MongoDB），再安装对应包（pymysql或pymongo），然后将mysql_write或mongodb_write值设置为1即可。写入MySQL需要用户名、密码等配置信息，这些配置如何设置见[设置数据库](#5设置数据库可选)部分。
 ## 运行环境
 - 开发语言：python2/python3
 - 系统： Windows/Linux/macOS
@@ -98,36 +98,89 @@ $ git clone https://github.com/dataabc/weibospider.git
 运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；
 ### 2.安装依赖
 ```bash
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 ### 3.设置cookie
-打开weibospider文件夹下的"**weibospider.py**"文件，将"**your cookie**"替换成爬虫微博的cookie，cookie获取方法见[如何获取cookie](#如何获取cookie)；
+打开weibospider文件夹下的**weibospider.py**文件，将"**your cookie**"替换成爬虫微博的cookie，具体替换位置大约在**weibospider.py**文件的22行左右。cookie获取方法见[如何获取cookie](#如何获取cookie)；
 ### 4.设置user_id
-打开weibospider文件夹下的"**weibospider.py**"文件，将我们想要爬取的**一个**或**多个**微博的user_id赋值给user_id_list，user_id获取方法见[如何获取user_id](#如何获取user_id);
+打开weibospider文件夹下的**weibospider.py**文件，将我们想要爬取的**一个**或**多个**微博的user_id赋值给user_id_list，user_id获取方法见[如何获取user_id](#如何获取user_id);
 user_id设置代码位于**weibospider.py**的main函数里，具体代码如下：
 ```python
 # 爬单个微博用户
 user_id_list = ['1669879400']
 ```
+或者
 ```python
 # 爬多个微博用户
 user_id_list = ['1669879400', '1729370543']
 ```
+或者
 ```python
-"""也可以在文件中读取user_id_list，文件中可以包含很多user_id，
+"""可以在文件中读取user_id_list，文件中可以包含很多user_id，
 每个user_id占一行，文件名任意，类型为txt，位置位于本程序的同目录下，
 比如文件可以叫user_id_list.txt"""
 user_id_list = wb.get_user_list('user_id_list.txt')
 ```
-### 5.运行脚本
+### 5.设置数据库（可选）
+本部分是可选部分，如果不需要将爬取信息写入数据库，可跳过这一步。本程序目前支持MySQL数据库和MongoDB数据库，如果你需要写入其它数据库，可以参考这两个数据库的写法自己编写。<br>
+**MySQL数据库写入**<br>
+要想将爬取信息写入MySQL，请将main函数中的mysql_write变量值改为1。再根据自己的系统环境安装MySQL，然后命令行执行：
+```bash
+$ pip install pymysql
+```
+MySQL写入需要主机、端口号、用户名、密码等配置，本程序默认的配置如下：
+```python
+        mysql_config = {
+            'host': 'localhost',
+            'port': 3306,
+            'user': 'root',
+            'password': '123456',
+            'charset': 'utf8mb4'
+        }
+```
+如果你的配置和上面不同，需要修改main函数，将本程序的配置改成自己的配置，具体代码如下：
+```python
+        mysql_config = {
+            'host': 'xxx',
+            'port': xxx,
+            'user': 'xxx',
+            'password': 'xxx',
+            'charset': 'utf8mb4'
+        }
+        wb.change_mysql_config(mysql_config)
+```
+**MongoDB数据库写入**<br>
+要想将爬取信息写入MongoDB，请将main函数中的mongodb_write变量值改为1。再根据自己的系统环境安装MongoDB，然后命令行执行：
+```
+$ pip install pymongo
+```
+MySQL和MongDB数据库的写入内容一样。程序会创建一个名为"weibo"的数据库，再创建一个"weibo"表，包含爬取的所有内容，用户爬取的微博信息或插入或更新，都会存储在"weibo"表里，想了解数据库的具体字段，请点击"详情"。
+<details>
+<summary>详情</summary>
+
+**id**：存储微博id；<br>
+**user_id**: 存储微博发布者的用户id；<br>
+**content**：存储微博正文；<br>
+**original_pictures**：存储原创微博的原始图片url和转发微博转发理由中的图片url。若某条微博有多张图片，则存储多个url，以英文逗号分割；若某微博没有图片，则值为"无"；<br>
+**retweet_pictures**：存储被转发微博中的原始图片url。当最新微博为原创微博或者为没有图片的转发微博时，则值为"无"，否则为被转发微博的图片url。若有多张图片，则存储多个url，以英文逗号分割；<br>
+**publish_place**：存储微博的发布位置。如果某条微博没有位置信息，则值为"无"；<br>
+**publish_time**：存储微博的发布时间；<br>
+**up_num**：存储微博获得的点赞数；<br>
+**retweet_num**：存储微博获得的转发数；<br>
+**comment_num**：存储微博获得的评论数；<br>
+**publish_tool**：存储微博的发布工具。
+
+</details>
+
+### 6.运行脚本
 大家可以根据自己的运行环境选择运行方式，Linux可以通过
 ```bash
 $ python weibospider.py
 ```
 运行;
-### 6.按需求修改脚本（可选）
-本脚本是一个Weibo类，用户可以按照自己的需求调用Weibo类。
-例如用户可以直接在"weibospider.py"文件中调用Weibo类，具体调用代码示例如下：
+### 7.按需求修改脚本（可选）
+本程序是一个Weibo类，用户可以按照自己的需求调用Weibo类。
+用户可以直接在**weibospider.py**文件中调用Weibo类，具体调用代码示例如下：
 ```python
         # 以下是程序配置信息，可以根据自己需求修改
         filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
