@@ -45,7 +45,32 @@
 <br>
 
 ## 实例
-以爬取迪丽热巴的微博为例，她的微博昵称为"Dear-迪丽热巴"，id为1669879400(后面会讲如何获取用户id)。我们选择爬取她的原创微博。程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。如果你设置了保存数据库功能，这些信息也会保存在数据库里，数据库设置见数据库部分。<br>
+以爬取迪丽热巴的微博为例，她的微博昵称为"Dear-迪丽热巴"，id为1669879400(用户id获取方法见[如何获取user_id](#如何获取user_id))。我们选择爬取她的全部原创微博。具体方法为将**weibospider.py**文件的main函数主要部分修改为如下代码：
+```python
+        # 以下是程序配置信息，可以根据自己需求修改
+        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
+        since_date = '1900-01-01'  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
+        """值为0代表不将结果写入MongoDB数据库,1代表写入；若要写入MongoDB数据库，
+        请先安装MongoDB数据库和pymongo，pymongo安装方法为命令行运行:pip install pymongo"""
+        mongodb_write = 0
+        """值为0代表不将结果写入MySQL数据库,1代表写入;若要写入MySQL数据库，
+        请先安装MySQL数据库和pymysql，pymysql安装方法为命令行运行:pip install pymysql"""
+        mysql_write = 0
+        pic_download = 0  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
+        video_download = 0  # 值为0代表不下载微博视频,1代表下载微博视频
+
+        wb = Weibo(filter, since_date, mongodb_write, mysql_write,
+                   pic_download, video_download)
+        user_id_list = ['1669879400']
+
+        wb.start(user_id_list)  # 爬取微博信息
+```
+具体代码含义注释里都有，因为我本地没有安装MySQL数据库和MongoDB数据库，所以暂时设置成不写入数据库，如果你想要将爬取结果写入数据库，只要先安装数据库，然后将mongodb_write或mysql_write值设置为1即可。写入MySQL需要用户名、密码等配置，这些配置如何设置见数据库部分。
+设置完成后运行程序：
+```bash
+$ python weibospider.py
+```
+程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。如果你设置了保存数据库功能，这些信息也会保存在数据库里，数据库设置见数据库部分。<br>
 <br>
 csv文件结果如下所示：
 ![](https://picture.cognize.me/cognize/github/weibospider/weibo_csv.png)*1669879400.csv*<br>
