@@ -15,7 +15,7 @@
 * [注意事项](#注意事项)
 
 ## 功能
-爬取**一个**或**多个**新浪微博用户的数据，并将结果信息写入文件。写入信息几乎包括了用户微博的所有数据，主要有用户信息和微博信息两大类，前者包含用户昵称、关注数、粉丝数、微博数等等；后者包含微博正文、发布时间、发布工具、评论数等等，因为内容太多，这里不再赘述，详细内容见[输出](#输出)部分。具体的写入文件类型如下：
+爬取**一个**或**多个**新浪微博用户（如[胡歌](https://weibo.cn/u/1223178222)、[迪丽热巴](https://weibo.cn/u/1669879400)、[郭碧婷](https://weibo.cn/u/1729370543)）的数据，并将结果信息写入文件。写入信息几乎包括了用户微博的所有数据，主要有用户信息和微博信息两大类，前者包含用户昵称、关注数、粉丝数、微博数等等；后者包含微博正文、发布时间、发布工具、评论数等等，因为内容太多，这里不再赘述，详细内容见[输出](#输出)部分。具体的写入文件类型如下：
 - 写入**txt文件**（默认）
 - 写入**csv文件**（默认）
 - 写入**MySQL数据库**（可选）
@@ -57,8 +57,8 @@
         """值为0代表不将结果写入MySQL数据库,1代表写入;若要写入MySQL数据库，
         请先安装MySQL数据库和pymysql，pymysql安装方法为命令行运行:pip install pymysql"""
         mysql_write = 0
-        pic_download = 0  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
-        video_download = 0  # 值为0代表不下载微博视频,1代表下载微博视频
+        pic_download = 1  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
+        video_download = 1  # 值为0代表不下载微博视频,1代表下载微博视频
 
         wb = Weibo(filter, since_date, mongodb_write, mysql_write,
                    pic_download, video_download)
@@ -103,16 +103,15 @@ $ pip install -r requirements.txt
 ### 3.设置cookie
 打开weibospider文件夹下的**weibospider.py**文件，将"**your cookie**"替换成爬虫微博的cookie，具体替换位置大约在**weibospider.py**文件的22行左右。cookie获取方法见[如何获取cookie](#如何获取cookie)；
 ### 4.设置user_id
-打开weibospider文件夹下的**weibospider.py**文件，将我们想要爬取的**一个**或**多个**微博的user_id赋值给user_id_list，user_id获取方法见[如何获取user_id](#如何获取user_id);
-user_id设置代码位于**weibospider.py**的main函数里，具体代码如下：
+打开weibospider文件夹下的**weibospider.py**文件，将我们想要爬取的**一个**或**多个**微博的user_id赋值给user_id_list，user_id获取方法见[如何获取user_id](#如何获取user_id)。user_id设置代码位于**weibospider.py**的main函数里，具体代码如下：
 ```python
-# 爬单个微博用户
+# 爬单个微博用户，可以改成任意合法的用户id
 user_id_list = ['1669879400']
 ```
 或者
 ```python
-# 爬多个微博用户
-user_id_list = ['1669879400', '1729370543']
+# 爬多个微博用户，可以改成任意合法的用户id
+user_id_list = ['1223178222', '1669879400', '1729370543']
 ```
 或者
 ```python
@@ -151,7 +150,7 @@ MySQL写入需要主机、端口号、用户名、密码等配置，本程序默
 ```
 **MongoDB数据库写入**<br>
 要想将爬取信息写入MongoDB，请将main函数中的mongodb_write变量值改为1。再根据自己的系统环境安装MongoDB，然后命令行执行：
-```
+```bash
 $ pip install pymongo
 ```
 MySQL和MongDB数据库的写入内容一样。程序会创建一个名为"weibo"的数据库，再创建一个"weibo"表，包含爬取的所有内容，用户爬取的微博信息或插入或更新，都会存储在"weibo"表里，想了解数据库的具体字段，请点击"详情"。
@@ -215,12 +214,12 @@ $ python weibospider.py
         爬单个微博，user_id_list如下所示，可以改成任意合法的用户id
         user_id_list = ['1669879400']
         爬多个微博，user_id_list如下所示，可以改成任意合法的用户id
-        user_id_list = ['1669879400', '1729370543']
+        user_id_list = ['1223178222', '1669879400', '1729370543']
         也可以在文件中读取user_id_list，文件中可以包含很多user_id，
         每个user_id占一行，文件名任意，类型为txt，位置位于本程序的同目录下，
         比如文件可以叫user_id_list.txt，读取文件中的user_id_list如下所示:
         user_id_list = wb.get_user_list('user_id_list.txt')"""
-        user_id_list = ['1669879400', '1729370543']
+        user_id_list = ['1223178222', '1669879400', '1729370543']
 
         wb.start(user_id_list)  # 爬取微博信息
 ```
