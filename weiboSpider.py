@@ -277,6 +277,8 @@ class Weibo(object):
                 today = datetime.now().strftime('%Y-%m-%d')
                 time = publish_time[3:]
                 publish_time = today + ' ' + time
+                if len(publish_time) > 16:
+                    publish_time = publish_time[:16]
             elif u'月' in publish_time:
                 year = datetime.now().strftime('%Y')
                 month = publish_time[0:2]
