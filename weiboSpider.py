@@ -103,8 +103,37 @@ class Weibo(object):
         self.info_to_mongodb('user', user_list)
         print(u'%s信息写入MongoDB数据库完毕' % self.user['nickname'])
 
+    def user_to_mysql(self):
+        """将爬取的用户信息写入MySQL数据库"""
+        mysql_config = {
+            'host': 'localhost',
+            'port': 3306,
+            'user': 'root',
+            'password': '123456',
+            'charset': 'utf8mb4'
+        }
+        # 创建'weibo'数据库
+        create_database = """CREATE DATABASE IF NOT EXISTS weibo DEFAULT
+                         CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"""
+        self.mysql_create_database(mysql_config, create_database)
+        # 创建'user'表
+        create_table = """
+                CREATE TABLE IF NOT EXISTS user (
+                id varchar(12) NOT NULL,
+                nickname varchar(30),
+                weibo_num INT,
+                following INT,
+                followers INT,
+                PRIMARY KEY (id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
+        self.mysql_create_table(mysql_config, create_table)
+        self.mysql_insert(mysql_config, 'user', [self.user])
+        print(u'%s信息写入MySQL数据库完毕' % self.user['nickname'])
+
     def user_to_database(self):
         """将用户信息写入数据库"""
+        if self.mysql_write:
+            self.user_to_mysql()
         if self.mongodb_write:
             self.user_to_mongodb()
 
@@ -733,7 +762,7 @@ class Weibo(object):
             finally:
                 connection.close()
 
-    def write_mysql(self, wrote_num):
+    def weibo_to_mysql(self, wrote_num):
         """将爬取的信息写入MySQL数据库"""
         mysql_config = {
             'host': 'localhost',
@@ -742,10 +771,6 @@ class Weibo(object):
             'password': '123456',
             'charset': 'utf8mb4'
         }
-        # 创建'weibo'数据库
-        create_database = """CREATE DATABASE IF NOT EXISTS weibo DEFAULT
-                         CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"""
-        self.mysql_create_database(mysql_config, create_database)
         # 创建'weibo'表
         create_table = """
                 CREATE TABLE IF NOT EXISTS weibo (
@@ -779,7 +804,7 @@ class Weibo(object):
             self.write_csv(wrote_num)
             self.write_txt(wrote_num)
             if self.mysql_write:
-                self.write_mysql(wrote_num)
+                self.weibo_to_mysql(wrote_num)
             if self.mongodb_write:
                 self.weibo_to_mongodb(wrote_num)
 
