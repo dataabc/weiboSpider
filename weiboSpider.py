@@ -48,12 +48,9 @@ class Weibo(object):
         self.mysql_write = mysql_write  # 值为0代表不将结果写入MySQL数据库,1代表写入
         self.pic_download = pic_download  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
         self.video_download = video_download  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
-        self.nickname = ''  # 用户昵称,如“Dear-迪丽热巴”
-        self.weibo_num = 0  # 用户全部微博数
         self.got_num = 0  # 爬取到的微博数
-        self.following = 0  # 用户关注数
-        self.followers = 0  # 用户粉丝数
         self.weibo = []  # 存储爬取到的所有微博信息
+        self.user = {}  # # 存储爬取到的用户信息
         self.mysql_config = {
         }  # MySQL数据库连接配置，可以不填，当使用者的mysql用户名、密码等与本程序默认值不同时，需要通过mysql_config来自定义
 
@@ -91,13 +88,25 @@ class Weibo(object):
             url = 'https://weibo.cn/%s/info' % (self.user_id)
             selector = self.deal_html(url)
             nickname = selector.xpath('//title/text()')[0]
-            self.nickname = nickname[:-3]
-            if self.nickname == u'登录 - 新' or self.nickname == u'新浪':
+            nickname = nickname[:-3]
+            if nickname == u'登录 - 新' or nickname == u'新浪':
                 sys.exit(u'cookie错误或已过期,请按照README中方法重新获取')
-            print(u'用户昵称: ' + self.nickname)
+            self.user['nickname'] = nickname
+            print(u'用户昵称: ' + nickname)
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
+
+    def user_to_mongodb(self):
+        """将爬取的用户信息写入MongoDB数据库"""
+        user_list = [self.user]
+        self.info_to_mongodb('user', user_list)
+        print(u'%s信息写入MongoDB数据库完毕' % self.user['nickname'])
+
+    def user_to_database(self):
+        """将用户信息写入数据库"""
+        if self.mongodb_write:
+            self.user_to_mongodb()
 
     def get_user_info(self, selector):
         """获取用户昵称、微博数、关注数、粉丝数"""
@@ -105,14 +114,19 @@ class Weibo(object):
             self.get_nickname()  # 获取用户昵称
             user_info = selector.xpath("//div[@class='tip2']/*/text()")
 
-            self.weibo_num = int(user_info[0][3:-1])
-            print(u'微博数: ' + str(self.weibo_num))
+            weibo_num = int(user_info[0][3:-1])
+            print(u'微博数: ' + str(weibo_num))
 
-            self.following = int(user_info[1][3:-1])
-            print(u'关注数: ' + str(self.following))
+            following = int(user_info[1][3:-1])
+            print(u'关注数: ' + str(following))
 
-            self.followers = int(user_info[2][3:-1])
-            print(u'粉丝数: ' + str(self.followers))
+            followers = int(user_info[2][3:-1])
+            print(u'粉丝数: ' + str(followers))
+            self.user['weibo_num'] = weibo_num
+            self.user['following'] = following
+            self.user['followers'] = followers
+            self.user['id'] = self.user_id
+            self.user_to_database()
             print('*' * 100)
         except Exception as e:
             print('Error: ', e)
@@ -542,8 +556,9 @@ class Weibo(object):
     def get_filepath(self, type):
         """获取结果文件路径"""
         try:
-            file_dir = os.path.split(os.path.realpath(
-                __file__))[0] + os.sep + 'weibo' + os.sep + self.nickname
+            file_dir = os.path.split(
+                os.path.realpath(__file__)
+            )[0] + os.sep + 'weibo' + os.sep + self.user['nickname']
             if type == 'img' or type == 'video':
                 file_dir = file_dir + os.sep + type
             if not os.path.isdir(file_dir):
@@ -608,11 +623,11 @@ class Weibo(object):
                     result_header = u'\n\n原创微博内容: \n'
                 else:
                     result_header = u'\n\n微博内容: \n'
-                result_header = (u'用户信息\n用户昵称：' + self.nickname + u'\n用户id: ' +
-                                 str(self.user_id) + u'\n微博数: ' +
-                                 str(self.weibo_num) + u'\n关注数: ' +
-                                 str(self.following) + u'\n粉丝数: ' +
-                                 str(self.followers) + result_header)
+                result_header = (u'用户信息\n用户昵称：' + self.user['nickname'] +
+                                 u'\n用户id: ' + str(self.user_id) + u'\n微博数: ' +
+                                 str(self.user['weibo_num']) + u'\n关注数: ' +
+                                 str(self.user['following']) + u'\n粉丝数: ' +
+                                 str(self.user['followers']) + result_header)
                 temp_result.append(result_header)
             for i, w in enumerate(self.weibo[wrote_num:]):
                 temp_result.append(
@@ -631,19 +646,26 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
-    def write_mongodb(self, wrote_num):
+    def info_to_mongodb(self, collection, info_list):
         """将爬取的信息写入MongoDB数据库"""
         from pymongo import MongoClient
 
         client = MongoClient()
         db = client['weibo']
-        collection = db['weibo']
+        collection = db[collection]
+        for info in info_list:
+            if not collection.find_one({'id': info['id']}):
+                collection.insert_one(info)
+            else:
+                collection.update_one({'id': info['id']}, {'$set': info})
+
+    def weibo_to_mongodb(self, wrote_num):
+        """将爬取的微博信息写入MongoDB数据库"""
+        weibo_list = []
         for w in self.weibo[wrote_num:]:
             w['user_id'] = self.user_id
-            if not collection.find_one({'id': w['id']}):
-                collection.insert_one(w)
-            else:
-                collection.update_one({'id': w['id']}, {'$set': w})
+            weibo_list.append(w)
+        self.info_to_mongodb('weibo', weibo_list)
         print(u'%d条微博写入MongoDB数据库完毕' % self.got_num)
 
     def change_mysql_config(self, mysql_config):
@@ -757,7 +779,7 @@ class Weibo(object):
             if self.mysql_write:
                 self.write_mysql(wrote_num)
             if self.mongodb_write:
-                self.write_mongodb(wrote_num)
+                self.weibo_to_mongodb(wrote_num)
 
     def get_weibo_info(self):
         """获取微博信息"""
@@ -803,12 +825,9 @@ class Weibo(object):
 
     def initialize_info(self, user_id):
         """初始化爬虫信息"""
-        self.nickname = ''
-        self.weibo_num = 0
         self.got_num = 0
-        self.following = 0
-        self.followers = 0
         self.weibo = []
+        self.user = {}
         self.user_id = user_id
 
     def start(self, user_id_list):
