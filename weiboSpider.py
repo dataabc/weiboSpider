@@ -139,11 +139,11 @@ class Weibo(object):
 
     def print_user_info(self):
         """打印微博用户信息"""
-        print(u'用户昵称: ' + self.user['nickname'])
-        print(u'用户id: ' + self.user['id'])
-        print(u'微博数: ' + self.user['weibo_num'])
-        print(u'关注数: ' + self.user['following'])
-        print(u'粉丝数: ' + self.user['followers'])
+        print(u'用户昵称: %s' % self.user['nickname'])
+        print(u'用户id: %s' % self.user['id'])
+        print(u'微博数: %d' % self.user['weibo_num'])
+        print(u'关注数: %d' % self.user['following'])
+        print(u'粉丝数: %d' % self.user['followers'])
 
     def get_user_info(self, selector):
         """获取用户昵称、微博数、关注数、粉丝数"""
