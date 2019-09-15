@@ -50,7 +50,8 @@ class Weibo(object):
         self.video_download = video_download  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
         self.got_num = 0  # 爬取到的微博数
         self.weibo = []  # 存储爬取到的所有微博信息
-        self.user = {}  # # 存储爬取到的用户信息
+        self.user = {}  # 存储爬取到的用户信息
+        self.weibo_id_list = []  # 存储爬取到的所有微博id
         self.mysql_config = {
         }  # MySQL数据库连接配置，可以不填，当使用者的mysql用户名、密码等与本程序默认值不同时，需要通过mysql_config来自定义
 
@@ -136,7 +137,7 @@ class Weibo(object):
         if self.mongodb_write:
             self.user_to_mongodb()
 
-    def print_user(self):
+    def print_user_info(self):
         """打印微博用户信息"""
         print(u'用户昵称: ' + self.user['nickname'])
         print(u'用户id: ' + self.user['id'])
@@ -156,6 +157,7 @@ class Weibo(object):
             self.user['following'] = following
             self.user['followers'] = followers
             self.user['id'] = self.user_id
+            self.print_user_info()
             self.user_to_database()
             print('*' * 100)
         except Exception as e:
@@ -568,6 +570,8 @@ class Weibo(object):
                 for i in range(0, len(info) - 2):
                     weibo = self.get_one_weibo(info[i])
                     if weibo:
+                        if weibo['id'] in self.weibo_id_list:
+                            continue
                         publish_time = datetime.strptime(
                             weibo['publish_time'][:10], "%Y-%m-%d")
                         since_date = datetime.strptime(self.since_date,
@@ -579,6 +583,7 @@ class Weibo(object):
                                 return True
                         self.print_one_weibo(weibo)
                         self.weibo.append(weibo)
+                        self.weibo_id_list.append(weibo['id'])
                         self.got_num += 1
                         print('-' * 100)
         except Exception as e:
@@ -857,6 +862,7 @@ class Weibo(object):
         self.weibo = []
         self.user = {}
         self.user_id = user_id
+        self.weibo_id_list = []
 
     def start(self, user_id_list):
         """运行爬虫"""
