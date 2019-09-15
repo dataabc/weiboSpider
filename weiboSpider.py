@@ -92,7 +92,6 @@ class Weibo(object):
             if nickname == u'登录 - 新' or nickname == u'新浪':
                 sys.exit(u'cookie错误或已过期,请按照README中方法重新获取')
             self.user['nickname'] = nickname
-            print(u'用户昵称: ' + nickname)
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
@@ -137,20 +136,22 @@ class Weibo(object):
         if self.mongodb_write:
             self.user_to_mongodb()
 
+    def print_user(self):
+        """打印微博用户信息"""
+        print(u'用户昵称: ' + self.user['nickname'])
+        print(u'用户id: ' + self.user['id'])
+        print(u'微博数: ' + self.user['weibo_num'])
+        print(u'关注数: ' + self.user['following'])
+        print(u'粉丝数: ' + self.user['followers'])
+
     def get_user_info(self, selector):
         """获取用户昵称、微博数、关注数、粉丝数"""
         try:
             self.get_nickname()  # 获取用户昵称
             user_info = selector.xpath("//div[@class='tip2']/*/text()")
-
             weibo_num = int(user_info[0][3:-1])
-            print(u'微博数: ' + str(weibo_num))
-
             following = int(user_info[1][3:-1])
-            print(u'关注数: ' + str(following))
-
             followers = int(user_info[2][3:-1])
-            print(u'粉丝数: ' + str(followers))
             self.user['weibo_num'] = weibo_num
             self.user['following'] = following
             self.user['followers'] = followers
@@ -763,7 +764,7 @@ class Weibo(object):
                 connection.close()
 
     def weibo_to_mysql(self, wrote_num):
-        """将爬取的信息写入MySQL数据库"""
+        """将爬取的微博信息写入MySQL数据库"""
         mysql_config = {
             'host': 'localhost',
             'port': 3306,
