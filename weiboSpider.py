@@ -852,8 +852,13 @@ class Weibo(object):
 
     def get_user_list(self, file_name):
         """获取文件中的微博id信息"""
-        with open(file_name, 'r') as f:
-            user_id_list = f.read().splitlines()
+        with open(file_name, 'rb') as f:
+            lines = f.read().splitlines()
+            lines = [line.decode('utf-8') for line in lines]
+            user_id_list = [
+                line.split(' ')[0] for line in lines
+                if len(line.split(' ')) > 0 and line.split(' ')[0].isdigit()
+            ]
         return user_id_list
 
     def initialize_info(self, user_id):
@@ -869,6 +874,7 @@ class Weibo(object):
         try:
             for user_id in user_id_list:
                 self.initialize_info(user_id)
+                print('*' * 100)
                 self.get_weibo_info()
                 print(u'信息抓取完毕')
                 print('*' * 100)
@@ -918,7 +924,11 @@ def main():
         爬多个微博，user_id_list如下所示，可以改成任意合法的用户id
         user_id_list = ['1669879400', '1729370543']
         也可以在文件中读取user_id_list，文件中可以包含很多user_id，
-        每个user_id占一行，文件名任意，类型为txt，位置位于本程序的同目录下，
+        每个user_id占一行，也可以在user_id后面加注释，如用户昵称，user_id和注释之间必需要有空格，
+        文件名任意，类型为txt，位置位于本程序的同目录下，文件内容可以为如下形式：
+        1223178222 胡歌
+        1669879400 迪丽热巴
+        1729370543 郭碧婷
         比如文件可以叫user_id_list.txt，读取文件中的user_id_list如下所示:
         user_id_list = wb.get_user_list('user_id_list.txt')"""
         user_id_list = ['1669879400']
