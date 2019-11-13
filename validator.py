@@ -26,8 +26,9 @@ class Validator:
         for key in date_config:
             if not self.is_date(self.config[key]):
                 sys.exit(f"{key}值应为yyyy-mm-dd形式,请重新输入")
-        if self.config['write_mode'] not in ['txt', 'csv', 'mysql', 'mongo']:
-            sys.exit("write_mode值应为txt,csv,mysql,mongo,请重新输入")
+        for mode in self.config['write_mode']:
+            if mode not in ['txt', 'csv', 'mysql', 'mongo']:
+                sys.exit("write_mode值应为txt,csv,mysql,mongo,请重新输入")
 
     def is_date(self, since_date):
         """判断日期格式是否正确"""
