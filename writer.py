@@ -21,20 +21,24 @@ def get_filepath(type, nickname):
 class Writer:
     def __init__(self, config):
         write_mode = config['write_mode']
-        if write_mode == 'txt':
-            self.writer = TxtWriter(config)
-        elif write_mode == 'csv':
-            self.writer = CsvWriter(config)
-        elif write_mode == 'mysql':
-            self.writer = MysqlWriter(config)
-        elif write_mode == 'mongo':
-            self.writer = MongoWriter(config)
+        self.writers = []
+
+        if 'txt' in write_mode:
+            self.writers.append(TxtWriter(config))
+        if 'csv' in write_mode:
+            self.writers.append(CsvWriter(config))
+        if 'mysql' in write_mode:
+            self.writers.append(MysqlWriter(config))
+        if 'mongo' in write_mode:
+            self.writers.append(MongoWriter(config))
 
     def write_user(self, user):
-        self.writer.write_user(user)
+        for writer in self.writers:
+            writer.write_user(user)
 
     def write_weibo(self, weibo):
-        self.writer.write_weibo(weibo)
+        for writer in self.writers:
+            writer.write_weibo(weibo)
 
 
 class TxtWriter:
@@ -84,18 +88,18 @@ class CsvWriter:
         result_headers = [
             '微博id',
             '微博正文',
-            '原始图片url',
-            '微博视频url',
             '发布位置',
             '发布时间',
             '发布工具',
             '点赞数',
             '转发数',
             '评论数',
+            '原始图片url',
+            '微博视频url',
         ]
         if not self.config['filter']:
-            result_headers.insert(3, '被转发微博原始图片url')
-            result_headers.insert(4, '是否为原创微博')
+            result_headers.insert(-1, '被转发微博原始图片url')
+            result_headers.insert(-1, '是否为原创微博')
         with open(get_filepath('csv', self.user['nickname']),
                   'a',
                   encoding='utf-8-sig',

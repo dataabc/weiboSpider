@@ -1,7 +1,7 @@
 {
     "filter": 1,
     "since_date": "2018-01-01",
-    "write_mode": "txt",
+    "write_mode": ["csv", "txt"],
     "pic_download": 1,
     "video_download": 1,
     "cookie": "your cookie",
