@@ -1,6 +1,6 @@
 {
     "filter": 1,
-    "since_date": "2018-01-01",
+    "since_date": 10,
     "write_mode": ["csv", "txt"],
     "pic_download": 1,
     "video_download": 1,
@@ -12,7 +12,5 @@
         "password": "123456",
         "charset": "utf8mb4"
     },
-    "user_id_list": [
-        "1669879400"
-    ]
+    "user_id_list": "user_id_list.txt"
 }
