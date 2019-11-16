@@ -1,9 +1,10 @@
 import os
 import sys
-from tqdm import tqdm
 import traceback
 import requests
 from requests.adapters import HTTPAdapter
+
+from tqdm import tqdm
 
 
 class Downloader:
@@ -13,7 +14,6 @@ class Downloader:
     def download_files(self, file_path, type, weibo):
         """下载文件(图片/视频)"""
         try:
-
             if type == 'img':
                 describe = u'图片'
                 key = 'original_pictures'

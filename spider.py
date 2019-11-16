@@ -1,19 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import codecs
-import csv
-import os
 import random
-import re
 import sys
-import traceback
-from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from time import sleep
 
-from lxml import etree
-import requests
 from tqdm import tqdm
 
 from validator import Validator
@@ -33,6 +25,18 @@ class Spider(object):
                 t.strip().split("=")[0]: t.strip().split("=")[1]
                 for t in self.config['cookie'].split(";")
             }
+        if type(self.config['user_id_list']) == type(""):
+            with open(self.config['user_id_list'], 'rb') as f:
+                lines = f.read().splitlines()
+                lines = [line.decode('utf-8') for line in lines]
+                self.config['user_id_list'] = [
+                    line.split(' ')[0] for line in lines if
+                    len(line.split(' ')) > 0 and line.split(' ')[0].isdigit()
+                ]
+        if type(self.config['since_date']) == type(0):
+            self.config['since_date'] = str(
+                date.today() - timedelta(self.config['since_date']))
+
         self.validator = Validator(self.config)
         self.validator.validate()
         self.printer = Printer()

@@ -1,4 +1,3 @@
-import os
 import requests
 import sys
 from lxml import etree
@@ -53,7 +52,7 @@ class Parser:
             else:
                 picture_urls = u'无'
             return picture_urls
-        except Exception as e:
+        except Exception:
             return u'无'
 
     def get_picture_urls(self, info, is_original):
@@ -109,7 +108,7 @@ class Parser:
             else:
                 video_url = u'无'
             return video_url
-        except Exception as e:
+        except Exception:
             return u'无'
 
     def get_page_num(self, selector):
@@ -205,7 +204,7 @@ class Parser:
                 if len(weibo_a) >= 1:
                     publish_place = weibo_a[-1]
                     if (u'视频' == div_first.xpath("span[@class='ctt']/a/text()")
-                        [-1][-2:]):
+                            [-1][-2:]):
                         if len(weibo_a) >= 2:
                             publish_place = weibo_a[-2]
                         else:
