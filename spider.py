@@ -20,12 +20,12 @@ class Spider(object):
         """Weibo类初始化"""
         self.config = config
         # change cookie from string to dict
-        if type(self.config['cookie']) == type(''):
+        if type(self.config['cookie']) == type(u''):
             self.config['cookie'] = {
                 t.strip().split("=")[0]: t.strip().split("=")[1]
                 for t in self.config['cookie'].split(";")
             }
-        if type(self.config['user_id_list']) == type(""):
+        if type(self.config['user_id_list']) == type(u""):
             with open(self.config['user_id_list'], 'rb') as f:
                 lines = f.read().splitlines()
                 lines = [line.decode('utf-8') for line in lines]
@@ -46,7 +46,7 @@ class Spider(object):
 
     def get_nickname(self):
         """获取用户昵称"""
-        url = 'https://weibo.cn/%s/info' % (self.user['user_id'])
+        url = 'https://weibo.cn/%s/info' % (self.user['id'])
         selector = self.parser.deal_html(url, self.config['cookie'])
         nickname = selector.xpath('//title/text()')[0]
         nickname = nickname[:-3]
@@ -68,7 +68,7 @@ class Spider(object):
 
     def get_one_page(self, page):
         """获取第page页的全部微博"""
-        url = 'https://weibo.cn/u/%s?page=%d' % (self.user['user_id'], page)
+        url = 'https://weibo.cn/u/%s?page=%d' % (self.user['id'], page)
         selector = self.parser.deal_html(url, self.config['cookie'])
         info = selector.xpath("//div[@class='c']")
         is_exist = info[0].xpath("div/span[@class='ctt']")
@@ -98,7 +98,7 @@ class Spider(object):
 
     def get_weibo_info(self):
         """获取微博信息"""
-        url = 'https://weibo.cn/u/%s' % (self.user['user_id'])
+        url = 'https://weibo.cn/u/%s' % (self.user['id'])
         selector = self.parser.deal_html(url, self.config['cookie'])
         self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
 
@@ -127,7 +127,7 @@ class Spider(object):
         """初始化爬虫信息"""
         self.got_num = 0  # 爬取到的微博数
         self.weibo = []  # 存储爬取到的所有微博信息
-        self.user = {'user_id': user_id}  # 存储爬取到的用户信息
+        self.user = {'id': user_id}  # 存储爬取到的用户信息
         self.weibo_id_list = []  # 存储爬取到的所有微博id
 
     def start(self):

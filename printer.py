@@ -1,3 +1,6 @@
+# -*- coding: UTF-8 -*-
+
+
 class Printer:
     def print_one_weibo(self, weibo):
         """打印一条微博"""
@@ -12,7 +15,7 @@ class Printer:
     def print_user_info(self, user):
         """打印微博用户信息"""
         print(u'用户昵称: %s' % user['nickname'])
-        print(u'用户id: %s' % user['user_id'])
+        print(u'用户id: %s' % user['id'])
         print(u'微博数: %d' % user['weibo_num'])
         print(u'关注数: %d' % user['following'])
         print(u'粉丝数: %d' % user['followers'])
