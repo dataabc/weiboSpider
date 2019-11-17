@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import csv
 import os
 import sys
@@ -52,7 +53,7 @@ class TxtWriter:
         else:
             result_header = u'\n\n微博内容: \n'
         result_header = (u'用户信息\n用户昵称：' + user['nickname'] + u'\n用户id: ' +
-                         str(user['user_id']) + u'\n微博数: ' +
+                         str(user['id']) + u'\n微博数: ' +
                          str(user['weibo_num']) + u'\n关注数: ' +
                          str(user['following']) + u'\n粉丝数: ' +
                          str(user['followers']) + result_header)
@@ -100,22 +101,38 @@ class CsvWriter:
         if not self.config['filter']:
             result_headers.insert(-1, '被转发微博原始图片url')
             result_headers.insert(-1, '是否为原创微博')
-        with open(get_filepath('csv', self.user['nickname']),
-                  'a',
-                  encoding='utf-8-sig',
-                  newline='') as f:
-            csv_writer = csv.writer(f)
-            csv_writer.writerows([result_headers])
+
+        if sys.version < '3':  # python2.x
+            reload(sys)
+            sys.setdefaultencoding('utf-8')
+            with open(get_filepath('csv', self.user['nickname']), 'ab') as f:
+                csv_writer = csv.writer(f)
+                csv_writer.writerows([result_headers])
+        else:  # python3.x
+            with open(get_filepath('csv', self.user['nickname']),
+                      'a',
+                      encoding='utf-8-sig',
+                      newline='') as f:
+                csv_writer = csv.writer(f)
+                csv_writer.writerows([result_headers])
 
     def write_weibo(self, weibo):
         """将爬取的信息写入csv文件"""
         result_data = [w.values() for w in weibo]
-        with open(get_filepath('csv', self.user['nickname']),
-                  'a',
-                  encoding='utf-8-sig',
-                  newline='') as f:
-            csv_writer = csv.writer(f)
-            csv_writer.writerows(result_data)
+
+        if sys.version < '3':  # python2.x
+            reload(sys)
+            sys.setdefaultencoding('utf-8')
+            with open(get_filepath('csv', self.user['nickname']), 'ab') as f:
+                csv_writer = csv.writer(f)
+                csv_writer.writerows(result_data)
+        else:  # python3.x
+            with open(get_filepath('csv', self.user['nickname']),
+                      'a',
+                      encoding='utf-8-sig',
+                      newline='') as f:
+                csv_writer = csv.writer(f)
+                csv_writer.writerows(result_data)
 
         print(u'%d条微博写入csv文件完毕,保存路径:' % len(weibo))
         print(get_filepath('csv', self.user['nickname']))
@@ -125,6 +142,28 @@ class MongoWriter:
     def __init__(self, config):
         self.config = config
 
+    def info_to_mongodb(self, collection, info_list):
+        """将爬取的信息写入MongoDB数据库"""
+        try:
+            import pymongo
+            from pymongo import MongoClient
+        except ImportError:
+            sys.exit(u'系统中可能没有安装pymongo库，请先运行 pip install pymongo ，再运行程序')
+
+        try:
+            client = MongoClient()
+        except pymongo.errors.ServerSelectionTimeoutError:
+            sys.exit(u'系统中可能没有安装或启动MongoDB数据库，请先根据系统环境安装或启动MongoDB，再运行程序')
+
+        db = client['weibo']
+        collection = db[collection]
+        for info in info_list:
+            if not collection.find_one({'id': info['id']}):
+                collection.insert_one(info)
+            else:
+                collection.update_one(
+                    {'id': info['id']}, {'$set': info})
+
     def write_user(self, user):
         """将爬取的用户信息写入MongoDB数据库"""
         self.user = user
@@ -133,31 +172,11 @@ class MongoWriter:
         self.info_to_mongodb('user', user_list)
         print(u'%s信息写入MongoDB数据库完毕' % user['nickname'])
 
-    def info_to_mongodb(self, collection, info_list):
-        """将爬取的信息写入MongoDB数据库"""
-        try:
-            import pymongo
-        except ImportError:
-            sys.exit(u'系统中可能没有安装pymongo库，请先运行 pip install pymongo ，再运行程序')
-        try:
-            from pymongo import MongoClient
-
-            client = MongoClient()
-            db = client['weibo']
-            collection = db[collection]
-            for info in info_list:
-                if not collection.find_one({'id': info['id']}):
-                    collection.insert_one(info)
-                else:
-                    collection.update_one({'id': info['id']}, {'$set': info})
-        except pymongo.errors.ServerSelectionTimeoutError:
-            sys.exit(u'系统中可能没有安装或启动MongoDB数据库，请先根据系统环境安装或启动MongoDB，再运行程序')
-
-    def weibo_to_mongodb(self, weibo):
+    def write_weibo(self, weibo):
         """将爬取的微博信息写入MongoDB数据库"""
         weibo_list = []
         for w in weibo:
-            w['user_id'] = self.user['user_id']
+            w['user_id'] = self.user['id']
             weibo_list.append(w)
         self.info_to_mongodb('weibo', weibo_list)
         print(u'%d条微博写入MongoDB数据库完毕' % len(weibo))
@@ -212,7 +231,7 @@ class MysqlWriter:
         # 在'weibo'表中插入或更新微博数据
         weibo_list = []
         for w in weibo:
-            w['user_id'] = self.user['user_id']
+            w['user_id'] = self.user['id']
             weibo_list.append(w)
         self.mysql_insert('weibo', weibo_list)
         print(u'%d条微博写入MySQL数据库完毕' % len(weibo))
@@ -227,9 +246,15 @@ class MysqlWriter:
 
     def mysql_create_database(self, sql):
         """创建MySQL数据库"""
-        import pymysql
+        try:
+            import pymysql
+        except ImportError:
+            sys.exit(u'系统中可能没有安装pymysql库，请先运行 pip install pymysql ，再运行程序')
         mysql_config = self.config['mysql_config']
-        connection = pymysql.connect(**mysql_config)
+        try:
+            connection = pymysql.connect(**mysql_config)
+        except pymysql.err.OperationalError:
+            sys.exit(u'系统中可能没有安装或启动MySQL数据库或配置错误，请先根据系统环境安装或启动MySQL，再运行程序')
         self.mysql_create(connection, sql)
 
     def mysql_create_table(self, sql):

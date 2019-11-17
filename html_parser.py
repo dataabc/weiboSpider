@@ -1,10 +1,12 @@
-import requests
+# -*- coding: UTF-8 -*-
 import sys
 from lxml import etree
 import traceback
 import re
 from datetime import datetime, timedelta
 from collections import OrderedDict
+
+import requests
 
 
 class Parser:

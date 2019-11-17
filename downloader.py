@@ -1,9 +1,10 @@
+# -*- coding: UTF-8 -*-
 import os
 import sys
 import traceback
+
 import requests
 from requests.adapters import HTTPAdapter
-
 from tqdm import tqdm
 
 
