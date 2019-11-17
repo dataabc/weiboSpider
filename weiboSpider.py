@@ -725,12 +725,17 @@ class Weibo(object):
 
     def mysql_create_database(self, mysql_config, sql):
         """创建MySQL数据库"""
-        import pymysql
-
-        if self.mysql_config:
-            mysql_config = self.mysql_config
-        connection = pymysql.connect(**mysql_config)
-        self.mysql_create(connection, sql)
+        try:
+            import pymysql
+        except ImportError:
+            sys.exit(u'系统中可能没有安装pymysql库，请先运行 pip install pymysql ，再运行程序')
+        try:
+            if self.mysql_config:
+                mysql_config = self.mysql_config
+            connection = pymysql.connect(**mysql_config)
+            self.mysql_create(connection, sql)
+        except pymysql.OperationalError:
+            sys.exit(u'系统中可能没有安装或正确配置MySQL数据库，请先根据系统环境安装或配置MySQL，再运行程序')
 
     def mysql_create_table(self, mysql_config, sql):
         """创建MySQL表"""
