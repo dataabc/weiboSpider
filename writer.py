@@ -135,16 +135,23 @@ class MongoWriter:
 
     def info_to_mongodb(self, collection, info_list):
         """将爬取的信息写入MongoDB数据库"""
-        from pymongo import MongoClient
+        try:
+            import pymongo
+        except ImportError:
+            sys.exit(u'系统中可能没有安装pymongo库，请先运行 pip install pymongo ，再运行程序')
+        try:
+            from pymongo import MongoClient
 
-        client = MongoClient()
-        db = client['weibo']
-        collection = db[collection]
-        for info in info_list:
-            if not collection.find_one({'id': info['id']}):
-                collection.insert_one(info)
-            else:
-                collection.update_one({'id': info['id']}, {'$set': info})
+            client = MongoClient()
+            db = client['weibo']
+            collection = db[collection]
+            for info in info_list:
+                if not collection.find_one({'id': info['id']}):
+                    collection.insert_one(info)
+                else:
+                    collection.update_one({'id': info['id']}, {'$set': info})
+        except pymongo.errors.ServerSelectionTimeoutError:
+            sys.exit(u'系统中可能没有安装或启动MongoDB数据库，请先根据系统环境安装或启动MongoDB，再运行程序')
 
     def weibo_to_mongodb(self, weibo):
         """将爬取的微博信息写入MongoDB数据库"""
