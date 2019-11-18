@@ -835,7 +835,7 @@ class Weibo(object):
             wrote_num = 0
             page1 = 0
             random_pages = random.randint(1, 5)
-            for page in tqdm(range(1, page_num + 1), desc=u'进度'):
+            for page in tqdm(range(1, page_num + 1), desc='Progress'):
                 is_end = self.get_one_page(page)  # 获取第page页的全部微博
                 if is_end:
                     break
