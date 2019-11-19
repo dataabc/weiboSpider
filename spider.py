@@ -3,16 +3,16 @@
 
 import random
 import sys
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from time import sleep
 
 from tqdm import tqdm
 
-from validator import Validator
-from printer import Printer
-from writer import Writer, get_filepath
 from downloader import Downloader
 from html_parser import Parser
+from printer import Printer
+from validator import Validator
+from writer import Writer, get_filepath
 
 
 class Spider(object):
@@ -105,7 +105,7 @@ class Spider(object):
         page_num = self.parser.get_page_num(selector)  # 获取微博总页数
         page1 = 0
         random_pages = random.randint(1, 5)
-        for page in tqdm(range(1, page_num + 1), desc=u'进度'):
+        for page in tqdm(range(1, page_num + 1), desc='Progress'):
             is_end = self.get_one_page(page)  # 获取第page页的全部微博
             if is_end:
                 break

@@ -22,7 +22,7 @@ class Downloader:
                 describe = u'视频'
                 key = 'video_url'
             print(u'即将进行%s下载' % describe)
-            for w in tqdm(weibo, desc=u'%s下载进度' % describe):
+            for w in tqdm(weibo, desc='Download progress'):
                 if w[key] != u'无':
                     file_prefix = w['publish_time'][:11].replace(
                         '-', '') + '_' + w['id']
