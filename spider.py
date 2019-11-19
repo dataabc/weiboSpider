@@ -12,7 +12,7 @@ from downloader import Downloader
 from html_parser import Parser
 from printer import Printer
 from validator import Validator
-from writer import Writer, get_filepath
+from writer import Writer, get_filepath, write_log
 
 
 class Spider(object):
@@ -51,6 +51,7 @@ class Spider(object):
         nickname = selector.xpath('//title/text()')[0]
         nickname = nickname[:-3]
         if nickname == u'登录 - 新' or nickname == u'新浪':
+            write_log(self.config['since_date'])
             sys.exit(u'cookie错误或已过期,请按照README中方法重新获取')
         self.user['nickname'] = nickname
 

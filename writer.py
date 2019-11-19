@@ -19,6 +19,18 @@ def get_filepath(type, nickname):
     return file_path
 
 
+def write_log(since_date):
+    """当程序因cookie过期停止运行时，将相关信息写入log.txt"""
+    file_dir = os.path.split(
+        os.path.realpath(__file__))[0] + os.sep + 'weibo' + os.sep
+    if not os.path.isdir(file_dir):
+        os.makedirs(file_dir)
+    file_path = file_dir + 'log.txt'
+    content = u'cookie已过期，从%s到今天的微博获取失败，请重新设置cookie\n' % since_date
+    with open(file_path, 'ab') as f:
+        f.write(content.encode(sys.stdout.encoding))
+
+
 class Writer:
     def __init__(self, config):
         write_mode = config['write_mode']
@@ -161,8 +173,7 @@ class MongoWriter:
             if not collection.find_one({'id': info['id']}):
                 collection.insert_one(info)
             else:
-                collection.update_one(
-                    {'id': info['id']}, {'$set': info})
+                collection.update_one({'id': info['id']}, {'$set': info})
 
     def write_user(self, user):
         """将爬取的用户信息写入MongoDB数据库"""
