@@ -91,6 +91,7 @@ class Weibo(object):
             nickname = selector.xpath('//title/text()')[0]
             nickname = nickname[:-3]
             if nickname == u'登录 - 新' or nickname == u'新浪':
+                self.write_log()
                 sys.exit(u'cookie错误或已过期,请按照README中方法重新获取')
             self.user['nickname'] = nickname
         except Exception as e:
@@ -607,6 +608,17 @@ class Weibo(object):
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
+
+    def write_log(self):
+        """当程序因cookie过期停止运行时，将相关信息写入log.txt"""
+        file_dir = os.path.split(
+            os.path.realpath(__file__))[0] + os.sep + 'weibo' + os.sep
+        if not os.path.isdir(file_dir):
+            os.makedirs(file_dir)
+        file_path = file_dir + 'log.txt'
+        content = u'cookie已过期，从%s到今天的微博获取失败，请重新设置cookie\n' % self.since_date
+        with open(file_path, 'ab') as f:
+            f.write(content.encode(sys.stdout.encoding))
 
     def write_csv(self, wrote_num):
         """将爬取的信息写入csv文件"""
