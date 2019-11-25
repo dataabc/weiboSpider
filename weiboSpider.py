@@ -3,13 +3,14 @@
 
 import codecs
 import csv
+import json
 import os
 import random
 import re
 import sys
 import traceback
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from time import sleep
 
 import requests
@@ -19,41 +20,66 @@ from tqdm import tqdm
 
 
 class Weibo(object):
-    cookie = {'Cookie': 'your cookie'}  # 将your cookie替换成自己的cookie
-
-    def __init__(self,
-                 filter=0,
-                 since_date='1900-01-01',
-                 mongodb_write=0,
-                 mysql_write=0,
-                 pic_download=0,
-                 video_download=0):
+    def __init__(self, config):
         """Weibo类初始化"""
-        if filter != 0 and filter != 1:
-            sys.exit(u'filter值应为0或1,请重新输入')
-        if not self.is_date(since_date):
-            sys.exit(u'since_date值应为yyyy-mm-dd形式,请重新输入')
-        if mongodb_write != 0 and mongodb_write != 1:
-            sys.exit(u'mongodb_write值应为0或1,请重新输入')
-        if mysql_write != 0 and mysql_write != 1:
-            sys.exit(u'mysql_write值应为0或1,请重新输入')
-        if pic_download != 0 and pic_download != 1:
-            sys.exit(u'pic_download值应为0或1,请重新输入')
-        if video_download != 0 and video_download != 1:
-            sys.exit(u'video_download值应为0或1,请重新输入')
-        self.user_id = ''  # 用户id,如昵称为"Dear-迪丽热巴"的id为'1669879400'
-        self.filter = filter  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
+        self.validate_config(config)
+        self.filter = config[
+            'filter']  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
+        since_date = str(config['since_date'])
+        if since_date.isdigit():
+            since_date = str(date.today() - timedelta(int(since_date)))
         self.since_date = since_date  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
-        self.mongodb_write = mongodb_write  # 值为0代表不将结果写入MongoDB数据库,1代表写入
-        self.mysql_write = mysql_write  # 值为0代表不将结果写入MySQL数据库,1代表写入
-        self.pic_download = pic_download  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
-        self.video_download = video_download  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
-        self.got_num = 0  # 爬取到的微博数
-        self.weibo = []  # 存储爬取到的所有微博信息
+        self.write_mode = config[
+            'write_mode']  # 结果信息保存类型，为list形式，可包含txt、csv、mongo和mysql四种类型
+        self.pic_download = config[
+            'pic_download']  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
+        self.video_download = config[
+            'video_download']  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
+        self.cookie = {'Cookie': config['cookie']}
+        self.mysql_config = config.get('mysql_config')  # MySQL数据库连接配置，可以不填
+        user_id_list = config['user_id_list']
+        if not isinstance(user_id_list, list):
+            user_id_list = self.get_user_list(user_id_list)
+        self.user_id_list = user_id_list  # 要爬取的微博用户的user_id列表
+        self.user_id = ''  # 用户id,如昵称为"Dear-迪丽热巴"的id为'1669879400'
         self.user = {}  # 存储爬取到的用户信息
+        self.got_num = 0  # 存储爬取到的微博数
+        self.weibo = []  # 存储爬取到的所有微博信息
         self.weibo_id_list = []  # 存储爬取到的所有微博id
-        self.mysql_config = {
-        }  # MySQL数据库连接配置，可以不填，当使用者的mysql用户名、密码等与本程序默认值不同时，需要通过mysql_config来自定义
+
+    def validate_config(self, config):
+        """验证配置是否正确"""
+
+        # 验证filter、pic_download、video_download
+        argument_lsit = ['filter', 'pic_download', 'video_download']
+        for argument in argument_lsit:
+            if config[argument] != 0 and config[argument] != 1:
+                sys.exit(u'%s值应为0或1,请重新输入' % config[argument])
+
+        # 验证since_date
+        since_date = str(config['since_date'])
+        if (not self.is_date(since_date)) and (not since_date.isdigit()):
+            sys.exit(u'since_date值应为yyyy-mm-dd形式或整数,请重新输入')
+
+        # 验证write_mode
+        write_mode = ['txt', 'csv', 'mongo', 'mysql']
+        if not isinstance(config['write_mode'], list):
+            sys.exit(u'write_mode值应为list类型')
+        for mode in config['write_mode']:
+            if mode not in write_mode:
+                sys.exit(u'%s为无效模式，请从txt、csv、mongo和mysql挑选一个或多个作为write_mode' %
+                         mode)
+
+        # 验证user_id_list
+        user_id_list = config['user_id_list']
+        if (not isinstance(user_id_list,
+                           list)) and (not user_id_list.endswith('.txt')):
+            sys.exit(u'user_id_list值应为list类型或txt文件路径')
+        if not isinstance(user_id_list, list):
+            if not os.path.isfile(user_id_list):
+                sys.exit(
+                    u'当前路径：%s 不存在user_id_list.txt文件' %
+                    (os.path.split(os.path.realpath(__file__))[0] + os.sep))
 
     def is_date(self, since_date):
         """判断日期格式是否正确"""
@@ -133,9 +159,9 @@ class Weibo(object):
 
     def user_to_database(self):
         """将用户信息写入数据库"""
-        if self.mysql_write:
+        if 'mysql' in self.write_mode:
             self.user_to_mysql()
-        if self.mongodb_write:
+        if 'mongo' in self.write_mode:
             self.user_to_mongodb()
 
     def print_user_info(self):
@@ -723,10 +749,6 @@ class Weibo(object):
         self.info_to_mongodb('weibo', weibo_list)
         print(u'%d条微博写入MongoDB数据库完毕' % self.got_num)
 
-    def change_mysql_config(self, mysql_config):
-        """修改MySQL数据库连接配置"""
-        self.mysql_config = mysql_config
-
     def mysql_create(self, connection, sql):
         """创建MySQL数据库或表"""
         try:
@@ -830,11 +852,13 @@ class Weibo(object):
     def write_data(self, wrote_num):
         """将爬取到的信息写入文件或数据库"""
         if self.got_num > wrote_num:
-            self.write_csv(wrote_num)
-            self.write_txt(wrote_num)
-            if self.mysql_write:
+            if 'csv' in self.write_mode:
+                self.write_csv(wrote_num)
+            if 'txt' in self.write_mode:
+                self.write_txt(wrote_num)
+            if 'mysql' in self.write_mode:
                 self.weibo_to_mysql(wrote_num)
-            if self.mongodb_write:
+            if 'mongo' in self.write_mode:
                 self.weibo_to_mongodb(wrote_num)
 
     def get_weibo_info(self):
@@ -892,10 +916,10 @@ class Weibo(object):
         self.user_id = user_id
         self.weibo_id_list = []
 
-    def start(self, user_id_list):
+    def start(self):
         """运行爬虫"""
         try:
-            for user_id in user_id_list:
+            for user_id in self.user_id_list:
                 self.initialize_info(user_id)
                 print('*' * 100)
                 self.get_weibo_info()
@@ -912,51 +936,13 @@ class Weibo(object):
 
 def main():
     try:
-        # 以下是程序配置信息，可以根据自己需求修改
-        filter = 1  # 值为0表示爬取全部微博（原创微博+转发微博），值为1表示只爬取原创微博
-        since_date = '2018-01-01'  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
-        """值为0代表不将结果写入MongoDB数据库,1代表写入；若要写入MongoDB数据库，
-        请先安装MongoDB数据库和pymongo，pymongo安装方法为命令行运行:pip install pymongo"""
-        mongodb_write = 0
-        """值为0代表不将结果写入MySQL数据库,1代表写入;若要写入MySQL数据库，
-        请先安装MySQL数据库和pymysql，pymysql安装方法为命令行运行:pip install pymysql"""
-        mysql_write = 0
-        pic_download = 1  # 值为0代表不下载微博原始图片,1代表下载微博原始图片
-        video_download = 1  # 值为0代表不下载微博视频,1代表下载微博视频
-
-        wb = Weibo(filter, since_date, mongodb_write, mysql_write,
-                   pic_download, video_download)
-
-        # 下面是自定义MySQL数据库连接配置(可选)
-        """因为操作MySQL数据库需要用户名、密码等参数，本程序默认为:
-        mysql_config = {
-            'host': 'localhost',
-            'port': 3306,
-            'user': 'root',
-            'password': '123456',
-            'charset': 'utf8mb4'
-        }
-        大家的参数配置如果和默认值不同，可以将上面的参数值替换成自己的，
-        然后添加如下代码，使修改生效，如果你的参数和默认值相同则不需要下面的代码:
-        wb.change_mysql_config(mysql_config)"""
-
-        # 下面是配置user_id_list
-        """user_id_list包含了要爬的目标微博id，可以是一个，也可以是多个，也可以从文件中读取
-        爬单个微博，user_id_list如下所示，可以改成任意合法的用户id
-        user_id_list = ['1669879400']
-        爬多个微博，user_id_list如下所示，可以改成任意合法的用户id
-        user_id_list = ['1669879400', '1729370543']
-        也可以在文件中读取user_id_list，文件中可以包含很多user_id，
-        每个user_id占一行，也可以在user_id后面加注释，如用户昵称，user_id和注释之间必需要有空格，
-        文件名任意，类型为txt，位置位于本程序的同目录下，文件内容可以为如下形式：
-        1223178222 胡歌
-        1669879400 迪丽热巴
-        1729370543 郭碧婷
-        比如文件可以叫user_id_list.txt，读取文件中的user_id_list如下所示:
-        user_id_list = wb.get_user_list('user_id_list.txt')"""
-        user_id_list = ['1669879400']
-
-        wb.start(user_id_list)  # 爬取微博信息
+        if not os.path.isfile('./config.json'):
+            sys.exit(u'当前路径：%s 不存在配置文件config.json' %
+                     (os.path.split(os.path.realpath(__file__))[0] + os.sep))
+        with open('./config.json') as f:
+            config = json.loads(f.read())
+        wb = Weibo(config)
+        wb.start()  # 爬取微博信息
     except Exception as e:
         print('Error: ', e)
         traceback.print_exc()

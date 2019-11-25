@@ -1,0 +1,16 @@
+{
+	"user_id_list": ["1669879400"],
+    "filter": 1,
+    "since_date": "2018-01-01",
+    "write_mode": ["csv", "txt"],
+    "pic_download": 1,
+    "video_download": 1,
+    "cookie": "your cookie",
+    "mysql_config": {
+        "host": "localhost",
+        "port": 3306,
+        "user": "root",
+        "password": "123456",
+        "charset": "utf8mb4"
+    }
+}
