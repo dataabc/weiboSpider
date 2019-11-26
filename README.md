@@ -111,7 +111,7 @@ txt文件结果如下所示：
 >单文件版是所有代码都写到一个文件里，即[weiboSpider.py](https://github.com/dataabc/weiboSpider/blob/master/weiboSpider.py)。多文件版重构了单文件版，按照代码功能分成了几个文件，代码更清晰，更易读。如果你仅仅想使用程序，这两个版本用哪一个都一样；如果你不仅想使用，还想开发新功能，多文件版可能更容易。
 
 多文件版由[songzy12](https://github.com/songzy12)重构。songzy12非常认真负责，对于我发现的问题都很耐心地修复了，而且效率非常高，在此感谢。<br>
-本使用说明是单文件版的使用说明，后续会在[multi-file](https://github.com/dataabc/weiboSpider/tree/multi-file)分支的README文档中提供多文件版的使用说明。
+本使用说明是单文件版的使用说明。
 ### 1.下载脚本
 ```bash
 $ git clone https://github.com/dataabc/weibospider.git
@@ -192,6 +192,7 @@ video_download控制是否下载微博中的视频，值为1代表下载，值�
 ```
 "video_download": 1,
 ```
+代表下载微博中的视频。<br>
 **设置cookie**<br>
 请按照[如何获取cookie](#如何获取cookie)，获取cookie，然后将“your cookie”替换成真实的cookie值。<br>
 **设置mysql_config（可选）**<br>
@@ -200,7 +201,7 @@ mysql_config控制mysql参数配置。如果你不需要将结果信息写入mys
 ### 4.设置数据库（可选）
 本部分是可选部分，如果不需要将爬取信息写入数据库，可跳过这一步。本程序目前支持MySQL数据库和MongoDB数据库，如果你需要写入其它数据库，可以参考这两个数据库的写法自己编写。<br>
 **MySQL数据库写入**<br>
-要想将爬取信息写入MySQL，请据自己的系统环境安装MySQL，然后命令行执行：
+要想将爬取信息写入MySQL，请根据自己的系统环境安装MySQL，然后命令行执行：
 ```bash
 $ pip install pymysql
 ```
