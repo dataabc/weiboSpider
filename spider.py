@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+import os
 import random
 import sys
 from datetime import date, datetime, timedelta
@@ -26,6 +27,11 @@ class Spider(object):
                 for t in self.config['cookie'].split(";")
             }
         if type(self.config['user_id_list']) == type(u""):
+            user_id_list = self.config['user_id_list']
+            if not os.path.isabs(user_id_list):
+                user_id_list = os.path.split(
+                    os.path.realpath(__file__))[0] + os.sep + user_id_list
+            self.config['user_id_list'] = user_id_list
             with open(self.config['user_id_list'], 'rb') as f:
                 lines = f.read().splitlines()
                 lines = [line.decode('utf-8') for line in lines]
@@ -149,7 +155,12 @@ class Spider(object):
 
 if __name__ == '__main__':
     import json
-    with open("./config.json") as f:
+    config_path = os.path.split(
+        os.path.realpath(__file__))[0] + os.sep + 'config.json'
+    if not os.path.isfile(config_path):
+        sys.exit(u'当前路径：%s 不存在配置文件config.json' %
+                 (os.path.split(os.path.realpath(__file__))[0] + os.sep))
+    with open(config_path) as f:
         config = json.loads(f.read())
     spider = Spider(config)
     spider.start()  # 爬取微博信息
