@@ -243,7 +243,20 @@ $ python weibospider.py
 ```
 运行;
 ### 6.按需求修改脚本（可选）
-本程序是一个Weibo类，用户可以按照自己的需求调用或修改。<br>
+本部分为可选部分，如果你不需要自己修改代码或添加新功能，可以忽略此部分。<br>
+本程序所有代码都位于weiboSpider.py文件，程序主体是一个Weibo类，上述所有功能都是通过在main函数调用Weibo类实现的，默认的调用代码如下：
+```python
+        config_path = os.path.split(
+            os.path.realpath(__file__))[0] + os.sep + 'config.json'
+        if not os.path.isfile(config_path):
+            sys.exit(u'当前路径：%s 不存在配置文件config.json' %
+                     (os.path.split(os.path.realpath(__file__))[0] + os.sep))
+        with open(config_path) as f:
+            config = json.loads(f.read())
+        wb = Weibo(config)
+        wb.start()  # 爬取微博信息
+```
+用户可以按照自己的需求调用或修改Weibo类。<br>
 通过执行本程序，我们可以得到很多信息：<br>
 **wb.nickname**：用户昵称；<br>
 **wb.weibo_num**：微博数；<br>
