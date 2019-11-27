@@ -39,6 +39,9 @@ class Weibo(object):
         self.mysql_config = config.get('mysql_config')  # MySQL数据库连接配置，可以不填
         user_id_list = config['user_id_list']
         if not isinstance(user_id_list, list):
+            if not os.path.isabs(user_id_list):
+                user_id_list = os.path.split(
+                    os.path.realpath(__file__))[0] + os.sep + user_id_list
             user_id_list = self.get_user_list(user_id_list)
         self.user_id_list = user_id_list  # 要爬取的微博用户的user_id列表
         self.user_id = ''  # 用户id,如昵称为"Dear-迪丽热巴"的id为'1669879400'
@@ -76,6 +79,9 @@ class Weibo(object):
                            list)) and (not user_id_list.endswith('.txt')):
             sys.exit(u'user_id_list值应为list类型或txt文件路径')
         if not isinstance(user_id_list, list):
+            if not os.path.isabs(user_id_list):
+                user_id_list = os.path.split(
+                    os.path.realpath(__file__))[0] + os.sep + user_id_list
             if not os.path.isfile(user_id_list):
                 sys.exit(
                     u'当前路径：%s 不存在user_id_list.txt文件' %
@@ -936,10 +942,12 @@ class Weibo(object):
 
 def main():
     try:
-        if not os.path.isfile('./config.json'):
+        config_path = os.path.split(
+            os.path.realpath(__file__))[0] + os.sep + 'config.json'
+        if not os.path.isfile(config_path):
             sys.exit(u'当前路径：%s 不存在配置文件config.json' %
                      (os.path.split(os.path.realpath(__file__))[0] + os.sep))
-        with open('./config.json') as f:
+        with open(config_path) as f:
             config = json.loads(f.read())
         wb = Weibo(config)
         wb.start()  # 爬取微博信息
