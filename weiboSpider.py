@@ -951,6 +951,9 @@ def main():
             config = json.loads(f.read())
         wb = Weibo(config)
         wb.start()  # 爬取微博信息
+    except ValueError:
+        print(u'config.json 格式不正确，请参考 '
+              u'https://github.com/dataabc/weiboSpider#3程序设置')
     except Exception as e:
         print('Error: ', e)
         traceback.print_exc()
