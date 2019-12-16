@@ -20,8 +20,10 @@
 - 写入**csv文件**（默认）
 - 写入**MySQL数据库**（可选）
 - 写入**MongoDB数据库**（可选）
-- 下载用户微博中的原始**图片**（可选）
-- 下载用户微博中的**视频**（可选）<br>
+- 下载用户**原创**微博中的原始**图片**（可选）
+- 下载用户**转发**微博中的原始**图片**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- 下载用户**原创**微博中的**视频**（可选）
+- 下载用户**转发**微博中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）<br>
 
 本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需免cookie版，大家可以访问<https://github.com/dataabc/weibo-crawler>，二者功能类似，免cookie版获取的信息更多，用法更简单，而且不需要cookie。<br>
 ## 输出
