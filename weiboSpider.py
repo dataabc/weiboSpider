@@ -70,7 +70,7 @@ class Weibo(object):
             sys.exit(u'write_mode值应为list类型')
         for mode in config['write_mode']:
             if mode not in write_mode:
-                sys.exit(u'%s为无效模式，请从txt、csv、mongo和mysql挑选一个或多个作为write_mode' %
+                sys.exit(u'%s为无效模式，请从txt、csv、mongo和mysql中挑选一个或多个作为write_mode' %
                          mode)
 
         # 验证user_id_list
@@ -83,9 +83,7 @@ class Weibo(object):
                 user_id_list = os.path.split(
                     os.path.realpath(__file__))[0] + os.sep + user_id_list
             if not os.path.isfile(user_id_list):
-                sys.exit(
-                    u'当前路径：%s 不存在user_id_list.txt文件' %
-                    (os.path.split(os.path.realpath(__file__))[0] + os.sep))
+                sys.exit(u'不存在%s文件' % user_id_list)
 
     def is_date(self, since_date):
         """判断日期格式是否正确"""
