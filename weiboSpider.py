@@ -252,12 +252,6 @@ class Weibo(object):
     def get_retweet(self, info, weibo_id):
         """获取转发微博"""
         try:
-            original_user = info.xpath("div/span[@class='cmt']/a/text()")
-            if not original_user:
-                wb_content = u'转发微博已被删除'
-                return wb_content
-            else:
-                original_user = original_user[0]
             wb_content = self.deal_garbled(info)
             wb_content = wb_content[wb_content.find(':') +
                                     1:wb_content.rfind(u'赞')]
@@ -270,8 +264,13 @@ class Weibo(object):
                     wb_content = weibo_content
             retweet_reason = self.deal_garbled(info.xpath('div')[-1])
             retweet_reason = retweet_reason[:retweet_reason.rindex(u'赞')]
-            wb_content = (retweet_reason + '\n' + u'原始用户: ' + original_user +
-                          '\n' + u'转发内容: ' + wb_content)
+            original_user = info.xpath("div/span[@class='cmt']/a/text()")
+            if original_user:
+                original_user = original_user[0]
+                wb_content = (retweet_reason + '\n' + u'原始用户: ' +
+                              original_user + '\n' + u'转发内容: ' + wb_content)
+            else:
+                wb_content = retweet_reason + '\n' + u'转发内容: ' + wb_content
             return wb_content
         except Exception as e:
             print('Error: ', e)
