@@ -93,7 +93,7 @@ class Weibo(object):
         except ValueError:
             return False
 
-    def deal_html(self, url):
+    def handle_html(self, url):
         """处理html"""
         try:
             html = requests.get(url, cookies=self.cookie).content
@@ -103,7 +103,7 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
-    def deal_garbled(self, info):
+    def handle_garbled(self, info):
         """处理乱码"""
         try:
             info = (info.xpath('string(.)').replace(u'\u200b', '').encode(
@@ -117,7 +117,7 @@ class Weibo(object):
         """获取用户昵称"""
         try:
             url = 'https://weibo.cn/%s/info' % (self.user_id)
-            selector = self.deal_html(url)
+            selector = self.handle_html(url)
             nickname = selector.xpath('//title/text()')[0]
             nickname = nickname[:-3]
             if nickname == u'登录 - 新' or nickname == u'新浪':
@@ -211,9 +211,9 @@ class Weibo(object):
     def get_long_weibo(self, weibo_link):
         """获取长原创微博"""
         try:
-            selector = self.deal_html(weibo_link)
+            selector = self.handle_html(weibo_link)
             info = selector.xpath("//div[@class='c']")[1]
-            wb_content = self.deal_garbled(info)
+            wb_content = self.handle_garbled(info)
             wb_time = info.xpath("//span[@class='ct']/text()")[0]
             weibo_content = wb_content[wb_content.find(':') +
                                        1:wb_content.rfind(wb_time)]
@@ -226,7 +226,7 @@ class Weibo(object):
     def get_original_weibo(self, info, weibo_id):
         """获取原创微博"""
         try:
-            weibo_content = self.deal_garbled(info)
+            weibo_content = self.handle_garbled(info)
             weibo_content = weibo_content[:weibo_content.rfind(u'赞')]
             a_text = info.xpath('div//a/text()')
             if u'全文' in a_text:
@@ -252,7 +252,7 @@ class Weibo(object):
     def get_retweet(self, info, weibo_id):
         """获取转发微博"""
         try:
-            wb_content = self.deal_garbled(info)
+            wb_content = self.handle_garbled(info)
             wb_content = wb_content[wb_content.find(':') +
                                     1:wb_content.rfind(u'赞')]
             wb_content = wb_content[:wb_content.rfind(u'赞')]
@@ -262,7 +262,7 @@ class Weibo(object):
                 weibo_content = self.get_long_retweet(weibo_link)
                 if weibo_content:
                     wb_content = weibo_content
-            retweet_reason = self.deal_garbled(info.xpath('div')[-1])
+            retweet_reason = self.handle_garbled(info.xpath('div')[-1])
             retweet_reason = retweet_reason[:retweet_reason.rindex(u'赞')]
             original_user = info.xpath("div/span[@class='cmt']/a/text()")
             if original_user:
@@ -315,7 +315,7 @@ class Weibo(object):
                                 publish_place = weibo_a[-2]
                             else:
                                 publish_place = u'无'
-                        publish_place = self.deal_garbled(publish_place)
+                        publish_place = self.handle_garbled(publish_place)
                         break
             return publish_place
         except Exception as e:
@@ -326,7 +326,7 @@ class Weibo(object):
         """获取微博发布时间"""
         try:
             str_time = info.xpath("div/span[@class='ct']")
-            str_time = self.deal_garbled(str_time[0])
+            str_time = self.handle_garbled(str_time[0])
             publish_time = str_time.split(u'来自')[0]
             if u'刚刚' in publish_time:
                 publish_time = datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -358,7 +358,7 @@ class Weibo(object):
         """获取微博发布工具"""
         try:
             str_time = info.xpath("div/span[@class='ct']")
-            str_time = self.deal_garbled(str_time[0])
+            str_time = self.handle_garbled(str_time[0])
             if len(str_time.split(u'来自')) > 1:
                 publish_tool = str_time.split(u'来自')[1]
             else:
@@ -374,7 +374,7 @@ class Weibo(object):
             footer = {}
             pattern = r'\d+'
             str_footer = info.xpath('div')[-1]
-            str_footer = self.deal_garbled(str_footer)
+            str_footer = self.handle_garbled(str_footer)
             str_footer = str_footer[str_footer.rfind(u'赞'):]
             weibo_footer = re.findall(pattern, str_footer, re.M)
 
@@ -399,7 +399,7 @@ class Weibo(object):
             all_pic = 'https://weibo.cn/mblog/picAll/' + weibo_id + '?rl=1'
             if first_pic in a_list:
                 if all_pic in a_list:
-                    selector = self.deal_html(all_pic)
+                    selector = self.handle_html(all_pic)
                     preview_picture_list = selector.xpath('//img/@src')
                     picture_list = [
                         p.replace('/thumb180/', '/large/')
@@ -500,39 +500,42 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
-    def download_files(self, type):
+    def handle_download(self, file_type, file_dir, urls, w):
+        """处理下载相关操作"""
+        file_prefix = w['publish_time'][:11].replace('-', '') + '_' + w['id']
+        if file_type == 'img':
+            if ',' in urls:
+                url_list = urls.split(',')
+                for i, url in enumerate(url_list):
+                    file_suffix = url[url.rfind('.'):]
+                    file_name = file_prefix + '_' + str(i + 1) + file_suffix
+                    file_path = file_dir + os.sep + file_name
+                    self.download_one_file(url, file_path, file_type, w['id'])
+            else:
+                file_suffix = urls[urls.rfind('.'):]
+                file_name = file_prefix + file_suffix
+                file_path = file_dir + os.sep + file_name
+                self.download_one_file(urls, file_path, file_type, w['id'])
+        else:
+            file_suffix = '.mp4'
+            file_name = file_prefix + file_suffix
+            file_path = file_dir + os.sep + file_name
+            self.download_one_file(urls, file_path, file_type, w['id'])
+
+    def download_files(self, file_type):
         """下载文件(图片/视频)"""
         try:
-            if type == 'img':
+            if file_type == 'img':
                 describe = u'图片'
                 key = 'original_pictures'
             else:
                 describe = u'视频'
                 key = 'video_url'
             print(u'即将进行%s下载' % describe)
-            file_dir = self.get_filepath(type)
+            file_dir = self.get_filepath(file_type)
             for w in tqdm(self.weibo, desc='Download progress'):
                 if w[key] != u'无':
-                    file_prefix = w['publish_time'][:11].replace(
-                        '-', '') + '_' + w['id']
-                    if type == 'img' and ',' in w[key]:
-                        w[key] = w[key].split(',')
-                        for j, url in enumerate(w[key]):
-                            file_suffix = url[url.rfind('.'):]
-                            file_name = file_prefix + '_' + str(
-                                j + 1) + file_suffix
-                            file_path = file_dir + os.sep + file_name
-                            self.download_one_file(url, file_path, type,
-                                                   w['id'])
-                    else:
-                        if type == 'video':
-                            file_suffix = '.mp4'
-                        else:
-                            file_suffix = w[key][w[key].rfind('.'):]
-                        file_name = file_prefix + file_suffix
-                        file_path = file_dir + os.sep + file_name
-                        self.download_one_file(w[key], file_path, type,
-                                               w['id'])
+                    self.handle_download(file_type, file_dir, w[key], w)
             print(u'%s下载完毕,保存路径:' % describe)
             print(file_dir)
         except Exception as e:
@@ -593,7 +596,7 @@ class Weibo(object):
         """获取第page页的全部微博"""
         try:
             url = 'https://weibo.cn/u/%s?page=%d' % (self.user_id, page)
-            selector = self.deal_html(url)
+            selector = self.handle_html(url)
             info = selector.xpath("//div[@class='c']")
             is_exist = info[0].xpath("div/span[@class='ctt']")
             if is_exist:
@@ -868,7 +871,7 @@ class Weibo(object):
         """获取微博信息"""
         try:
             url = 'https://weibo.cn/u/%s' % (self.user_id)
-            selector = self.deal_html(url)
+            selector = self.handle_html(url)
             self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
             page_num = self.get_page_num(selector)  # 获取微博总页数
             wrote_num = 0
