@@ -24,7 +24,9 @@
 - 下载用户**原创**微博中的原始**图片**（可选）
 - 下载用户**转发**微博中的原始**图片**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
 - 下载用户**原创**微博中的**视频**（可选）
-- 下载用户**转发**微博中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）<br>
+- 下载用户**转发**微博中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- 下载用户**原创**微博**live photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- 下载用户**转发**微博**live photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）<br>
 
 当然，如果你只对用户信息感兴趣，而不需要爬用户的微博，也可以通过设置实现只爬取微博用户信息的功能。<br>
 程序也可以实现**爬取结果自动更新**，即：现在爬取了目标用户的微博，几天之后，目标用户可能又发新微博了。通过设置，可以实现每隔几天增量爬取用户这几天发的新微博。<br>
