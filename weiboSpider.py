@@ -854,7 +854,11 @@ class Weibo(object):
         self.mysql_create_table(mysql_config, create_table)
         # 在'weibo'表中插入或更新微博数据
         weibo_list = []
-        for weibo in self.weibo[wrote_num:]:
+        if len(self.write_mode) > 1:
+            info_list = copy.deepcopy(self.weibo[wrote_num:])
+        else:
+            info_list = self.weibo[wrote_num:]
+        for weibo in info_list:
             weibo['user_id'] = self.user_id
             weibo_list.append(weibo)
         self.mysql_insert(mysql_config, 'weibo', weibo_list)
