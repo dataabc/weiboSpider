@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import codecs
+import copy
 import csv
 import json
 import os
@@ -738,7 +739,11 @@ class Weibo(object):
             client = MongoClient()
             db = client['weibo']
             collection = db[collection]
-            for info in info_list:
+            if len(self.write_mode) > 1:
+                new_info_list = copy.deepcopy(info_list)
+            else:
+                new_info_list = info_list
+            for info in new_info_list:
                 if not collection.find_one({'id': info['id']}):
                     collection.insert_one(info)
                 else:
