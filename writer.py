@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+
+import copy
 import csv
 import os
 import sys
@@ -47,11 +49,18 @@ class Writer:
 
     def write_user(self, user):
         for writer in self.writers:
-            writer.write_user(user)
+            if isinstance(writer, MongoWriter):
+                writer.write_user(copy.deepcopy(user))
+            else:
+                writer.write_user(user)
 
     def write_weibo(self, weibo):
         for writer in self.writers:
-            writer.write_weibo(weibo)
+            if isinstance(writer, MongoWriter) or isinstance(
+                    writer, MysqlWriter):
+                writer.write_weibo(copy.deepcopy(weibo))
+            else:
+                writer.write_weibo(weibo)
 
 
 class TxtWriter:
