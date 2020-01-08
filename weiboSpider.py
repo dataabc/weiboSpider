@@ -671,7 +671,7 @@ class Weibo(object):
             if not self.filter:
                 result_headers.insert(3, '被转发微博原始图片url')
                 result_headers.insert(4, '是否为原创微博')
-            result_data = [w.values() for w in self.weibo][wrote_num:]
+            result_data = [w.values() for w in self.weibo[wrote_num:]]
             if sys.version < '3':  # python2.x
                 reload(sys)
                 sys.setdefaultencoding('utf-8')
