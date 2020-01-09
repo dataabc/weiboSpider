@@ -31,7 +31,7 @@ class Weibo(object):
             since_date = str(date.today() - timedelta(int(since_date)))
         self.since_date = since_date  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
         self.write_mode = config[
-            'write_mode']  # 结果信息保存类型，为list形式，可包含txt、csv、mongo和mysql四种类型
+            'write_mode']  # 结果信息保存类型，为list形式，可包含txt、csv、json、mongo和mysql五种类型
         self.pic_download = config[
             'pic_download']  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
         self.video_download = config[
@@ -66,13 +66,14 @@ class Weibo(object):
             sys.exit(u'since_date值应为yyyy-mm-dd形式或整数,请重新输入')
 
         # 验证write_mode
-        write_mode = ['txt', 'csv', 'mongo', 'mysql']
+        write_mode = ['txt', 'csv', 'json', 'mongo', 'mysql']
         if not isinstance(config['write_mode'], list):
             sys.exit(u'write_mode值应为list类型')
         for mode in config['write_mode']:
             if mode not in write_mode:
-                sys.exit(u'%s为无效模式，请从txt、csv、mongo和mysql中挑选一个或多个作为write_mode' %
-                         mode)
+                sys.exit(
+                    u'%s为无效模式，请从txt、csv、json、mongo和mysql中挑选一个或多个作为write_mode' %
+                    mode)
 
         # 验证user_id_list
         user_id_list = config['user_id_list']
@@ -728,6 +729,45 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
+    def update_json_data(self, data, weibo_info):
+        """更新要写入json结果文件中的数据，已经存在于json中的信息更新为最新值，不存在的信息添加到data中"""
+        data['user'] = self.user
+        if data.get('weibo'):
+            is_new = 1  # 待写入微博是否全部为新微博，即待写入微博与json中的数据不重复
+            for old in data['weibo']:
+                if weibo_info[-1]['id'] == old['id']:
+                    is_new = 0
+                    break
+            if is_new == 0:
+                for new in weibo_info:
+                    flag = 1
+                    for i, old in enumerate(data['weibo']):
+                        if new['id'] == old['id']:
+                            data['weibo'][i] = new
+                            flag = 0
+                            break
+                    if flag:
+                        data['weibo'].append(new)
+            else:
+                data['weibo'] += weibo_info
+        else:
+            data['weibo'] = weibo_info
+        return data
+
+    def write_json(self, wrote_num):
+        """将爬到的信息写入json文件"""
+        data = {}
+        path = self.get_filepath('json')
+        if os.path.isfile(path):
+            with codecs.open(path, 'r', encoding="utf-8") as f:
+                data = json.load(f)
+        weibo_info = self.weibo[wrote_num:]
+        data = self.update_json_data(data, weibo_info)
+        with codecs.open(path, 'w', encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
+        print(u'%d条微博写入json文件完毕,保存路径:' % self.got_num)
+        print(path)
+
     def info_to_mongodb(self, collection, info_list):
         """将爬取的信息写入MongoDB数据库"""
         try:
@@ -871,6 +911,8 @@ class Weibo(object):
                 self.write_csv(wrote_num)
             if 'txt' in self.write_mode:
                 self.write_txt(wrote_num)
+            if 'json' in self.write_mode:
+                self.write_json(wrote_num)
             if 'mysql' in self.write_mode:
                 self.weibo_to_mysql(wrote_num)
             if 'mongo' in self.write_mode:
