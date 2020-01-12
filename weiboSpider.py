@@ -43,9 +43,16 @@ class Weibo(object):
             if not os.path.isabs(user_id_list):
                 user_id_list = os.path.split(
                     os.path.realpath(__file__))[0] + os.sep + user_id_list
-            user_id_list = self.get_user_list(user_id_list)
-        self.user_id_list = user_id_list  # 要爬取的微博用户的user_id列表
-        self.user_id = ''  # 用户id,如昵称为"Dear-迪丽热巴"的id为'1669879400'
+            self.user_config_file_path = user_id_list  # 用户配置文件路径
+            user_config_list = self.get_user_config_list(user_id_list)
+        else:
+            self.user_config_file_path = ''
+            user_config_list = [{
+                'user_id': user_id,
+                'since_date': self.since_date
+            } for user_id in user_id_list]
+        self.user_config_list = user_config_list  # 要爬取的微博用户的user_config列表
+        self.user_config = {}  # 用户配置,包含用户id和since_date
         self.user = {}  # 存储爬取到的用户信息
         self.got_num = 0  # 存储爬取到的微博数
         self.weibo = []  # 存储爬取到的所有微博信息
@@ -118,7 +125,7 @@ class Weibo(object):
     def get_nickname(self):
         """获取用户昵称"""
         try:
-            url = 'https://weibo.cn/%s/info' % (self.user_id)
+            url = 'https://weibo.cn/%s/info' % (self.user_config['user_id'])
             selector = self.handle_html(url)
             nickname = selector.xpath('//title/text()')[0]
             nickname = nickname[:-3]
@@ -189,7 +196,7 @@ class Weibo(object):
             self.user['weibo_num'] = weibo_num
             self.user['following'] = following
             self.user['followers'] = followers
-            self.user['id'] = self.user_id
+            self.user['id'] = self.user_config['user_id']
             self.print_user_info()
             self.user_to_database()
             print('*' * 100)
@@ -597,7 +604,8 @@ class Weibo(object):
     def get_one_page(self, page):
         """获取第page页的全部微博"""
         try:
-            url = 'https://weibo.cn/u/%s?page=%d' % (self.user_id, page)
+            url = 'https://weibo.cn/u/%s?page=%d' % (
+                self.user_config['user_id'], page)
             selector = self.handle_html(url)
             info = selector.xpath("//div[@class='c']")
             is_exist = info[0].xpath("div/span[@class='ctt']")
@@ -609,8 +617,8 @@ class Weibo(object):
                             continue
                         publish_time = datetime.strptime(
                             weibo['publish_time'][:10], "%Y-%m-%d")
-                        since_date = datetime.strptime(self.since_date,
-                                                       "%Y-%m-%d")
+                        since_date = datetime.strptime(
+                            self.user_config['since_date'], "%Y-%m-%d")
                         if publish_time < since_date:
                             if self.is_pinned_weibo(info[i]):
                                 continue
@@ -637,7 +645,8 @@ class Weibo(object):
                 os.makedirs(file_dir)
             if type == 'img' or type == 'video':
                 return file_dir
-            file_path = file_dir + os.sep + self.user_id + '.' + type
+            file_path = file_dir + os.sep + self.user_config[
+                'user_id'] + '.' + type
             return file_path
         except Exception as e:
             print('Error: ', e)
@@ -707,10 +716,12 @@ class Weibo(object):
                 else:
                     result_header = u'\n\n微博内容: \n'
                 result_header = (u'用户信息\n用户昵称：' + self.user['nickname'] +
-                                 u'\n用户id: ' + str(self.user_id) + u'\n微博数: ' +
-                                 str(self.user['weibo_num']) + u'\n关注数: ' +
-                                 str(self.user['following']) + u'\n粉丝数: ' +
-                                 str(self.user['followers']) + result_header)
+                                 u'\n用户id: ' +
+                                 str(self.user_config['user_id']) +
+                                 u'\n微博数: ' + str(self.user['weibo_num']) +
+                                 u'\n关注数: ' + str(self.user['following']) +
+                                 u'\n粉丝数: ' + str(self.user['followers']) +
+                                 result_header)
                 temp_result.append(result_header)
             for i, w in enumerate(self.weibo[wrote_num:]):
                 temp_result.append(
@@ -795,7 +806,7 @@ class Weibo(object):
         """将爬取的微博信息写入MongoDB数据库"""
         weibo_list = []
         for w in self.weibo[wrote_num:]:
-            w['user_id'] = self.user_id
+            w['user_id'] = self.user_config['user_id']
             weibo_list.append(w)
         self.info_to_mongodb('weibo', weibo_list)
         print(u'%d条微博写入MongoDB数据库完毕' % self.got_num)
@@ -899,10 +910,31 @@ class Weibo(object):
         else:
             info_list = self.weibo[wrote_num:]
         for weibo in info_list:
-            weibo['user_id'] = self.user_id
+            weibo['user_id'] = self.user_config['user_id']
             weibo_list.append(weibo)
         self.mysql_insert(mysql_config, 'weibo', weibo_list)
         print(u'%d条微博写入MySQL数据库完毕' % self.got_num)
+
+    def update_user_config_file(self, user_config_file_path):
+        """更新用户配置文件"""
+        with open(user_config_file_path, 'rb') as f:
+            lines = f.read().splitlines()
+            lines = [line.decode('utf-8') for line in lines]
+            for i, line in enumerate(lines):
+                info = line.split(' ')
+                if len(info) > 0 and info[0].isdigit():
+                    if self.user_config['user_id'] == info[0]:
+                        if len(info) == 1:
+                            info.append(self.user['nickname'])
+                            info.append(self.weibo[0]['publish_time'][:10])
+                        if len(info) == 2:
+                            info.append(self.weibo[0]['publish_time'][:10])
+                        if len(info) > 2:
+                            info[2] = self.weibo[0]['publish_time'][:10]
+                        lines[i] = ' '.join(info)
+                        break
+        with codecs.open(user_config_file_path, 'w', encoding="utf-8") as f:
+            f.write('\n'.join(lines))
 
     def write_data(self, wrote_num):
         """将爬取到的信息写入文件或数据库"""
@@ -921,7 +953,7 @@ class Weibo(object):
     def get_weibo_info(self):
         """获取微博信息"""
         try:
-            url = 'https://weibo.cn/u/%s' % (self.user_id)
+            url = 'https://weibo.cn/u/%s' % (self.user_config['user_id'])
             selector = self.handle_html(url)
             self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
             page_num = self.get_page_num(selector)  # 获取微博总页数
@@ -954,34 +986,43 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
-    def get_user_list(self, file_name):
+    def get_user_config_list(self, file_name):
         """获取文件中的微博id信息"""
         with open(file_name, 'rb') as f:
             lines = f.read().splitlines()
             lines = [line.decode('utf-8') for line in lines]
-            user_id_list = [
-                line.split(' ')[0] for line in lines
-                if len(line.split(' ')) > 0 and line.split(' ')[0].isdigit()
-            ]
-        return user_id_list
+            user_config_list = []
+            for line in lines:
+                info = line.split(' ')
+                if len(info) > 0 and info[0].isdigit():
+                    user_config = {}
+                    user_config['user_id'] = info[0]
+                    if len(info) > 2 and self.is_date(info[2]):
+                        user_config['since_date'] = info[2]
+                    else:
+                        user_config['since_date'] = self.since_date
+                    user_config_list.append(user_config)
+        return user_config_list
 
-    def initialize_info(self, user_id):
+    def initialize_info(self, user_config):
         """初始化爬虫信息"""
         self.got_num = 0
         self.weibo = []
         self.user = {}
-        self.user_id = user_id
+        self.user_config = user_config
         self.weibo_id_list = []
 
     def start(self):
         """运行爬虫"""
         try:
-            for user_id in self.user_id_list:
-                self.initialize_info(user_id)
+            for user_config in self.user_config_list:
+                self.initialize_info(user_config)
                 print('*' * 100)
                 self.get_weibo_info()
                 print(u'信息抓取完毕')
                 print('*' * 100)
+                if self.user_config_file_path:
+                    self.update_user_config_file(self.user_config_file_path)
                 if self.pic_download == 1:
                     self.download_files('img')
                 if self.video_download == 1:
