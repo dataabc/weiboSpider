@@ -924,13 +924,14 @@ class Weibo(object):
                 info = line.split(' ')
                 if len(info) > 0 and info[0].isdigit():
                     if self.user_config['user_id'] == info[0]:
+                        today = datetime.now().strftime('%Y-%m-%d')
                         if len(info) == 1:
                             info.append(self.user['nickname'])
-                            info.append(self.weibo[0]['publish_time'][:10])
+                            info.append(today)
                         if len(info) == 2:
-                            info.append(self.weibo[0]['publish_time'][:10])
+                            info.append(today)
                         if len(info) > 2:
-                            info[2] = self.weibo[0]['publish_time'][:10]
+                            info[2] = today
                         lines[i] = ' '.join(info)
                         break
         with codecs.open(user_config_file_path, 'w', encoding="utf-8") as f:
