@@ -53,7 +53,7 @@ class Weibo(object):
             } for user_id in user_id_list]
         self.user_config_list = user_config_list  # 要爬取的微博用户的user_config列表
         self.user_config = {}  # 用户配置,包含用户id和since_date
-        self.today = ''  # 获取用户第一条微博时的日期
+        self.start_time = ''  # 获取用户第一条微博时的时间
         self.user = {}  # 存储爬取到的用户信息
         self.got_num = 0  # 存储爬取到的微博数
         self.weibo = []  # 存储爬取到的所有微博信息
@@ -98,10 +98,21 @@ class Weibo(object):
     def is_date(self, since_date):
         """判断日期格式是否正确"""
         try:
-            datetime.strptime(since_date, "%Y-%m-%d")
+            if ':' in since_date:
+                datetime.strptime(since_date, '%Y-%m-%d %H:%M')
+            else:
+                datetime.strptime(since_date, '%Y-%m-%d')
             return True
         except ValueError:
             return False
+
+    def str_to_time(self, text):
+        """将字符串转换成时间类型"""
+        if ':' in text:
+            result = datetime.strptime(text, '%Y-%m-%d %H:%M')
+        else:
+            result = datetime.strptime(text, '%Y-%m-%d')
+        return result
 
     def handle_html(self, url):
         """处理html"""
@@ -616,10 +627,9 @@ class Weibo(object):
                     if weibo:
                         if weibo['id'] in self.weibo_id_list:
                             continue
-                        publish_time = datetime.strptime(
-                            weibo['publish_time'][:10], "%Y-%m-%d")
-                        since_date = datetime.strptime(
-                            self.user_config['since_date'], "%Y-%m-%d")
+                        publish_time = self.str_to_time(weibo['publish_time'])
+                        since_date = self.str_to_time(
+                            self.user_config['since_date'])
                         if publish_time < since_date:
                             if self.is_pinned_weibo(info[i]):
                                 continue
@@ -927,14 +937,17 @@ class Weibo(object):
                     if self.user_config['user_id'] == info[0]:
                         if len(info) == 1:
                             info.append(self.user['nickname'])
-                            info.append(self.today)
+                            info.append(self.start_time)
                         if len(info) == 2:
-                            info.append(self.today)
+                            info.append(self.start_time)
+                        if len(info) > 3 and self.is_date(info[2] + ' ' +
+                                                          info[3]):
+                            del info[3]
                         if len(info) > 2:
-                            info[2] = self.today
+                            info[2] = self.start_time
                         lines[i] = ' '.join(info)
                         break
-        with codecs.open(user_config_file_path, 'w', encoding="utf-8") as f:
+        with codecs.open(user_config_file_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(lines))
 
     def write_data(self, wrote_num):
@@ -961,7 +974,7 @@ class Weibo(object):
             wrote_num = 0
             page1 = 0
             random_pages = random.randint(1, 5)
-            self.today = datetime.now().strftime('%Y-%m-%d')
+            self.start_time = datetime.now().strftime('%Y-%m-%d %H:%M')
             for page in tqdm(range(1, page_num + 1), desc='Progress'):
                 is_end = self.get_one_page(page)  # 获取第page页的全部微博
                 if is_end:
@@ -1000,7 +1013,11 @@ class Weibo(object):
                     user_config = {}
                     user_config['user_id'] = info[0]
                     if len(info) > 2 and self.is_date(info[2]):
-                        user_config['since_date'] = info[2]
+                        if len(info) > 3 and self.is_date(info[2] + ' ' +
+                                                          info[3]):
+                            user_config['since_date'] = info[2] + ' ' + info[3]
+                        else:
+                            user_config['since_date'] = info[2]
                     else:
                         user_config['since_date'] = self.since_date
                     user_config_list.append(user_config)
