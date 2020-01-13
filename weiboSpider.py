@@ -53,6 +53,7 @@ class Weibo(object):
             } for user_id in user_id_list]
         self.user_config_list = user_config_list  # 要爬取的微博用户的user_config列表
         self.user_config = {}  # 用户配置,包含用户id和since_date
+        self.today = ''  # 获取用户第一条微博时的日期
         self.user = {}  # 存储爬取到的用户信息
         self.got_num = 0  # 存储爬取到的微博数
         self.weibo = []  # 存储爬取到的所有微博信息
@@ -924,14 +925,13 @@ class Weibo(object):
                 info = line.split(' ')
                 if len(info) > 0 and info[0].isdigit():
                     if self.user_config['user_id'] == info[0]:
-                        today = datetime.now().strftime('%Y-%m-%d')
                         if len(info) == 1:
                             info.append(self.user['nickname'])
-                            info.append(today)
+                            info.append(self.today)
                         if len(info) == 2:
-                            info.append(today)
+                            info.append(self.today)
                         if len(info) > 2:
-                            info[2] = today
+                            info[2] = self.today
                         lines[i] = ' '.join(info)
                         break
         with codecs.open(user_config_file_path, 'w', encoding="utf-8") as f:
@@ -961,6 +961,7 @@ class Weibo(object):
             wrote_num = 0
             page1 = 0
             random_pages = random.randint(1, 5)
+            self.today = datetime.now().strftime('%Y-%m-%d')
             for page in tqdm(range(1, page_num + 1), desc='Progress'):
                 is_end = self.get_one_page(page)  # 获取第page页的全部微博
                 if is_end:
