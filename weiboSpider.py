@@ -197,9 +197,21 @@ class Weibo(object):
         print(u'关注数: %d' % self.user['following'])
         print(u'粉丝数: %d' % self.user['followers'])
 
+    def update_user_id(self, selector):
+        """更新用户id，使用者输入的user_id不一定是正确的，可能是个性域名等，需要更新成真正的user_id"""
+        url_list = selector.xpath("//div[@class='u']//a")
+        for url in url_list:
+            if (url.xpath('string(.)')) == u'资料':
+                if url.xpath('@href') and url.xpath('@href')[0].endswith(
+                        '/info'):
+                    link = url.xpath('@href')[0]
+                    self.user_config['user_id'] = link[1:-5]
+                    break
+
     def get_user_info(self, selector):
         """获取用户昵称、微博数、关注数、粉丝数"""
         try:
+            self.update_user_id(selector)
             self.get_nickname()  # 获取用户昵称
             user_info = selector.xpath("//div[@class='tip2']/*/text()")
             weibo_num = int(user_info[0][3:-1])
@@ -616,8 +628,8 @@ class Weibo(object):
     def get_one_page(self, page):
         """获取第page页的全部微博"""
         try:
-            url = 'https://weibo.cn/u/%s?page=%d' % (
-                self.user_config['user_id'], page)
+            url = 'https://weibo.cn/%s?page=%d' % (self.user_config['user_id'],
+                                                   page)
             selector = self.handle_html(url)
             info = selector.xpath("//div[@class='c']")
             is_exist = info[0].xpath("div/span[@class='ctt']")
@@ -967,7 +979,7 @@ class Weibo(object):
     def get_weibo_info(self):
         """获取微博信息"""
         try:
-            url = 'https://weibo.cn/u/%s' % (self.user_config['user_id'])
+            url = 'https://weibo.cn/%s' % (self.user_config['user_id'])
             selector = self.handle_html(url)
             self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
             page_num = self.get_page_num(selector)  # 获取微博总页数
