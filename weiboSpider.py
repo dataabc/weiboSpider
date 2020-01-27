@@ -1076,12 +1076,13 @@ def main():
             sys.exit(u'当前路径：%s 不存在配置文件config.json' %
                      (os.path.split(os.path.realpath(__file__))[0] + os.sep))
         with open(config_path) as f:
-            config = json.loads(f.read())
+            try:
+                config = json.loads(f.read())
+            except ValueError:
+                sys.exit(u'config.json 格式不正确，请参考 '
+                         u'https://github.com/dataabc/weiboSpider#3程序设置')
         wb = Weibo(config)
         wb.start()  # 爬取微博信息
-    except ValueError:
-        print(u'config.json 格式不正确，请参考 '
-              u'https://github.com/dataabc/weiboSpider#3程序设置')
     except Exception as e:
         print('Error: ', e)
         traceback.print_exc()
