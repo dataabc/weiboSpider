@@ -944,7 +944,7 @@ class Weibo(object):
         """更新用户配置文件"""
         with open(user_config_file_path, 'rb') as f:
             lines = f.read().splitlines()
-            lines = [line.decode('utf-8') for line in lines]
+            lines = [line.decode('utf-8-sig') for line in lines]
             for i, line in enumerate(lines):
                 info = line.split(' ')
                 if len(info) > 0 and info[0].isdigit():
@@ -1020,7 +1020,7 @@ class Weibo(object):
         with open(file_name, 'rb') as f:
             try:
                 lines = f.read().splitlines()
-                lines = [line.decode('utf-8') for line in lines]
+                lines = [line.decode('utf-8-sig') for line in lines]
             except UnicodeDecodeError:
                 sys.exit(u'%s文件应为utf-8编码，请先将文件编码转为utf-8再运行程序' % file_name)
             user_config_list = []
