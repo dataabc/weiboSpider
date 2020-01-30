@@ -196,6 +196,7 @@ class Weibo(object):
         print(u'微博数: %d' % self.user['weibo_num'])
         print(u'关注数: %d' % self.user['following'])
         print(u'粉丝数: %d' % self.user['followers'])
+        print(u'url：https://weibo.cn/%s' % self.user['id'])
 
     def get_user_id(self, selector):
         """获取用户id，使用者输入的user_id不一定是正确的，可能是个性域名等，需要获取真正的user_id"""
