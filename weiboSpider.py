@@ -618,6 +618,7 @@ class Weibo(object):
         print(u'点赞数：%d' % weibo['up_num'])
         print(u'转发数：%d' % weibo['retweet_num'])
         print(u'评论数：%d' % weibo['comment_num'])
+        print(u'url：https://weibo.cn/comment/%s' % weibo['id'])
 
     def is_pinned_weibo(self, info):
         """判断微博是否为置顶微博"""
