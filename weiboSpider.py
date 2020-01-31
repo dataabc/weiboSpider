@@ -650,12 +650,19 @@ class Weibo(object):
                             if self.is_pinned_weibo(info[i]):
                                 continue
                             else:
+                                print(u'{}已获取{}({})的第{}页微博{}'.format(
+                                    '-' * 30, self.user['nickname'],
+                                    self.user['id'], page, '-' * 30))
                                 return True
                         self.print_one_weibo(weibo)
                         self.weibo.append(weibo)
                         self.weibo_id_list.append(weibo['id'])
                         self.got_num += 1
                         print('-' * 100)
+            print(u'{}已获取{}({})的第{}页微博{}'.format('-' * 30,
+                                                 self.user['nickname'],
+                                                 self.user['id'], page,
+                                                 '-' * 30))
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
