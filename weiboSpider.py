@@ -558,7 +558,7 @@ class Weibo(object):
             file_path = file_dir + os.sep + file_name
             self.download_one_file(urls, file_path, file_type, w['id'])
 
-    def download_files(self, file_type):
+    def download_files(self, file_type, wrote_num):
         """下载文件(图片/视频)"""
         try:
             if file_type == 'img':
@@ -569,7 +569,7 @@ class Weibo(object):
                 key = 'video_url'
             print(u'即将进行%s下载' % describe)
             file_dir = self.get_filepath(file_type)
-            for w in tqdm(self.weibo, desc='Download progress'):
+            for w in tqdm(self.weibo[wrote_num:], desc='Download progress'):
                 if w[key] != u'无':
                     self.handle_download(file_type, file_dir, w[key], w)
             print(u'%s下载完毕,保存路径:' % describe)
@@ -986,6 +986,10 @@ class Weibo(object):
                 self.weibo_to_mysql(wrote_num)
             if 'mongo' in self.write_mode:
                 self.weibo_to_mongodb(wrote_num)
+            if self.pic_download == 1:
+                self.download_files('img', wrote_num)
+            if self.video_download == 1:
+                self.download_files('video', wrote_num)
 
     def get_weibo_info(self):
         """获取微博信息"""
@@ -1068,10 +1072,6 @@ class Weibo(object):
                 print('*' * 100)
                 if self.user_config_file_path:
                     self.update_user_config_file(self.user_config_file_path)
-                if self.pic_download == 1:
-                    self.download_files('img')
-                if self.video_download == 1:
-                    self.download_files('video')
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
