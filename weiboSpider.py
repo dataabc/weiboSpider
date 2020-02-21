@@ -439,6 +439,7 @@ class Weibo(object):
             a_list = info.xpath('div/a/@href')
             first_pic = 'https://weibo.cn/mblog/pic/' + weibo_id + '?rl=0'
             all_pic = 'https://weibo.cn/mblog/picAll/' + weibo_id + '?rl=1'
+            picture_urls = u'无'
             if first_pic in a_list:
                 if all_pic in a_list:
                     selector = self.handle_html(all_pic)
@@ -450,16 +451,20 @@ class Weibo(object):
                     picture_urls = ','.join(picture_list)
                 else:
                     if info.xpath('.//img/@src'):
-                        preview_picture = info.xpath('.//img/@src')[-1]
-                        picture_urls = preview_picture.replace(
-                            '/wap180/', '/large/')
+                        for link in info.xpath('div/a'):
+                            if len(link.xpath('@href')) > 0:
+                                if first_pic == link.xpath('@href')[0]:
+                                    if len(link.xpath('img/@src')) > 0:
+                                        preview_picture = link.xpath(
+                                            'img/@src')[0]
+                                        picture_urls = preview_picture.replace(
+                                            '/wap180/', '/large/')
+                                        break
                     else:
                         sys.exit(
                             u"爬虫微博可能被设置成了'不显示图片'，请前往"
                             u"'https://weibo.cn/account/customize/pic'，修改为'显示'"
                         )
-            else:
-                picture_urls = u'无'
             return picture_urls
         except Exception as e:
             return u'无'
