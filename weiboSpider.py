@@ -149,7 +149,7 @@ class Weibo(object):
             zh_list = [u'性别', u'地区', u'生日', u'简介', u'认证', u'达人']
             en_list = [
                 'gender', 'location', 'birthday', 'description',
-                'verified_reason', 'talent', 'education', 'company'
+                'verified_reason', 'talent', 'education', 'work'
             ]
             for i in en_list:
                 self.user[i] = ''
