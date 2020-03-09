@@ -134,8 +134,8 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
-    def get_nickname(self):
-        """获取用户昵称"""
+    def extract_user_info(self):
+        """提取用户信息"""
         try:
             url = 'https://weibo.cn/%s/info' % (self.user_config['user_id'])
             selector = self.handle_html(url)
@@ -144,7 +144,33 @@ class Weibo(object):
             if nickname == u'登录 - 新' or nickname == u'新浪':
                 self.write_log()
                 sys.exit(u'cookie错误或已过期,请按照README中方法重新获取')
-            return nickname
+            self.user['nickname'] = nickname
+            basic_info = selector.xpath("//div[@class='c'][3]/text()")
+            zh_list = [u'性别', u'地区', u'生日', u'简介', u'认证', u'达人']
+            en_list = [
+                'gender', 'location', 'birthday', 'description',
+                'verified_reason', 'talent', 'education', 'company'
+            ]
+            for i in en_list:
+                self.user[i] = ''
+            for i in basic_info:
+                if i.split(':')[0] in zh_list:
+                    self.user[en_list[zh_list.index(
+                        i.split(':')[0])]] = i.split(':')[1].replace(
+                            '\u3000', '')
+            if selector.xpath("//div[@class='tip'][2]/text()")[0] == u'学习经历':
+                self.user['education'] = selector.xpath(
+                    "//div[@class='c'][4]/text()")[0][1:].replace(
+                        u'\xa0', u' ')
+                if selector.xpath(
+                        "//div[@class='tip'][3]/text()")[0] == u'工作经历':
+                    self.user['work'] = selector.xpath(
+                        "//div[@class='c'][5]/text()")[0][1:].replace(
+                            u'\xa0', u' ')
+            elif selector.xpath("//div[@class='tip'][2]/text()")[0] == u'工作经历':
+                self.user['work'] = selector.xpath(
+                    "//div[@class='c'][4]/text()")[0][1:].replace(
+                        u'\xa0', u' ')
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
@@ -171,8 +197,16 @@ class Weibo(object):
         # 创建'user'表
         create_table = """
                 CREATE TABLE IF NOT EXISTS user (
-                id varchar(12) NOT NULL,
+                id varchar(20) NOT NULL,
                 nickname varchar(30),
+                gender varchar(10),
+                location varchar(200),
+                birthday varchar(40),
+                description varchar(140),
+                verified_reason varchar(140),
+                talent varchar(200),
+                education varchar(200),
+                work varchar(200),
                 weibo_num INT,
                 following INT,
                 followers INT,
@@ -211,11 +245,11 @@ class Weibo(object):
                     break
         return self.user_config['user_id']
 
-    def get_user_info(self, selector):
-        """获取用户id、昵称、微博数、关注数、粉丝数"""
+    def get_user(self, selector):
+        """获取用户信息、微博数、关注数、粉丝数"""
         try:
             self.user['id'] = self.get_user_id(selector)
-            self.user['nickname'] = self.get_nickname()  # 获取用户昵称
+            self.extract_user_info()  # 获取用户信息
             user_info = selector.xpath("//div[@class='tip2']/*/text()")
             weibo_num = int(user_info[0][3:-1])
             following = int(user_info[1][3:-1])
@@ -1007,7 +1041,7 @@ class Weibo(object):
         try:
             url = 'https://weibo.cn/%s' % (self.user_config['user_uri'])
             selector = self.handle_html(url)
-            self.get_user_info(selector)  # 获取用户昵称、微博数、关注数、粉丝数
+            self.get_user(selector)  # 获取用户信息、微博数、关注数、粉丝数
             since_date = self.str_to_time(self.user_config['since_date'])
             now = datetime.now().strftime('%Y-%m-%d %H:%M')
             now = datetime.strptime(now, '%Y-%m-%d %H:%M')
