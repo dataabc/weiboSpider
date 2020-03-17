@@ -63,8 +63,8 @@ class Weibo(object):
         """验证配置是否正确"""
 
         # 验证filter、pic_download、video_download
-        argument_lsit = ['filter', 'pic_download', 'video_download']
-        for argument in argument_lsit:
+        argument_list = ['filter', 'pic_download', 'video_download']
+        for argument in argument_list:
             if config[argument] != 0 and config[argument] != 1:
                 sys.exit(u'%s值应为0或1,请重新输入' % config[argument])
 
@@ -1099,7 +1099,8 @@ class Weibo(object):
                             user_config['since_date'] = info[2]
                     else:
                         user_config['since_date'] = self.since_date
-                    user_config_list.append(user_config)
+                    if user_config not in user_config_list:
+                        user_config_list.append(user_config)
         return user_config_list
 
     def initialize_info(self, user_config):
