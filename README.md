@@ -13,6 +13,7 @@
   * [定期自动爬取微博（可选）](#7定期自动爬取微博可选)
 * [如何获取cookie](#如何获取cookie)
 * [如何获取user_id](#如何获取user_id)
+* [如何获取大量user_id](#如何获取大量user_id)
 * [注意事项](#注意事项)
 
 ## 功能
@@ -33,6 +34,7 @@
 当然，如果你只对用户信息感兴趣，而不需要爬用户的微博，也可以通过设置实现只爬取微博用户信息的功能。<br>
 程序也可以实现**爬取结果自动更新**，即：现在爬取了目标用户的微博，几天之后，目标用户可能又发新微博了。通过设置，可以实现每隔几天**增量爬取**用户这几天发的新微博。具体方法见[定期自动爬取微博](#7定期自动爬取微博可选)。<br>
 本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需[免cookie版](https://github.com/dataabc/weibo-crawler)，大家可以访问<https://github.com/dataabc/weibo-crawler>，二者功能类似，免cookie版获取的信息更多，用法更简单，而且不需要cookie。<br>
+如果想要获得**大量**微博，见[如何获取大量user_id](#如何获取大量user_id)部分。<br>
 ## 输出
 本部分为爬取到的字段信息说明，为了与[免cookie版](https://github.com/dataabc/weibo-crawler)区分，下面将两者爬取到的信息都列出来。如果是免cookie版所特有的信息，会有免cookie标注，没有标注的为二者共有的信息。<br>
 **用户信息**
@@ -403,7 +405,11 @@ txt文件名格式可以参考[程序设置](#3程序设置)中的**设置user_i
 2.按照上图箭头所指，点击"资料"链接，跳转到用户资料页面；<br>
 ![](https://picture.cognize.me/cognize/github/weibospider/user_info.png)
 如上图所示，迪丽热巴微博资料页的地址为"<https://weibo.cn/1669879400/info>"，其中的"1669879400"即为此微博的user_id。<br>
-事实上，此微博的user_id也包含在用户主页(<https://weibo.cn/u/1669879400?f=search_0>)中，之所以我们还要点击主页中的"资料"来获取user_id，是因为很多用户的主页不是"<https://weibo.cn/user_id?f=search_0>"的形式，而是"<https://weibo.cn/个性域名?f=search_0>"或"<https://weibo.cn/微号?f=search_0>"的形式。其中"微号"和user_id都是一串数字，如果仅仅通过主页地址提取user_id，很容易将"微号"误认为user_id。
+事实上，此微博的user_id也包含在用户主页(<https://weibo.cn/u/1669879400?f=search_0>)中，之所以我们还要点击主页中的"资料"来获取user_id，是因为很多用户的主页不是"<https://weibo.cn/user_id?f=search_0>"的形式，而是"<https://weibo.cn/个性域名?f=search_0>"或"<https://weibo.cn/微号?f=search_0>"的形式。其中"微号"和user_id都是一串数字，如果仅仅通过主页地址提取user_id，很容易将"微号"误认为user_id。<br>
+上述可以获得一个user_id，如果想要获得**大量**微博，见[如何获取大量user_id](#如何获取大量user_id)部分。<br>
+
+## 如何获取大量user_id
+[如何获取user_id](#如何获取user_id)部分可以获得一个user_id，<https://github.com/dataabc/weibo-follow>可以利用这一个user_id，获取该user_id微博用户关注人的user_id，一个user_id最多可以获得200个user_id，并写入user_id_list.txt文件。程序支持读文件，利用这200个user_id，可以获得最多200X200=40000个user_id。再利用这40000个user_id可以得到40000X200=8000000个user_id，如此反复，以此类推，可以获得大量user_id。本项目也支持读文件，将上述程序的结果文件user_id_list.txt路径赋值给本项目config.json的user_id_list参数，就可以获得这些user_id用户所发布的大量微博。<br>
 
 ## 注意事项
 1.user_id不能为爬虫微博的user_id。因为要爬微博信息，必须先登录到某个微博账号，此账号我们姑且称为爬虫微博。爬虫微博访问自己的页面和访问其他用户的页面，得到的网页格式不同，所以无法爬取自己的微博信息；如果想要爬取爬虫微博内容，可以参考[获取自身微博信息](https://github.com/dataabc/weiboSpider/issues/113)。<br>
