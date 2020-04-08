@@ -650,6 +650,7 @@ class Weibo(object):
                 weibo['comment_num'] = footer['comment_num']  # 评论数
             else:
                 weibo = None
+                print(u'正在过滤转发微博')
             return weibo
         except Exception as e:
             print('Error: ', e)
