@@ -52,7 +52,7 @@
 - 微博数：用户的全部微博数（转发微博+原创微博）
 - 关注数：用户关注的微博数量
 - 粉丝数：用户的粉丝数
-- 简介（免cookie版）：用户简介
+- 简介：用户简介
 - 主页地址（免cookie版）：微博移动版主页url，如<https://m.weibo.cn/u/1669879400?uid=1669879400&luicode=10000011&lfid=1005051669879400>
 - 头像url（免cookie版）：用户头像url
 - 高清头像url（免cookie版）：用户高清头像url
@@ -60,7 +60,7 @@
 - 会员等级（免cookie版）：微博会员用户等级，普通用户该等级为0
 - 是否认证（免cookie版）：用户是否认证，为布尔类型
 - 认证类型（免cookie版）：用户认证类型，如个人认证、企业认证、政府认证等
-- 认证信息（免cookie版）：为认证用户特有，用户信息栏显示的认证信息
+- 认证信息：为认证用户特有，用户信息栏显示的认证信息
 ***
 **微博信息**
 - 微博id：微博唯一标志
@@ -286,6 +286,14 @@ MySQL和MongDB数据库的写入内容一样。程序首先会创建一个名为
 **user表**<br>
 **id**：存储用户id，如"1669879400"；<br>
 **nickname**：存储用户昵称，如"Dear-迪丽热巴"；<br>
+**gender**：存储用户性别；<br>
+**location**：存储用户所在地；<br>
+**birthday**：存储用户出生日期；<br>
+**description**：存储用户简介；<br>
+**verified_reason**：存储用户认证；<br>
+**talent**：存储用户标签；<br>
+**education**：存储用户学习经历；<br>
+**work**：存储用户工作经历；<br>
 **weibo_num**：存储微博数；<br>
 **following**：存储关注数；<br>
 **followers**：存储粉丝数。<br>
@@ -326,11 +334,25 @@ $ python weibospider.py
         wb.start()  # 爬取微博信息
 ```
 用户可以按照自己的需求调用或修改Weibo类。<br>
-通过执行本程序，我们可以得到很多信息：<br>
-**wb.nickname**：用户昵称；<br>
-**wb.weibo_num**：微博数；<br>
-**wb.following**：关注数；<br>
-**wb.followers**：粉丝数；<br>
+通过执行本程序，我们可以得到很多信息<br>
+<details>
+  
+<summary>点击查看详情</summary>
+
+**wb.user['nickname']**：用户昵称；<br>
+**wb.user['gender']**：用户性别；<br>
+**wb.user['location']**：用户所在地；<br>
+**wb.user['birthday']**：用户出生日期；<br>
+**wb.user['description']**：用户简介；<br>
+**wb.user['verified_reason']**：用户认证；<br>
+**wb.user['talent']**：用户标签；<br>
+**wb.user['education']**：用户学习经历；<br>
+**wb.user['work']**：用户工作经历；<br>
+**wb.user['weibo_num']**：微博数；<br>
+**wb.user['following']**：关注数；<br>
+**wb.user['followers']**：粉丝数；<br>
+</details>
+
 **wb.weibo**：除不包含上述信息外，wb.weibo包含爬取到的所有微博信息，如**微博id**、**微博正文**、**原始图片url**、**发布位置**、**发布时间**、**发布工具**、**点赞数**、**转发数**、**评论数**等。如果爬的是全部微博(原创+转发)，除上述信息之外，还包含被**转发微博原始图片url**、**是否为原创微博**等。wb.weibo是一个列表，包含了爬取的所有微博信息。wb.weibo[0]为爬取的第一条微博，wb.weibo[1]为爬取的第二条微博，以此类推。当filter=1时，wb.weibo[0]为爬取的第一条**原创**微博，以此类推。wb.weibo[0]['id']为第一条微博的id，wb.weibo[0]['content']为第一条微博的正文，wb.weibo[0]['publish_time']为第一条微博的发布时间，还有其它很多信息不在赘述，大家可以点击下面的"详情"查看具体用法。
 <details>
   
