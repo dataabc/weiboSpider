@@ -588,12 +588,20 @@ class Weibo(object):
             if ',' in urls:
                 url_list = urls.split(',')
                 for i, url in enumerate(url_list):
-                    file_suffix = url[url.rfind('.'):]
+                    index = url.rfind('.')
+                    if len(url) - index >= 5:
+                        file_suffix = '.jpg'
+                    else:
+                        file_suffix = url[index:]
                     file_name = file_prefix + '_' + str(i + 1) + file_suffix
                     file_path = file_dir + os.sep + file_name
                     self.download_one_file(url, file_path, file_type, w['id'])
             else:
-                file_suffix = urls[urls.rfind('.'):]
+                index = urls.rfind('.')
+                if len(urls) - index > 5:
+                    file_suffix = '.jpg'
+                else:
+                    file_suffix = urls[index:]
                 file_name = file_prefix + file_suffix
                 file_path = file_dir + os.sep + file_name
                 self.download_one_file(urls, file_path, file_type, w['id'])
