@@ -373,6 +373,16 @@ class Weibo(object):
             print('Error: ', e)
             traceback.print_exc()
 
+    def get_article_url(self, info):
+        """获取微博头条文章的url"""
+        article_url = ''
+        text = self.handle_garbled(info)
+        if text.startswith(u'发布了头条文章'):
+            url = info.xpath('.//a/@href')
+            if url and url[0].startswith('https://weibo.cn/sinaurl'):
+                article_url = url[0]
+        return article_url
+
     def get_publish_place(self, info):
         """获取微博发布位置"""
         try:
@@ -640,6 +650,7 @@ class Weibo(object):
                 weibo['id'] = info.xpath('@id')[0][2:]
                 weibo['content'] = self.get_weibo_content(info,
                                                           is_original)  # 微博内容
+                weibo['article_url'] = self.get_article_url(info)  # 头条文章url
                 picture_urls = self.get_picture_urls(info, is_original)
                 weibo['original_pictures'] = picture_urls[
                     'original_pictures']  # 原创图片url
@@ -757,6 +768,7 @@ class Weibo(object):
             result_headers = [
                 '微博id',
                 '微博正文',
+                '头条文章url',
                 '原始图片url',
                 '微博视频url',
                 '发布位置',
@@ -767,8 +779,8 @@ class Weibo(object):
                 '评论数',
             ]
             if not self.filter:
-                result_headers.insert(3, '被转发微博原始图片url')
-                result_headers.insert(4, '是否为原创微博')
+                result_headers.insert(4, '被转发微博原始图片url')
+                result_headers.insert(5, '是否为原创微博')
             result_data = [w.values() for w in self.weibo[wrote_num:]]
             if sys.version < '3':  # python2.x
                 reload(sys)
@@ -978,6 +990,7 @@ class Weibo(object):
                 id varchar(10) NOT NULL,
                 user_id varchar(12),
                 content varchar(2000),
+                article_url varchar(200),
                 original_pictures varchar(3000),
                 retweet_pictures varchar(3000),
                 original BOOLEAN NOT NULL DEFAULT 1,
