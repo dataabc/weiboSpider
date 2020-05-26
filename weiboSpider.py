@@ -154,9 +154,9 @@ class Weibo(object):
             for i in en_list:
                 self.user[i] = ''
             for i in basic_info:
-                if i.split(':')[0] in zh_list:
+                if i.split(':', 1)[0] in zh_list:
                     self.user[en_list[zh_list.index(
-                        i.split(':')[0])]] = i.split(':')[1].replace(
+                        i.split(':', 1)[0])]] = i.split(':', 1)[1].replace(
                             '\u3000', '')
             if selector.xpath("//div[@class='tip'][2]/text()")[0] == u'学习经历':
                 self.user['education'] = selector.xpath(
