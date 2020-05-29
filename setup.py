@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="weibo-spider", # Replace with your own username
-    version="0.0.2",
+    name="weibo-spider",
+    version="0.0.4",
     author="Chen Lei",
     author_email="chillychen1991@gmail.com",
     description="新浪微博爬虫，用python爬取新浪微博数据。",
@@ -15,13 +15,13 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
     install_requires=[
         'lxml',
         'requests',
-	'tqdm',
+        'tqdm',
+        'absl-py',
     ],
     python_requires='>=3.6',
 )

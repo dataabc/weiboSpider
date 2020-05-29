@@ -1,3 +1,5 @@
 from .weiboSpider import main
 
-main()
+from absl import app
+
+app.run(main)

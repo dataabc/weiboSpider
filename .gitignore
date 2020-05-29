@@ -1,3 +1,6 @@
+.vscode 
+
+weibo/
 *.pyc
 __pycache__
 

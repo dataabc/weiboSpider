@@ -18,6 +18,11 @@ import requests
 from lxml import etree
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
+from absl import app, flags
+
+FLAGS = flags.FLAGS
+
+flags.DEFINE_string('config_path', None, 'The path to config.json.')
 
 
 class Weibo(object):
@@ -1149,10 +1154,15 @@ class Weibo(object):
             traceback.print_exc()
 
 
-def main():
+def main(argv):
+    del argv  # useless
+
     try:
-        config_path = os.path.split(
-            os.path.realpath(__file__))[0] + os.sep + 'config.json'
+        if FLAGS.config_path is not None:
+            config_path = FLAGS.config_path
+        else:
+            config_path = os.path.split(
+                os.path.realpath(__file__))[0] + os.sep + 'config.json'
         if not os.path.isfile(config_path):
             sys.exit(u'当前路径：%s 不存在配置文件config.json' %
                      (os.path.split(os.path.realpath(__file__))[0] + os.sep))
@@ -1170,4 +1180,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    app.run(main)
