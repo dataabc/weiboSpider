@@ -188,7 +188,7 @@ $ pip install -r requirements.txt
 运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；<br>
 **pip安装**
 ```bash
-$ python -m pip install --index-url https://pypi.org/simple weibo-spider
+$ python -m pip install weibo-spider
 ```
 ### 2.程序设置
 如果你使用的是**源码下载安装**，请打开**config.json**文件，你会看到如下内容：
