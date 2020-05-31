@@ -90,8 +90,8 @@
 }
 ```
 
-对于上述参数的含义以及取值范围，这里仅作简单介绍，详细信息见[程序设置](#3程序设置)。
->**user_id_list**代表我们要爬取的微博用户的user_id，可以是一个或多个，也可以是文件路径，微博用户Dear-迪丽热巴的user_id为1669879400，具体如何获取user_id见[如何获取user_id](#如何获取user_id)；<br>**filter**的值为1代表爬取全部原创微博，值为0代表爬取全部微博（原创+转发）；<br>**since_date**代表我们要爬取since_date日期之后发布的微博，因为我要爬迪丽热巴的全部原创微博，所以since_date设置了一个非常早的值；<br>**write_mode**代表结果文件的保存类型，我想要把结果写入txt文件、csv文件和json文件，所以它的值为["csv", "txt", "json"]，如果你想写入数据库，具体设置见[设置数据库](#4设置数据库可选)；<br>**pic_download**值为1代表下载微博中的图片，值为0代表不下载；<br>**video_download**值为1代表下载微博中的视频，值为0代表不下载；<br>**cookie**是爬虫微博的cookie，具体如何获取cookie见[如何获取cookie](#如何获取cookie)，获取cookie后把"your cookie"替换成真实的cookie值即可。<br>
+对于上述参数的含义以及取值范围，这里仅作简单介绍，详细信息见[程序设置](#2程序设置)。
+>**user_id_list**代表我们要爬取的微博用户的user_id，可以是一个或多个，也可以是文件路径，微博用户Dear-迪丽热巴的user_id为1669879400，具体如何获取user_id见[如何获取user_id](#如何获取user_id)；<br>**filter**的值为1代表爬取全部原创微博，值为0代表爬取全部微博（原创+转发）；<br>**since_date**代表我们要爬取since_date日期之后发布的微博，因为我要爬迪丽热巴的全部原创微博，所以since_date设置了一个非常早的值；<br>**write_mode**代表结果文件的保存类型，我想要把结果写入txt文件、csv文件和json文件，所以它的值为["csv", "txt", "json"]，如果你想写入数据库，具体设置见[设置数据库](#3设置数据库可选)；<br>**pic_download**值为1代表下载微博中的图片，值为0代表不下载；<br>**video_download**值为1代表下载微博中的视频，值为0代表不下载；<br>**cookie**是爬虫微博的cookie，具体如何获取cookie见[如何获取cookie](#如何获取cookie)，获取cookie后把"your cookie"替换成真实的cookie值即可。<br>
 
 cookie修改完成后运行weiboSpider.py，该文件位于weibospider=>weibo_spider：
 ```bash
