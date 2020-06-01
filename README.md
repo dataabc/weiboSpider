@@ -188,7 +188,7 @@ $ pip install -r requirements.txt
 运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；<br>
 **pip安装**
 ```bash
-$ python -m pip install weibo-spider
+$ python3 -m pip install weibo-spider
 ```
 ### 2.程序设置
 如果你使用的是**源码下载安装**，请打开**config.json**文件，你会看到如下内容：
@@ -210,7 +210,7 @@ $ python -m pip install weibo-spider
     }
 }
 ```
-如果你使用的是**pip安装**，你需要在任意目录下，创建上面的config.json文件。<br>
+如果你使用的是**pip安装**，第一次执行[运行脚本](#4运行脚本)中的命令，程序会自动创建上面的config.json文件。<br>
 下面讲解每个参数的含义与设置方法。<br>
 **设置user_id_list**<br>
 user_id_list是我们要爬取的微博的id，可以是一个，也可以是多个，例如：
@@ -321,21 +321,19 @@ MySQL和MongDB数据库的写入内容一样。程序首先会创建一个名为
 ```bash
 $ python weiboSpider.py
 ```
-**pip安装**的用户可以在config.json文件所在目录运行
+**pip安装**的用户可以在任意有写权限的目录运行
 ```bash
-$ python -m weibo_spider --config_path="config.json"
+$ python3 -m weibo_spider
+```
+第一次执行，会自动在当前目录创建config.json配置文件，配置好后执行同样的命令就可以获取微博了。如果你已经有config.json文件了，也可以通过config_path参数配置config.json路径，运行程序，命令行如下：
+```bash
+$ python3 -m weibo_spider --config_path="config.json"
 ```
 ### 5.按需求修改脚本（可选）
 本部分为可选部分，如果你不需要自己修改代码或添加新功能，可以忽略此部分。<br>
 本程序所有代码都位于weiboSpider.py文件，程序主体是一个Weibo类，上述所有功能都是通过在main函数调用Weibo类实现的，默认的调用代码如下：
 ```python
-        config_path = os.path.split(
-            os.path.realpath(__file__))[0] + os.sep + 'config.json'
-        if not os.path.isfile(config_path):
-            sys.exit(u'当前路径：%s 不存在配置文件config.json' %
-                     (os.path.split(os.path.realpath(__file__))[0] + os.sep))
-        with open(config_path) as f:
-            config = json.loads(f.read())
+        config = get_config()
         wb = Weibo(config)
         wb.start()  # 爬取微博信息
 ```
