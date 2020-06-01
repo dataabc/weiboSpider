@@ -8,6 +8,7 @@ import json
 import os
 import random
 import re
+import shutil
 import sys
 import traceback
 from collections import OrderedDict
@@ -15,10 +16,10 @@ from datetime import date, datetime, timedelta
 from time import sleep
 
 import requests
+from absl import app, flags
 from lxml import etree
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
-from absl import app, flags
 
 FLAGS = flags.FLAGS
 
@@ -160,9 +161,9 @@ class Weibo(object):
                 self.user[i] = ''
             for i in basic_info:
                 if i.split(':', 1)[0] in zh_list:
-                    self.user[en_list[zh_list.index(
-                        i.split(':', 1)[0])]] = i.split(':', 1)[1].replace(
-                            '\u3000', '')
+                    self.user[en_list[zh_list.index(i.split(
+                        ':', 1)[0])]] = i.split(':',
+                                                1)[1].replace('\u3000', '')
             if selector.xpath("//div[@class='tip'][2]/text()")[0] == u'学习经历':
                 self.user['education'] = selector.xpath(
                     "//div[@class='c'][4]/text()")[0][1:].replace(
@@ -1154,24 +1155,28 @@ class Weibo(object):
             traceback.print_exc()
 
 
+def get_config():
+    """获取config.json数据"""
+    src = os.path.split(os.path.realpath(__file__))[0] + os.sep + 'config.json'
+    config_path = os.getcwd() + os.sep + 'config.json'
+    if FLAGS.config_path:
+        config_path = FLAGS.config_path
+    elif not os.path.isfile(config_path):
+        shutil.copy(src, config_path)
+        sys.exit(u'请先配置当前目录(%s)下的config.json文件' % os.getcwd())
+    try:
+        with open(config_path) as f:
+            config = json.loads(f.read())
+            return config
+    except ValueError:
+        sys.exit(u'config.json 格式不正确，请参考 '
+                 u'https://github.com/dataabc/weiboSpider#3程序设置')
+
+
 def main(argv):
     del argv  # useless
-
     try:
-        if FLAGS.config_path is not None:
-            config_path = FLAGS.config_path
-        else:
-            config_path = os.path.split(
-                os.path.realpath(__file__))[0] + os.sep + 'config.json'
-        if not os.path.isfile(config_path):
-            sys.exit(u'当前路径：%s 不存在配置文件config.json' %
-                     (os.path.split(os.path.realpath(__file__))[0] + os.sep))
-        with open(config_path) as f:
-            try:
-                config = json.loads(f.read())
-            except ValueError:
-                sys.exit(u'config.json 格式不正确，请参考 '
-                         u'https://github.com/dataabc/weiboSpider#3程序设置')
+        config = get_config()
         wb = Weibo(config)
         wb.start()  # 爬取微博信息
     except Exception as e:
