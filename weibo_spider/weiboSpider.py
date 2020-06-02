@@ -1159,14 +1159,16 @@ def get_config():
         config_path = FLAGS.config_path
     elif not os.path.isfile(config_path):
         shutil.copy(src, config_path)
-        sys.exit(u'请先配置当前目录(%s)下的config.json文件' % os.getcwd())
+        sys.exit(u'请先配置当前目录(%s)下的config.json文件，'
+                 u'如果想了解config.json参数的具体意义及配置方法，请访问\n'
+                 u'https://github.com/dataabc/weiboSpider#2程序设置' % os.getcwd())
     try:
         with open(config_path) as f:
             config = json.loads(f.read())
             return config
     except ValueError:
-        sys.exit(u'config.json 格式不正确，请参考 '
-                 u'https://github.com/dataabc/weiboSpider#3程序设置')
+        sys.exit(u'config.json 格式不正确，请访问 '
+                 u'https://github.com/dataabc/weiboSpider#2程序设置')
 
 
 def main(argv):
