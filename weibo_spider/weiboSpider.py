@@ -739,9 +739,8 @@ class Weibo(object):
     def get_filepath(self, type):
         """获取结果文件路径"""
         try:
-            file_dir = os.path.split(
-                os.path.realpath(__file__)
-            )[0] + os.sep + 'weibo' + os.sep + self.user['nickname']
+            file_dir = os.getcwd(
+            ) + os.sep + 'weibo' + os.sep + self.user['nickname']
             if type == 'img' or type == 'video':
                 file_dir = file_dir + os.sep + type
             if not os.path.isdir(file_dir):
