@@ -47,8 +47,7 @@ class Weibo(object):
         user_id_list = config['user_id_list']
         if not isinstance(user_id_list, list):
             if not os.path.isabs(user_id_list):
-                user_id_list = os.path.split(
-                    os.path.realpath(__file__))[0] + os.sep + user_id_list
+                user_id_list = os.getcwd() + os.sep + user_id_list
             self.user_config_file_path = user_id_list  # 用户配置文件路径
             user_config_list = self.get_user_config_list(user_id_list)
         else:
@@ -96,8 +95,7 @@ class Weibo(object):
             sys.exit(u'user_id_list值应为list类型或txt文件路径')
         if not isinstance(user_id_list, list):
             if not os.path.isabs(user_id_list):
-                user_id_list = os.path.split(
-                    os.path.realpath(__file__))[0] + os.sep + user_id_list
+                user_id_list = os.getcwd() + os.sep + user_id_list
             if not os.path.isfile(user_id_list):
                 sys.exit(u'不存在%s文件' % user_id_list)
 
