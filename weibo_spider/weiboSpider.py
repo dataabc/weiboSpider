@@ -756,8 +756,7 @@ class Weibo(object):
 
     def write_log(self):
         """当程序因cookie过期停止运行时，将相关信息写入log.txt"""
-        file_dir = os.path.split(
-            os.path.realpath(__file__))[0] + os.sep + 'weibo' + os.sep
+        file_dir = os.getcwd() + os.sep + 'weibo' + os.sep
         if not os.path.isdir(file_dir):
             os.makedirs(file_dir)
         file_path = file_dir + 'log.txt'
