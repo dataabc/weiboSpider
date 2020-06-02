@@ -4,6 +4,7 @@
 import json
 import os
 import random
+import shutil
 import sys
 import traceback
 from datetime import date, datetime, timedelta
@@ -46,9 +47,7 @@ class Spider:
             if FLAGS.user_id_list is not None:
                 user_id_list = FLAGS.user_id_list
             else:
-                user_id_list = (
-                    os.path.split(os.path.realpath(__file__))[0] + os.sep + user_id_list
-                )
+                user_id_list = os.getcwd() + os.sep + user_id_list
             if not os.path.isfile(user_id_list):
                 sys.exit(u"当前路径：%s 不存在配置文件config.json" % user_id_list)
             self.user_config_file_path = user_id_list  # 用户配置文件路径
@@ -139,11 +138,7 @@ class Spider:
                 file_dir = FLAGS.output_dir
             else:
                 file_dir = (
-                    os.path.split(os.path.realpath(__file__))[0]
-                    + os.sep
-                    + "weibo"
-                    + os.sep
-                    + self.user["nickname"]
+                    os.getcwd() + os.sep + "weibo" + os.sep + self.user["nickname"]
                 )
             if type == "img" or type == "video":
                 file_dir = file_dir + os.sep + type
@@ -229,26 +224,29 @@ class Spider:
             traceback.print_exc()
 
 
+def _get_config():
+    """获取config.json数据"""
+    src = os.path.split(os.path.realpath(__file__))[0] + os.sep + 'config_sample.json'
+    config_path = os.getcwd() + os.sep + 'config.json'
+    if FLAGS.config_path:
+        config_path = FLAGS.config_path
+    elif not os.path.isfile(config_path):
+        shutil.copy(src, config_path)
+        sys.exit(u'请先配置当前目录(%s)下的config.json文件，'
+                 u'如果想了解config.json参数的具体意义及配置方法，请访问\n'
+                 u'https://github.com/dataabc/weiboSpider#2程序设置' % os.getcwd())
+    try:
+        with open(config_path) as f:
+            config = json.loads(f.read())
+            return config
+    except ValueError:
+        sys.exit(u'config.json 格式不正确，请访问 '
+                 u'https://github.com/dataabc/weiboSpider#2程序设置')
+
+
 def main(_):
     try:
-        if FLAGS.config_path is not None:
-            config_path = FLAGS.config_path
-        else:
-            config_path = (
-                os.path.split(os.path.realpath(__file__))[0] + os.sep + "config.json"
-            )
-        if not os.path.isfile(config_path):
-            sys.exit(u"当前路径：%s 不存在配置文件config.json" % config_path)
-        with open(config_path) as f:
-            try:
-                config = json.loads(f.read())
-                config_util.validate_config(config)
-            except ValueError:
-                sys.exit(
-                    u"config.json 格式不正确，请参考 "
-                    u"https://github.com/dataabc/weiboSpider#3程序设置"
-                )
-
+        config = _get_config()
         wb = Spider(config)
         wb.start()  # 爬取微博信息
     except Exception as e:

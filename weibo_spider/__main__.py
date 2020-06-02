@@ -1,4 +1,4 @@
-from .spider import main
+from .weiboSpider import main
 
 from absl import app
 

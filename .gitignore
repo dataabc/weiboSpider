@@ -7,4 +7,4 @@ dist/
 *.egg-info
 
 weibo/
-config_sample.json
+config.json
