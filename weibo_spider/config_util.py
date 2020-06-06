@@ -33,19 +33,17 @@ def validate_config(config):
         sys.exit(u"write_mode值应为list类型")
     for mode in config["write_mode"]:
         if mode not in write_mode:
-            sys.exit(
-                u"%s为无效模式，请从txt、csv、json、mongo和mysql中挑选一个或多个作为write_mode" %
-                mode)
+            sys.exit(u"%s为无效模式，请从txt、csv、json、mongo和mysql中挑选一个或多个作为write_mode" % mode)
 
     # 验证user_id_list
     user_id_list = config["user_id_list"]
-    if (not isinstance(user_id_list,
-                       list)) and (not user_id_list.endswith(".txt")):
+    if (not isinstance(user_id_list, list)) and (not user_id_list.endswith(".txt")):
         sys.exit(u"user_id_list值应为list类型或txt文件路径")
     if not isinstance(user_id_list, list):
         if not os.path.isabs(user_id_list):
-            user_id_list = (os.path.split(os.path.realpath(__file__))[0] +
-                            os.sep + user_id_list)
+            user_id_list = (
+                os.path.split(os.path.realpath(__file__))[0] + os.sep + user_id_list
+            )
         if not os.path.isfile(user_id_list):
             sys.exit(u"不存在%s文件" % user_id_list)
 
@@ -76,8 +74,7 @@ def get_user_config_list(file_name, default_since_date):
     return user_config_list
 
 
-def update_user_config_file(user_config_file_path, user_uri, nickname,
-                            start_time):
+def update_user_config_file(user_config_file_path, user_uri, nickname, start_time):
     """更新用户配置文件"""
     with open(user_config_file_path, "rb") as f:
         lines = f.read().splitlines()
