@@ -95,7 +95,7 @@
 
 cookie修改完成后运行weiboSpider.py，该文件位于weibospider=>weibo_spider：
 ```bash
-$ python weiboSpider.py
+$ python3 weiboSpider.py
 ```
 程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个json文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。如果你设置了保存数据库功能，这些信息也会保存在数据库里，数据库设置见[设置数据库](#3设置数据库可选)部分。<br>
 <br>
@@ -168,18 +168,13 @@ json文件包含迪丽热巴的用户信息和上千条微博信息，内容较�
 
 ## 使用说明
 ### 0.版本
-本程序有两个版本，**功能完成一样**。你现在看到的是单文件版，另一个是多文件版，[多文件版](https://github.com/dataabc/weiboSpider/tree/multi-file)位于multi-file分支。<br>
-二者的区别在于：
->单文件版是所有代码都写到一个文件里，即[weiboSpider.py](https://github.com/dataabc/weiboSpider/blob/master/weiboSpider.py)。多文件版重构了单文件版，按照代码功能分成了几个文件，代码更清晰，更易读。如果你仅仅想使用程序，这两个版本用哪一个都一样；如果你不仅想使用，还想开发新功能，多文件版可能更容易。
-
-多文件版由[songzy12](https://github.com/songzy12)重构。songzy12非常认真负责，对于我发现的问题都很耐心地修复了，而且效率非常高，在此感谢。<br>
-本使用说明是单文件版的使用说明。
+本程序有两个版本，你现在看到的是python3版，另一个是python2版，python2版位于[python2分支](https://github.com/dataabc/weiboSpider/tree/python2)。目前主力开发python3版，包括新功能开发和bug修复；python2版仅支持bug修复。推荐python3用户使用当前版本，推荐python2用户使用[python2版](https://github.com/dataabc/weiboSpider/tree/python2)，本使用说明是python3版的使用说明。<br>
 ### 1.下载脚本
 本程序提供两种下载方式，一种是**源码下载安装**，另一种是**pip安装**，二者功能完全相同。如果你需要修改源码，建议使用第一种方式，否则选哪种安装方式都可以。<br>
 **源码下载安装**<br>
 下载脚本
 ```bash
-$ git clone -b multi-file https://github.com/dataabc/weibospider.git
+$ git clone https://github.com/dataabc/weibospider.git
 ```
 安装依赖
 ```bash
@@ -319,7 +314,7 @@ MySQL和MongDB数据库的写入内容一样。程序首先会创建一个名为
 ### 4.运行脚本
 **源码下载安装**的用户可以在weiboSpider.py文件所在目录下运行
 ```bash
-$ python weiboSpider.py
+$ python3 weiboSpider.py
 ```
 **pip安装**的用户可以在任意有写权限的目录运行
 ```bash
