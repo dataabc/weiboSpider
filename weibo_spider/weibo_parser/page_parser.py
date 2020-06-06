@@ -1,15 +1,19 @@
-from datetime import datetime, timedelta
-import traceback
-from collections import OrderedDict
 import re
 import sys
+import traceback
+from collections import OrderedDict
+from datetime import datetime, timedelta
 
 import requests
 
-from .parser import Parser
+import datetime_util
+import printer
+
 from .comment_parser import CommentParser
-from .util import handle_html, handle_garbled
-from .. import printer, datetime_util
+from .parser import Parser
+from .util import handle_garbled, handle_html
+
+sys.path.append('..')
 
 
 class PageParser(Parser):
@@ -27,14 +31,15 @@ class PageParser(Parser):
             is_exist = info[0].xpath("div/span[@class='ctt']")
             weibos = []
             if is_exist:
-                since_date = datetime_util.str_to_time(since_date)                        
+                since_date = datetime_util.str_to_time(since_date)
                 for i in range(0, len(info) - 2):
                     weibo = self.get_one_weibo(info[i])
                     if weibo:
                         if weibo["id"] in weibo_id_list:
                             continue
-                        publish_time = datetime_util.str_to_time(weibo["publish_time"])
-                  
+                        publish_time = datetime_util.str_to_time(
+                            weibo["publish_time"])
+
                         if publish_time < since_date:
                             if self.is_pinned_weibo(info[i]):
                                 continue
@@ -60,10 +65,11 @@ class PageParser(Parser):
         """获取原创微博"""
         try:
             weibo_content = handle_garbled(info)
-            weibo_content = weibo_content[: weibo_content.rfind(u"赞")]
+            weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
             a_text = info.xpath("div//a/text()")
             if u"全文" in a_text:
-                wb_content = CommentParser(self.cookie, weibo_id).get_long_weibo()
+                wb_content = CommentParser(self.cookie,
+                                           weibo_id).get_long_weibo()
                 if wb_content:
                     weibo_content = wb_content
             return weibo_content
@@ -75,29 +81,23 @@ class PageParser(Parser):
         """获取转发微博"""
         try:
             weibo_content = handle_garbled(info)
-            weibo_content = weibo_content[
-                weibo_content.find(":") + 1 : weibo_content.rfind(u"赞")
-            ]
-            weibo_content = weibo_content[: weibo_content.rfind(u"赞")]
+            weibo_content = weibo_content[weibo_content.find(":") +
+                                          1:weibo_content.rfind(u"赞")]
+            weibo_content = weibo_content[:weibo_content.rfind(u"赞")]
             a_text = info.xpath("div//a/text()")
             if u"全文" in a_text:
-                wb_content = CommentParser(self.cookie, weibo_id).get_long_retweet()
+                wb_content = CommentParser(self.cookie,
+                                           weibo_id).get_long_retweet()
                 if wb_content:
                     weibo_content = wb_content
             retweet_reason = handle_garbled(info.xpath("div")[-1])
-            retweet_reason = retweet_reason[: retweet_reason.rindex(u"赞")]
+            retweet_reason = retweet_reason[:retweet_reason.rindex(u"赞")]
             original_user = info.xpath("div/span[@class='cmt']/a/text()")
             if original_user:
                 original_user = original_user[0]
-                weibo_content = (
-                    retweet_reason
-                    + "\n"
-                    + u"原始用户: "
-                    + original_user
-                    + "\n"
-                    + u"转发内容: "
-                    + weibo_content
-                )
+                weibo_content = (retweet_reason + "\n" + u"原始用户: " +
+                                 original_user + "\n" + u"转发内容: " +
+                                 weibo_content)
             else:
                 weibo_content = retweet_reason + "\n" + u"转发内容: " + weibo_content
             return weibo_content
@@ -135,17 +135,13 @@ class PageParser(Parser):
             a_list = div_first.xpath("a")
             publish_place = u"无"
             for a in a_list:
-                if (
-                    "place.weibo.com" in a.xpath("@href")[0]
-                    and a.xpath("text()")[0] == u"显示地图"
-                ):
+                if ("place.weibo.com" in a.xpath("@href")[0]
+                        and a.xpath("text()")[0] == u"显示地图"):
                     weibo_a = div_first.xpath("span[@class='ctt']/a")
                     if len(weibo_a) >= 1:
                         publish_place = weibo_a[-1]
-                        if (
-                            u"视频"
-                            == div_first.xpath("span[@class='ctt']/a/text()")[-1][-2:]
-                        ):
+                        if (u"视频" == div_first.xpath(
+                                "span[@class='ctt']/a/text()")[-1][-2:]):
                             if len(weibo_a) >= 2:
                                 publish_place = weibo_a[-2]
                             else:
@@ -166,9 +162,10 @@ class PageParser(Parser):
             if u"刚刚" in publish_time:
                 publish_time = datetime.now().strftime("%Y-%m-%d %H:%M")
             elif u"分钟" in publish_time:
-                minute = publish_time[: publish_time.find(u"分钟")]
+                minute = publish_time[:publish_time.find(u"分钟")]
                 minute = timedelta(minutes=int(minute))
-                publish_time = (datetime.now() - minute).strftime("%Y-%m-%d %H:%M")
+                publish_time = (datetime.now() -
+                                minute).strftime("%Y-%m-%d %H:%M")
             elif u"今天" in publish_time:
                 today = datetime.now().strftime("%Y-%m-%d")
                 time = publish_time[3:]
@@ -209,7 +206,7 @@ class PageParser(Parser):
             pattern = r"\d+"
             str_footer = info.xpath("div")[-1]
             str_footer = handle_garbled(str_footer)
-            str_footer = str_footer[str_footer.rfind(u"赞") :]
+            str_footer = str_footer[str_footer.rfind(u"赞"):]
             weibo_footer = re.findall(pattern, str_footer, re.M)
 
             up_num = int(weibo_footer[0])
@@ -260,15 +257,17 @@ class PageParser(Parser):
                 a_list = div_first.xpath(".//a")
                 video_link = u"无"
                 for a in a_list:
-                    if "m.weibo.cn/s/video/show?object_id=" in a.xpath("@href")[0]:
+                    if "m.weibo.cn/s/video/show?object_id=" in a.xpath(
+                            "@href")[0]:
                         video_link = a.xpath("@href")[0]
                         break
                 if video_link != u"无":
                     video_link = video_link.replace(
-                        "m.weibo.cn/s/video/show", "m.weibo.cn/s/video/object"
-                    )
-                    wb_info = requests.get(video_link, cookies=self.cookie).json()
-                    video_url = wb_info["data"]["object"]["stream"].get("hd_url")
+                        "m.weibo.cn/s/video/show", "m.weibo.cn/s/video/object")
+                    wb_info = requests.get(video_link,
+                                           cookies=self.cookie).json()
+                    video_url = wb_info["data"]["object"]["stream"].get(
+                        "hd_url")
                     if not video_url:
                         video_url = wb_info["data"]["object"]["stream"]["url"]
                         if not video_url:  # 说明该视频为直播
@@ -296,18 +295,18 @@ class PageParser(Parser):
             is_original = self.is_original(info)
             if (not self.filter) or is_original:
                 weibo["id"] = info.xpath("@id")[0][2:]
-                weibo["content"] = self.get_weibo_content(info, is_original)  # 微博内容
+                weibo["content"] = self.get_weibo_content(info,
+                                                          is_original)  # 微博内容
                 weibo["article_url"] = self.get_article_url(info)  # 头条文章url
                 picture_urls = self.get_picture_urls(info, is_original)
                 weibo["original_pictures"] = picture_urls[
-                    "original_pictures"
-                ]  # 原创图片url
+                    "original_pictures"]  # 原创图片url
                 if not self.filter:
                     weibo["retweet_pictures"] = picture_urls[
-                        "retweet_pictures"
-                    ]  # 转发图片url
+                        "retweet_pictures"]  # 转发图片url
                     weibo["original"] = is_original  # 是否原创微博
-                weibo["video_url"] = self.get_video_url(info, is_original)  # 微博视频url
+                weibo["video_url"] = self.get_video_url(info,
+                                                        is_original)  # 微博视频url
                 weibo["publish_place"] = self.get_publish_place(info)  # 微博发布位置
                 weibo["publish_time"] = self.get_publish_time(info)  # 微博发布时间
                 weibo["publish_tool"] = self.get_publish_tool(info)  # 微博发布工具
@@ -335,7 +334,8 @@ class PageParser(Parser):
                     selector = handle_html(self.cookie, all_pic)
                     preview_picture_list = selector.xpath("//img/@src")
                     picture_list = [
-                        p.replace("/thumb180/", "/large/") for p in preview_picture_list
+                        p.replace("/thumb180/", "/large/")
+                        for p in preview_picture_list
                     ]
                     picture_urls = ",".join(picture_list)
                 else:
@@ -344,10 +344,10 @@ class PageParser(Parser):
                             if len(link.xpath("@href")) > 0:
                                 if first_pic == link.xpath("@href")[0]:
                                     if len(link.xpath("img/@src")) > 0:
-                                        preview_picture = link.xpath("img/@src")[0]
+                                        preview_picture = link.xpath(
+                                            "img/@src")[0]
                                         picture_urls = preview_picture.replace(
-                                            "/wap180/", "/large/"
-                                        )
+                                            "/wap180/", "/large/")
                                         break
                     else:
                         sys.exit(

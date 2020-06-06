@@ -10,13 +10,13 @@ import traceback
 from datetime import date, datetime, timedelta
 from time import sleep
 
-from tqdm import tqdm
 from absl import app, flags
+from tqdm import tqdm
 
-from . import datetime_util
-from . import config_util
-from . import printer
-from .parser import IndexParser, PageParser
+import config_util
+import datetime_util
+import printer
+from weibo_parser import IndexParser, PageParser
 
 FLAGS = flags.FLAGS
 
@@ -28,18 +28,18 @@ flags.DEFINE_string("output_dir", None, "The dir path to store results.")
 class Spider:
     def __init__(self, config):
         """Weibo类初始化"""
-        self.filter = config["filter"]  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
+        self.filter = config[
+            "filter"]  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
         since_date = str(config["since_date"])
         if since_date.isdigit():
             since_date = str(date.today() - timedelta(int(since_date)))
         self.since_date = since_date  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
         self.write_mode = config[
-            "write_mode"
-        ]  # 结果信息保存类型，为list形式，可包含txt、csv、json、mongo和mysql五种类型
-        self.pic_download = config["pic_download"]  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
+            "write_mode"]  # 结果信息保存类型，为list形式，可包含txt、csv、json、mongo和mysql五种类型
+        self.pic_download = config[
+            "pic_download"]  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
         self.video_download = config[
-            "video_download"
-        ]  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
+            "video_download"]  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
         self.cookie = {"Cookie": config["cookie"]}
         self.mysql_config = config.get("mysql_config")  # MySQL数据库连接配置，可以不填
         user_id_list = config["user_id_list"]
@@ -52,14 +52,13 @@ class Spider:
                 sys.exit(u"当前路径：%s 不存在配置文件config.json" % user_id_list)
             self.user_config_file_path = user_id_list  # 用户配置文件路径
             user_config_list = config_util.get_user_config_list(
-                user_id_list, self.since_date
-            )
+                user_id_list, self.since_date)
         else:
             self.user_config_file_path = ""
-            user_config_list = [
-                {"user_uri": user_id, "since_date": self.since_date}
-                for user_id in user_id_list
-            ]
+            user_config_list = [{
+                "user_uri": user_id,
+                "since_date": self.since_date
+            } for user_id in user_id_list]
         self.user_config_list = user_config_list  # 要爬取的微博用户的user_config列表
         self.user_config = {}  # 用户配置,包含用户id和since_date
         self.start_time = ""  # 获取用户第一条微博时的时间
@@ -90,31 +89,30 @@ class Spider:
     def get_weibo_info(self):
         """获取微博信息"""
         try:
-            since_date = datetime_util.str_to_time(self.user_config["since_date"])
+            since_date = datetime_util.str_to_time(
+                self.user_config["since_date"])
             now = datetime.now().strftime("%Y-%m-%d %H:%M")
             now = datetime.strptime(now, "%Y-%m-%d %H:%M")
             if since_date <= now:
                 page_num = IndexParser(
-                    self.cookie, self.user_config["user_uri"]
-                ).get_page_num()  # 获取微博总页数
+                    self.cookie,
+                    self.user_config["user_uri"]).get_page_num()  # 获取微博总页数
                 page1 = 0
                 random_pages = random.randint(1, 5)
                 self.start_time = datetime.now().strftime("%Y-%m-%d %H:%M")
                 for page in tqdm(range(1, page_num + 1), desc="Progress"):
                     weibos, self.weibo_id_list = PageParser(
-                        self.cookie, self.user_config["user_uri"], page, self.filter
-                    ).get_one_page(
-                        self.since_date, self.weibo_id_list
-                    )  # 获取第page页的全部微博
-                    print(
-                        u"{}已获取{}({})的第{}页微博{}".format(
-                            "-" * 30,
-                            self.user["nickname"],
-                            self.user["id"],
-                            page,
-                            "-" * 30,
-                        )
-                    )
+                        self.cookie, self.user_config["user_uri"],
+                        page, self.filter).get_one_page(
+                            self.since_date,
+                            self.weibo_id_list)  # 获取第page页的全部微博
+                    print(u"{}已获取{}({})的第{}页微博{}".format(
+                        "-" * 30,
+                        self.user["nickname"],
+                        self.user["id"],
+                        page,
+                        "-" * 30,
+                    ))
                     if weibos:
                         yield weibos
                     else:
@@ -137,9 +135,8 @@ class Spider:
             if FLAGS.output_dir is not None:
                 file_dir = FLAGS.output_dir
             else:
-                file_dir = (
-                    os.getcwd() + os.sep + "weibo" + os.sep + self.user["nickname"]
-                )
+                file_dir = (os.getcwd() + os.sep + "weibo" + os.sep +
+                            self.user["nickname"])
             if type == "img" or type == "video":
                 file_dir = file_dir + os.sep + type
             if not os.path.isdir(file_dir):
@@ -161,35 +158,38 @@ class Spider:
 
         self.writers = []
         if "csv" in self.write_mode:
-            from .writer import CsvWriter
+            from writer import CsvWriter
 
-            self.writers.append(CsvWriter(self.filter, self._get_filepath("csv")))
+            self.writers.append(
+                CsvWriter(self.filter, self._get_filepath("csv")))
         if "txt" in self.write_mode:
-            from .writer import TxtWriter
+            from writer import TxtWriter
 
-            self.writers.append(TxtWriter(self.filter, self._get_filepath("txt")))
+            self.writers.append(
+                TxtWriter(self.filter, self._get_filepath("txt")))
         if "json" in self.write_mode:
-            from .writer import JsonWriter
+            from writer import JsonWriter
 
             self.writers.append(JsonWriter(self._get_filepath("json")))
         if "mysql" in self.write_mode:
-            from .writer import MySqlWriter
+            from writer import MySqlWriter
 
             self.writers.append(MySqlWriter(self.mysql_config))
         if "mongo" in self.write_mode:
-            from .writer import MongoWriter
+            from writer import MongoWriter
 
             self.writers.append(MongoWriter())
 
         self.downloaders = []
         if self.pic_download == 1:
-            from .downloader import ImgDownloader
+            from downloader import ImgDownloader
 
             self.downloaders.append(ImgDownloader(self._get_filepath("img")))
         if self.video_download == 1:
-            from .downloader import VideoDownloader
+            from downloader import VideoDownloader
 
-            self.downloaders.append(VideoDownloader(self._get_filepath("video")))
+            self.downloaders.append(
+                VideoDownloader(self._get_filepath("video")))
 
     def start(self):
         """运行爬虫"""
@@ -226,7 +226,8 @@ class Spider:
 
 def _get_config():
     """获取config.json数据"""
-    src = os.path.split(os.path.realpath(__file__))[0] + os.sep + 'config_sample.json'
+    src = os.path.split(
+        os.path.realpath(__file__))[0] + os.sep + 'config_sample.json'
     config_path = os.getcwd() + os.sep + 'config.json'
     if FLAGS.config_path:
         config_path = FLAGS.config_path
