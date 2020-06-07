@@ -4,7 +4,7 @@
 二者内容是一样的。
 ## git提交规范
 参考[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
-或者[Git提交规范](https://zhuanlan.zhihu.com/p/67804026)，commit描述中文英文皆可，只要符号规范就好。
+或者[Git提交规范](https://zhuanlan.zhihu.com/p/67804026)，commit描述中文英文皆可，只要符合规范就好。
 ## Python之linter
 本项目使用flake8。
 ## Python之formatter
