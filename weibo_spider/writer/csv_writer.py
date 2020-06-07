@@ -1,6 +1,4 @@
-import codecs
 import csv
-import sys
 import traceback
 
 from .writer import Writer
@@ -31,20 +29,10 @@ class CsvWriter(Writer):
             result_headers.insert(4, "被转发微博原始图片url")
             result_headers.insert(5, "是否为原创微博")
         try:
-            if sys.version < "3":  # python2.x
-                reload(sys)
-                sys.setdefaultencoding("utf-8")
-                with open(self.file_path, "ab") as f:
-                    f.write(codecs.BOM_UTF8)
-                    writer = csv.writer(f)
-                    writer.writerows([result_headers])
-            else:  # python3.x
-                with open(self.file_path,
-                          "a",
-                          encoding="utf-8-sig",
-                          newline="") as f:
-                    writer = csv.writer(f)
-                    writer.writerows([result_headers])
+            with open(self.file_path, "a", encoding="utf-8-sig",
+                      newline="") as f:
+                writer = csv.writer(f)
+                writer.writerows([result_headers])
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()
@@ -53,20 +41,10 @@ class CsvWriter(Writer):
         """将爬取的信息写入csv文件"""
         try:
             result_data = [w.values() for w in weibos]
-            if sys.version < "3":  # python2.x
-                reload(sys)
-                sys.setdefaultencoding("utf-8")
-                with open(self.file_path, "ab") as f:
-                    f.write(codecs.BOM_UTF8)
-                    writer = csv.writer(f)
-                    writer.writerows(result_data)
-            else:  # python3.x
-                with open(self.file_path,
-                          "a",
-                          encoding="utf-8-sig",
-                          newline="") as f:
-                    writer = csv.writer(f)
-                    writer.writerows(result_data)
+            with open(self.file_path, "a", encoding="utf-8-sig",
+                      newline="") as f:
+                writer = csv.writer(f)
+                writer.writerows(result_data)
             print(u"%d条微博写入csv文件完毕,保存路径:" % len(weibos))
             print(self.file_path)
         except Exception as e:
