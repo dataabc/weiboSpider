@@ -1,8 +1,8 @@
 import traceback
 
-from .util import handle_html
-from .parser import Parser
 from .info_parser import InfoParser
+from .parser import Parser
+from .util import handle_html
 
 
 class IndexParser(Parser):
@@ -18,7 +18,8 @@ class IndexParser(Parser):
         url_list = self.selector.xpath("//div[@class='u']//a")
         for url in url_list:
             if (url.xpath("string(.)")) == u"资料":
-                if url.xpath("@href") and url.xpath("@href")[0].endswith("/info"):
+                if url.xpath("@href") and url.xpath("@href")[0].endswith(
+                        "/info"):
                     link = url.xpath("@href")[0]
                     user_id = link[1:-5]
                     break
@@ -29,7 +30,8 @@ class IndexParser(Parser):
         try:
             self.user = {}
             self.user["id"] = self._get_user_id()
-            user = InfoParser(self.cookie, self.user["id"]).extract_user_info()  # 获取用户信息
+            user = InfoParser(self.cookie,
+                              self.user["id"]).extract_user_info()  # 获取用户信息
             for k, v in user.items():
                 self.user[k] = v
             user_info = self.selector.xpath("//div[@class='tip2']/*/text()")
@@ -50,9 +52,8 @@ class IndexParser(Parser):
             if self.selector.xpath("//input[@name='mp']") == []:
                 page_num = 1
             else:
-                page_num = (int)(
-                    self.selector.xpath("//input[@name='mp']")[0].attrib["value"]
-                )
+                page_num = (int)(self.selector.xpath("//input[@name='mp']")
+                                 [0].attrib["value"])
             return page_num
         except Exception as e:
             print("Error: ", e)

@@ -2,12 +2,6 @@ import copy
 import sys
 import traceback
 
-try:
-    import pymysql
-except ImportError:
-    sys.exit(u"系统中可能没有安装pymysql库，请先运行 pip install pymysql ，再运行程序")
-
-
 from .writer import Writer
 
 
@@ -26,6 +20,10 @@ class MySqlWriter(Writer):
     def _mysql_create_database(self, sql):
         """创建MySQL数据库"""
         try:
+            import pymysql
+        except ImportError:
+            sys.exit(u"系统中可能没有安装pymysql库，请先运行 pip install pymysql ，再运行程序")
+        try:
             print(self.mysql_config, sql)
             connection = pymysql.connect(**self.mysql_config)
             self._mysql_create(connection, sql)
@@ -34,12 +32,14 @@ class MySqlWriter(Writer):
 
     def _mysql_create_table(self, sql):
         """创建MySQL表"""
+        import pymysql
         self.mysql_config["db"] = "weibo"
         connection = pymysql.connect(**self.mysql_config)
         self._mysql_create(connection, sql)
 
     def _mysql_insert(self, table, data_list):
         """向MySQL表插入或更新数据"""
+        import pymysql
         if len(data_list) > 0:
             keys = ", ".join(data_list[0].keys())
             values = ", ".join(["%s"] * len(data_list[0]))
@@ -47,15 +47,17 @@ class MySqlWriter(Writer):
             connection = pymysql.connect(**self.mysql_config)
             cursor = connection.cursor()
             sql = """INSERT INTO {table}({keys}) VALUES ({values}) ON
-                        DUPLICATE KEY UPDATE""".format(
-                table=table, keys=keys, values=values
-            )
-            update = ",".join(
-                [" {key} = values({key})".format(key=key) for key in data_list[0]]
-            )
+                        DUPLICATE KEY UPDATE""".format(table=table,
+                                                       keys=keys,
+                                                       values=values)
+            update = ",".join([
+                " {key} = values({key})".format(key=key)
+                for key in data_list[0]
+            ])
             sql += update
             try:
-                cursor.executemany(sql, [tuple(data.values()) for data in data_list])
+                cursor.executemany(
+                    sql, [tuple(data.values()) for data in data_list])
                 connection.commit()
             except Exception as e:
                 connection.rollback()

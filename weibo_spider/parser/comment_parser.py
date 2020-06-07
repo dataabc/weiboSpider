@@ -1,6 +1,6 @@
-from time import sleep
 import random
 import traceback
+from time import sleep
 
 from .parser import Parser
 from .util import handle_html
@@ -21,9 +21,8 @@ class CommentParser(Parser):
                     info = self.selector.xpath("//div[@class='c']")[1]
                     wb_content = self.handle_garbled(info)
                     wb_time = info.xpath("//span[@class='ct']/text()")[0]
-                    weibo_content = wb_content[
-                        wb_content.find(":") + 1 : wb_content.rfind(wb_time)
-                    ]
+                    weibo_content = wb_content[wb_content.find(":") +
+                                               1:wb_content.rfind(wb_time)]
                     if weibo_content is not None:
                         return weibo_content
                 sleep(random.randint(6, 10))
@@ -36,7 +35,7 @@ class CommentParser(Parser):
         """获取长转发微博"""
         try:
             wb_content = self.get_long_weibo()
-            weibo_content = wb_content[: wb_content.rfind(u"原文转发")]
+            weibo_content = wb_content[:wb_content.rfind(u"原文转发")]
             return weibo_content
         except Exception as e:
             print("Error: ", e)

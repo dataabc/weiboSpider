@@ -1,8 +1,8 @@
 import sys
 import traceback
 
-from lxml import etree
 import requests
+from lxml import etree
 
 
 def handle_html(cookie, url):
@@ -19,12 +19,8 @@ def handle_html(cookie, url):
 def handle_garbled(info):
     """处理乱码"""
     try:
-        info = (
-            info.xpath("string(.)")
-            .replace(u"\u200b", "")
-            .encode(sys.stdout.encoding, "ignore")
-            .decode(sys.stdout.encoding)
-        )
+        info = (info.xpath("string(.)").replace(u"\u200b", "").encode(
+            sys.stdout.encoding, "ignore").decode(sys.stdout.encoding))
         return info
     except Exception as e:
         print("Error: ", e)

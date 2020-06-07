@@ -21,4 +21,3 @@ def print_user_info(user):
     print(u"微博数: %d" % user["weibo_num"])
     print(u"关注数: %d" % user["following"])
     print(u"粉丝数: %d" % user["followers"])
-

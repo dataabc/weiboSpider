@@ -1,6 +1,6 @@
-import sys
 import codecs
 import csv
+import sys
 import traceback
 
 from .writer import Writer
@@ -39,7 +39,10 @@ class CsvWriter(Writer):
                     writer = csv.writer(f)
                     writer.writerows([result_headers])
             else:  # python3.x
-                with open(self.file_path, "a", encoding="utf-8-sig", newline="") as f:
+                with open(self.file_path,
+                          "a",
+                          encoding="utf-8-sig",
+                          newline="") as f:
                     writer = csv.writer(f)
                     writer.writerows([result_headers])
         except Exception as e:
@@ -58,7 +61,10 @@ class CsvWriter(Writer):
                     writer = csv.writer(f)
                     writer.writerows(result_data)
             else:  # python3.x
-                with open(self.file_path, "a", encoding="utf-8-sig", newline="") as f:
+                with open(self.file_path,
+                          "a",
+                          encoding="utf-8-sig",
+                          newline="") as f:
                     writer = csv.writer(f)
                     writer.writerows(result_data)
             print(u"%d条微博写入csv文件完毕,保存路径:" % len(weibos))

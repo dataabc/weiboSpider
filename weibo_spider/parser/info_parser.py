@@ -1,8 +1,8 @@
-import traceback
 import sys
+import traceback
 
-from .util import handle_html
 from .parser import Parser
+from .util import handle_html
 
 
 class InfoParser(Parser):
@@ -36,21 +36,23 @@ class InfoParser(Parser):
                 user[i] = ""
             for i in basic_info:
                 if i.split(":", 1)[0] in zh_list:
-                    user[en_list[zh_list.index(i.split(":", 1)[0])]] = i.split(":", 1)[
-                        1
-                    ].replace("\u3000", "")
-            if self.selector.xpath("//div[@class='tip'][2]/text()")[0] == u"学习经历":
-                user["education"] = self.selector.xpath("//div[@class='c'][4]/text()")[
-                    0
-                ][1:].replace(u"\xa0", u" ")
-                if self.selector.xpath("//div[@class='tip'][3]/text()")[0] == u"工作经历":
-                    user["work"] = self.selector.xpath("//div[@class='c'][5]/text()")[
-                        0
-                    ][1:].replace(u"\xa0", u" ")
-            elif self.selector.xpath("//div[@class='tip'][2]/text()")[0] == u"工作经历":
-                user["work"] = self.selector.xpath("//div[@class='c'][4]/text()")[0][
-                    1:
-                ].replace(u"\xa0", u" ")
+                    user[en_list[zh_list.index(i.split(":", 1)[0])]] = i.split(
+                        ":", 1)[1].replace("\u3000", "")
+            if self.selector.xpath(
+                    "//div[@class='tip'][2]/text()")[0] == u"学习经历":
+                user["education"] = self.selector.xpath(
+                    "//div[@class='c'][4]/text()")[0][1:].replace(
+                        u"\xa0", u" ")
+                if self.selector.xpath(
+                        "//div[@class='tip'][3]/text()")[0] == u"工作经历":
+                    user["work"] = self.selector.xpath(
+                        "//div[@class='c'][5]/text()")[0][1:].replace(
+                            u"\xa0", u" ")
+            elif self.selector.xpath(
+                    "//div[@class='tip'][2]/text()")[0] == u"工作经历":
+                user["work"] = self.selector.xpath(
+                    "//div[@class='c'][4]/text()")[0][1:].replace(
+                        u"\xa0", u" ")
             return user
         except Exception as e:
             print("Error: ", e)
