@@ -203,6 +203,7 @@ class Spider:
 
                 for weibos in self.get_weibo_info():
                     self.write_weibo(weibos)
+                    self.got_num += len(weibos)
                 if not self.filter:
                     print(u"共爬取" + str(self.got_num) + u"条微博")
                 else:
