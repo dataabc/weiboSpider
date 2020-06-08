@@ -1,3 +1,5 @@
+## 贡献代码之前
+如果要开发新功能或者其它需要大量编写代码的修改，在开发之前最好发Issue说明一下。比如，“我准备开发xx新功能”或者“我想修改xx功能”之类的。因为要开发的功能不一定适合本项目，所以提前说明讨论，判断新功能或修改是否有必要。否则，费时费力写了很多代码，结果最后没有被采纳，可能会做一些无用功。
 ## Python风格规范（建议Python新手阅读）
 参考[Python风格规范](https://zh-google-styleguide.readthedocs.io/en/latest/google-python-styleguide/python_style_rules/)
 或者[Python风格规范](https://github.com/zh-google-styleguide/zh-google-styleguide/blob/master/google-python-styleguide/python_style_rules.rst)
@@ -5,6 +7,8 @@
 ## git提交规范
 参考[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 或者[Git提交规范](https://zhuanlan.zhihu.com/p/67804026)，commit描述中文英文皆可，只要符合规范就好。
+## git提交建议（可选）
+本建议是可选的，如果你觉得不合理，可以按自己的方式编写代码。建议每次提交都是代码改动较少的提交，如果新功能需要大量修改代码，除非不得已，否则建议将新功能分成几个小模块，每个模块提交一次。原因是这样更容易管理代码。比如，一个新功能包含几个模块。其中大部分模块都写的很多，但是有一个模块有bug。分模块提交只需要单独处理出问题的模块，其他模块不受影响。
 ## Python之linter
 本项目使用flake8。
 ## Python之formatter
