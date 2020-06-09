@@ -1,16 +1,5 @@
-* [功能](#功能)
-* [输出](#输出)
-* [实例](#实例)
-* [运行环境](#运行环境)
-* [使用说明](#使用说明)
-* [定期自动爬取微博（可选）](#定期自动爬取微博可选)
-* [如何获取cookie](#如何获取cookie)
-* [如何获取user_id](#如何获取user_id)
-* [如何获取大量user_id](#如何获取大量user_id)
-* [注意事项](#注意事项)
-
-## 功能
-连续爬取**一个**或**多个**新浪微博用户（如[胡歌](https://weibo.cn/u/1223178222)、[迪丽热巴](https://weibo.cn/u/1669879400)、[郭碧婷](https://weibo.cn/u/1729370543)）的数据，并将结果信息写入**文件**或**数据库**。写入信息几乎包括了用户微博的所有数据，主要有**用户信息**和**微博信息**两大类，前者包含用户昵称、关注数、粉丝数、微博数等等；后者包含微博正文、发布时间、发布工具、评论数等等，因为内容太多，这里不再赘述，详细内容见[输出](#输出)部分。<br>
+# Weibo Spider
+本程序可以连续爬取**一个**或**多个**新浪微博用户（如[胡歌](https://weibo.cn/u/1223178222)、[迪丽热巴](https://weibo.cn/u/1669879400)、[郭碧婷](https://weibo.cn/u/1729370543)）的数据，并将结果信息写入**文件**或**数据库**。写入信息几乎包括了用户微博的所有数据，主要有**用户信息**和**微博信息**两大类，前者包含用户昵称、关注数、粉丝数、微博数等等；后者包含微博正文、发布时间、发布工具、评论数等等，因为内容太多，这里不再赘述，详细内容见[输出](#输出)部分。<br>
 具体的写入文件类型如下：
 - 写入**txt文件**（默认）
 - 写入**csv文件**（默认）
@@ -28,9 +17,19 @@
 程序也可以实现**爬取结果自动更新**，即：现在爬取了目标用户的微博，几天之后，目标用户可能又发新微博了。通过设置，可以实现每隔几天**增量爬取**用户这几天发的新微博。具体方法见[定期自动爬取微博](#定期自动爬取微博可选)。<br>
 本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需[免cookie版](https://github.com/dataabc/weibo-crawler)，大家可以访问<https://github.com/dataabc/weibo-crawler>，二者功能类似，免cookie版获取的信息更多，用法更简单，而且不需要cookie。<br>
 如果想要获得**大量**微博，见[如何获取大量user_id](#如何获取大量user_id)部分。<br>
-<br>
-另外，推荐下另一个程序[weibo-search](https://github.com/dataabc/weibo-search)。该程序可以连续获取一个或多个**微博关键词搜索**结果，并将结果写入文件（可选）、数据库（可选）等。所谓微博关键词搜索即：**搜索正文中包含指定关键词的微博**，可以指定搜索的时间范围。对于非常热门的关键词，一天的时间范围，可以获得**1000万**以上的搜索结果，N天的时间范围就可以获得1000万 X N搜索结果。对于大多数关键词，一天产生的相应微博数量应该在1000万条以下，因此可以说该程序可以获得大部分关键词的全部或近似全部的搜索结果。而且该程序可以获得搜索结果的所有信息，本程序获得的微博信息该程序都能获得。<br>
-## 输出
+
+* [获取到的字段](#获取到的字段)
+* [实例](#实例)
+* [运行环境](#运行环境)
+* [使用说明](#使用说明)
+* [定期自动爬取微博（可选）](#定期自动爬取微博可选)
+* [如何获取cookie](#如何获取cookie)
+* [如何获取user_id](#如何获取user_id)
+* [如何获取大量user_id](#如何获取大量user_id)
+* [相关项目](#相关项目)
+* [注意事项](#注意事项)
+
+## 获取到的字段
 本部分为爬取到的字段信息说明，为了与[免cookie版](https://github.com/dataabc/weibo-crawler)区分，下面将两者爬取到的信息都列出来。如果是免cookie版所特有的信息，会有免cookie标注，没有标注的为二者共有的信息。<br>
 **用户信息**
 - 用户id：微博用户id，如"1669879400"，其实这个字段本来就是已知字段
@@ -77,91 +76,8 @@
 <br>
 
 ## 实例
-以爬取迪丽热巴的微博为例，我们需要修改**config.json**文件，文件内容如下：
-```
-{
-    "user_id_list": ["1669879400"],
-    "filter": 1,
-    "since_date": "1900-01-01",
-    "write_mode": ["csv", "txt", "json"],
-    "pic_download": 1,
-    "video_download": 1,
-    "cookie": "your cookie"
-}
-```
+如果想要知道程序的具体运行结果，可以查看[实例文档](https://github.com/dataabc/weiboSpider/blob/master/docs/example.md)，该文档介绍了爬取[迪丽热巴](https://weibo.cn/u/1669879400)微博的例子，并附有部分结果文件截图。
 
-对于上述参数的含义以及取值范围，这里仅作简单介绍，详细信息见[程序设置](#2程序设置)。
->**user_id_list**代表我们要爬取的微博用户的user_id，可以是一个或多个，也可以是文件路径，微博用户Dear-迪丽热巴的user_id为1669879400，具体如何获取user_id见[如何获取user_id](#如何获取user_id)；<br>**filter**的值为1代表爬取全部原创微博，值为0代表爬取全部微博（原创+转发）；<br>**since_date**代表我们要爬取since_date日期之后发布的微博，因为我要爬迪丽热巴的全部原创微博，所以since_date设置了一个非常早的值；<br>**write_mode**代表结果文件的保存类型，我想要把结果写入txt文件、csv文件和json文件，所以它的值为["csv", "txt", "json"]，如果你想写入数据库，具体设置见[设置数据库](#3设置数据库可选)；<br>**pic_download**值为1代表下载微博中的图片，值为0代表不下载；<br>**video_download**值为1代表下载微博中的视频，值为0代表不下载；<br>**cookie**是爬虫微博的cookie，具体如何获取cookie见[如何获取cookie](#如何获取cookie)，获取cookie后把"your cookie"替换成真实的cookie值即可。<br>
-
-cookie修改完成后在weiboSpider目录下运行如下命令：
-```bash
-$ python3 -m weibo_spider
-```
-程序会自动生成一个weibo文件夹，我们以后爬取的所有微博都被存储在这里。然后程序在该文件夹下生成一个名为"Dear-迪丽热巴"的文件夹，迪丽热巴的所有微博爬取结果都在这里。"Dear-迪丽热巴"文件夹里包含一个csv文件、一个txt文件、一个json文件、一个img文件夹和一个video文件夹，img文件夹用来存储下载到的图片，video文件夹用来存储下载到的视频。如果你设置了保存数据库功能，这些信息也会保存在数据库里，数据库设置见[设置数据库](#3设置数据库可选)部分。<br>
-<br>
-**csv结果文件如下所示：**
-![](https://picture.cognize.me/cognize/github/weibospider/weibo_csv.png)*1669879400.csv*<br>
-<br>
-**txt结果文件如下所示：**
-![](https://picture.cognize.me/cognize/github/weibospider/weibo_txt.png)*1669879400.txt*<br>
-<br>
-json文件包含迪丽热巴的用户信息和上千条微博信息，内容较多。为了表达清晰，这里仅展示两条微博。<br>
-**json结果文件如下所示：**
-```
-{
-    "user": {
-        "id": "1669879400",
-        "nickname": "Dear-迪丽热巴",
-        "gender": "女",
-        "location": "上海",
-        "birthday": "双子座",
-        "description": "一只喜欢默默表演的小透明。工作联系jaywalk@jaywalk.com.cn 🍒",
-        "verified_reason": "嘉行传媒签约演员",
-        "talent": "",
-        "education": "上海戏剧学院",
-        "work": "嘉行传媒 ",
-        "weibo_num": 1121,
-        "following": 250,
-        "followers": 66395910
-    },
-    "weibo": [
-        {
-            "id": "IonM9ryMy",
-            "content": "2019#微博之夜#盛典即将开启，以微博之力，让世界更美。1月11日，不见不散@微博之夜  原图 ",
-            "original_pictures": "http://wx1.sinaimg.cn/large/63885668ly1gao0a01kfzj20ku112k98.jpg",
-            "video_url": "无",
-            "publish_place": "无",
-            "publish_time": "2020-01-07 14:59",
-            "publish_tool": "无",
-            "up_num": 239242,
-            "retweet_num": 71914,
-            "comment_num": 55916
-        },
-        {
-            "id": "InB4Df73X",
-            "content": "#happyNEOyear#都到了2020，还不换点新pose配新装[來] 穿上@adidasneo 迪士尼联名款，让#生来好动#的我们一起玩“新”大发、自拍不重样🤳http://t.cn/AiF7nREj adidasneo的微博视频  ",
-            "original_pictures": "无",
-            "video_url": "http://f.video.weibocdn.com/000pYrGmlx07zPTskBQQ010412008AOY0E010.mp4?label=mp4_hd&template=852x480.25.0&trans_finger=62b30a3f061b162e421008955c73f536&Expires=1578569162&ssig=IV3JEbh3Zu&KID=unistore,video",
-            "publish_place": "无",
-            "publish_time": "2020-01-02 11:00",
-            "publish_tool": "无",
-            "up_num": 275419,
-            "retweet_num": 376734,
-            "comment_num": 131069
-        }
-    ]
-}
-```
-*1669879400.json*<br>
-<br>
-**下载的图片如下所示：**
-![](https://picture.cognize.me/cognize/github/weibospider/img.png)*img文件夹*<br>
-本次下载了793张图片，大小一共1.21GB，包括她原创微博中的图片和转发微博转发理由中的图片。图片名为yyyymmdd+微博id的形式，若某条微博存在多张图片，则图片名中还会包括它在微博图片中的序号。若某张图片因为网络等原因下载失败，程序则会以“weibo_id:pic_url”的形式将出错微博id和图片url写入同文件夹下的not_downloaded.txt里；<br>
-<br>
-**下载的视频如下所示：**
-![](https://picture.cognize.me/cognize/github/weibospider/video.png)*video文件夹*<br>
-本次下载了70个视频，是她原创微博中的视频，视频名为yyyymmdd+微博id的形式。其中有一个视频因为网络原因下载失败，程序将它的微博id和视频url以“weibo_id:video_url”的形式写到了同文件夹下的not_downloaded.txt里。<br>
-因为我本地没有安装MySQL数据库和MongoDB数据库，所以暂时设置成不写入数据库。如果你想要将爬取结果写入数据库，只需要先安装数据库（MySQL或MongoDB），再安装对应包（pymysql或pymongo），然后将mysql_write或mongodb_write值设置为1即可。写入MySQL需要用户名、密码等配置信息，这些配置如何设置见[设置数据库](#3设置数据库可选)部分。
 ## 运行环境
 - 开发语言：python2/python3
 - 系统： Windows/Linux/macOS
@@ -171,7 +87,7 @@ json文件包含迪丽热巴的用户信息和上千条微博信息，内容较�
 本程序有两个版本，你现在看到的是python3版，另一个是python2版，python2版位于[python2分支](https://github.com/dataabc/weiboSpider/tree/python2)。目前主力开发python3版，包括新功能开发和bug修复；python2版仅支持bug修复。推荐python3用户使用当前版本，推荐python2用户使用[python2版](https://github.com/dataabc/weiboSpider/tree/python2)，本使用说明是python3版的使用说明。<br>
 ### 1.下载脚本
 本程序提供两种下载方式，一种是**源码下载安装**，另一种是**pip安装**，二者功能完全相同。如果你需要修改源码，建议使用第一种方式，否则选哪种安装方式都可以。<br>
-**源码下载安装**<br>
+#### 源码下载安装
 下载脚本
 ```bash
 $ git clone https://github.com/dataabc/weibospider.git
@@ -181,7 +97,7 @@ $ git clone https://github.com/dataabc/weibospider.git
 $ pip install -r requirements.txt
 ```
 运行上述命令，将本项目下载到当前目录，如果下载成功当前目录会出现一个名为"weibospider"的文件夹；<br>
-**pip安装**
+#### pip安装
 ```bash
 $ python3 -m pip install weibo-spider
 ```
@@ -412,26 +328,14 @@ $ python3 -m weibo_spider --config_path="config.json"
 
 推荐第二种方法，本方法是[Evifly](https://github.com/Evifly)想出的，非常热心非常有想法的网友，在此感谢。<br>
 ## 如何获取cookie
-1.用Chrome打开<https://passport.weibo.cn/signin/login>；<br>
-2.输入微博的用户名、密码，登录，如图所示：
-![](https://picture.cognize.me/cognize/github/weibospider/cookie1.png)
-登录成功后会跳转到<https://m.weibo.cn>;<br>
-3.按F12键打开Chrome开发者工具，在地址栏输入并跳转到<https://weibo.cn>，跳转后会显示如下类似界面:
-![](https://picture.cognize.me/cognize/github/weibospider/cookie2.png)
-4.依此点击Chrome开发者工具中的Network->Name中的weibo.cn->Headers->Request Headers，"Cookie:"后的值即为我们要找的cookie值，复制即可，如图所示：
-![](https://picture.cognize.me/cognize/github/weibospider/cookie3.png)
+要了解获取cookie方法，请查看[cookie文档](https://github.com/dataabc/weiboSpider/blob/master/docs/cookie.md)。
 
 ## 如何获取user_id
-1.打开网址<https://weibo.cn>，搜索我们要找的人，如"迪丽热巴"，进入她的主页；<br>
-![](https://picture.cognize.me/cognize/github/weibospider/user_home.png)
-2.按照上图箭头所指，点击"资料"链接，跳转到用户资料页面；<br>
-![](https://picture.cognize.me/cognize/github/weibospider/user_info.png)
-如上图所示，迪丽热巴微博资料页的地址为"<https://weibo.cn/1669879400/info>"，其中的"1669879400"即为此微博的user_id。<br>
-事实上，此微博的user_id也包含在用户主页(<https://weibo.cn/u/1669879400?f=search_0>)中，之所以我们还要点击主页中的"资料"来获取user_id，是因为很多用户的主页不是"<https://weibo.cn/user_id?f=search_0>"的形式，而是"<https://weibo.cn/个性域名?f=search_0>"或"<https://weibo.cn/微号?f=search_0>"的形式。其中"微号"和user_id都是一串数字，如果仅仅通过主页地址提取user_id，很容易将"微号"误认为user_id。<br>
-上述可以获得一个user_id，如果想要获得**大量**微博，见[如何获取大量user_id](#如何获取大量user_id)部分。<br>
+要了解获取user_id方法，请查看[user_id文档](https://github.com/dataabc/weiboSpider/blob/master/docs/userid.md)，该文档介绍了如何获取一个及多个微博用户user_id的方法。
 
-## 如何获取大量user_id
-[如何获取user_id](#如何获取user_id)部分可以获得一个user_id，<https://github.com/dataabc/weibo-follow>可以利用这一个user_id，获取该user_id微博用户关注人的user_id，一个user_id最多可以获得200个user_id，并写入user_id_list.txt文件。程序支持读文件，利用这200个user_id，可以获得最多200X200=40000个user_id。再利用这40000个user_id可以得到40000X200=8000000个user_id，如此反复，以此类推，可以获得大量user_id。本项目也支持读文件，将上述程序的结果文件user_id_list.txt路径赋值给本项目config.json的user_id_list参数，就可以获得这些user_id用户所发布的大量微博。<br>
+## 相关项目
+- [weibo-crawler](https://github.com/dataabc/weibo-crawler) - 功能和本项目完全一样，可以不添加cookie，获取的微博属性更多；
+- [weibo-search](https://github.com/dataabc/weibo-search) - 可以连续获取一个或多个**微博关键词搜索**结果，并将结果写入文件（可选）、数据库（可选）等。所谓微博关键词搜索即：**搜索正文中包含指定关键词的微博**，可以指定搜索的时间范围。对于非常热门的关键词，一天的时间范围，可以获得**1000万**以上的搜索结果，N天的时间范围就可以获得1000万 X N搜索结果。对于大多数关键词，一天产生的相应微博数量应该在1000万条以下，因此可以说该程序可以获得大部分关键词的全部或近似全部的搜索结果。而且该程序可以获得搜索结果的所有信息，本程序获得的微博信息该程序都能获得。
 
 ## 注意事项
 1.user_id不能为爬虫微博的user_id。因为要爬微博信息，必须先登录到某个微博账号，此账号我们姑且称为爬虫微博。爬虫微博访问自己的页面和访问其他用户的页面，得到的网页格式不同，所以无法爬取自己的微博信息；如果想要爬取爬虫微博内容，可以参考[获取自身微博信息](https://github.com/dataabc/weiboSpider/issues/113)。<br>
