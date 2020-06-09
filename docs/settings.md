@@ -28,7 +28,7 @@ user_id_list是我们要爬取的微博的id，可以是一个，也可以是多
 ```
 "user_id_list": ["1223178222", "1669879400", "1729370543"],
 ```
-上述代码代表我们要连续爬取user_id分别为“1223178222”、 “1669879400”、 “1729370543”的三个用户的微博，具体如何获取user_id见[如何获取user_id](#如何获取user_id)。<br>
+上述代码代表我们要连续爬取user_id分别为“1223178222”、 “1669879400”、 “1729370543”的三个用户的微博，具体如何获取user_id见[如何获取user_id](https://github.com/dataabc/weiboSpider/blob/master/docs/userid.md)。<br>
 user_id_list的值也可以是文件路径，我们可以把要爬的所有微博用户的user_id都写到txt文件里，然后把文件的位置路径赋值给user_id_list，**推荐这种方式**。<br>
 在txt文件中，每个user_id占一行，也可以在user_id后面加注释（可选），如用户昵称等信息，user_id和注释之间必需要有空格，文件名任意，类型为txt，位置位于本程序的同目录下，文件内容示例如下：
 ```
@@ -56,13 +56,13 @@ since_date值可以是日期，也可以是整数。如果是日期，代表爬�
 "since_date": 10,
 ```
 代表爬取最近10天的微博，这个说法不是特别准确，准确说是爬取发布时间从**10天前到本程序开始执行时**之间的微博。<br>
-**since_date是所有user的爬取起始时间，非常不灵活。如果你要爬多个用户，并且想单独为每个用户设置一个since_date，可以使用[定期自动爬取微博](#定期自动爬取微博可选)方法二中的方法，该方法可以为多个用户设置不同的since_date，非常灵活。**<br>
+**since_date是所有user的爬取起始时间，非常不灵活。如果你要爬多个用户，并且想单独为每个用户设置一个since_date，可以使用[定期自动爬取微博](https://github.com/dataabc/weiboSpider/blob/master/docs/automation.md)方法二中的方法，该方法可以为多个用户设置不同的since_date，非常灵活。**<br>
 **设置write_mode**<br>
 write_mode控制结果文件格式，取值范围是csv、txt、json、mongo和mysql，分别代表将结果文件写入csv、txt、json、MongoDB和MySQL数据库。write_mode可以同时包含这些取值中的一个或几个，如：
 ```
 "write_mode": ["csv", "txt"],
 ```
-代表将结果信息写入csv文件和txt文件。特别注意，如果你想写入数据库，除了在write_mode添加对应数据库的名字外，还应该安装相关数据库和对应python模块，具体操作见[设置数据库](#3设置数据库可选)部分。<br>
+代表将结果信息写入csv文件和txt文件。特别注意，如果你想写入数据库，除了在write_mode添加对应数据库的名字外，还应该安装相关数据库和对应python模块，具体操作见[设置数据库](https://github.com/dataabc/weiboSpider/blob/master/docs/settings.md#设置数据库可选)部分。<br>
 **设置pic_download**<br>
 pic_download控制是否下载微博中的图片，值为1代表下载，值为0代表不下载，如
 ```
@@ -76,7 +76,7 @@ video_download控制是否下载微博中的视频，值为1代表下载，值�
 ```
 代表下载微博中的视频。<br>
 **设置cookie**<br>
-请按照[如何获取cookie](#如何获取cookie)，获取cookie，然后将“your cookie”替换成真实的cookie值。<br>
+请按照[如何获取cookie](https://github.com/dataabc/weiboSpider/blob/master/docs/cookie.md)，获取cookie，然后将“your cookie”替换成真实的cookie值。<br>
 **设置mysql_config（可选）**<br>
 mysql_config控制mysql参数配置。如果你不需要将结果信息写入mysql，这个参数可以忽略，即删除或保留都无所谓；如果你需要写入mysql且config.json文件中mysql_config的配置与你的mysql配置不一样，请将该值改成你自己mysql中的参数配置。
 
