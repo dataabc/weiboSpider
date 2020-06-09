@@ -1,4 +1,4 @@
-lxml==4.3.4
-requests==2.22.0
-tqdm==4.32.2
+lxml==4.5.1
+requests==2.23.0
+tqdm==4.46.1
 absl-py==0.9.0
