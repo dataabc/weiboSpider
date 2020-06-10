@@ -3,18 +3,24 @@ import os
 import sys
 import traceback
 
+from abc import ABC, abstractmethod
 import requests
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 
 
-class Downloader:
+class Downloader(ABC):
     def __init__(self, file_dir):
         self.file_dir = file_dir
 
         self.file_type = ""
         self.describe = u""
         self.key = ""
+
+    @abstractmethod
+    def handle_download(self, urls, w):
+        """下载 urls 里所指向的图片或视频文件，使用 w 里的信息来生成文件名"""
+        pass
 
     def get_filepath(self):
         """获取结果文件路径"""
@@ -43,9 +49,6 @@ class Downloader:
                 f.write(url.encode(sys.stdout.encoding))
             print("Error: ", e)
             traceback.print_exc()
-
-    def handle_download(self):
-        pass
 
     def download_files(self, weibos):
         """下载文件(图片/视频)"""
