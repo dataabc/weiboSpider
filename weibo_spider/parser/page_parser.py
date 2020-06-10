@@ -9,6 +9,7 @@ import requests
 from .. import datetime_util, printer
 from .comment_parser import CommentParser
 from .parser import Parser
+from .mblog_picAll_parser import MblogPicAllParser
 from .util import handle_garbled, handle_html
 
 
@@ -328,8 +329,8 @@ class PageParser(Parser):
             picture_urls = u"无"
             if first_pic in a_list:
                 if all_pic in a_list:
-                    selector = handle_html(self.cookie, all_pic)
-                    preview_picture_list = selector.xpath("//img/@src")
+                    preview_picture_list = MblogPicAllParser(
+                        self.cookie, weibo_id).extract_preview_picture_list()
                     picture_list = [
                         p.replace("/thumb180/", "/large/")
                         for p in preview_picture_list
