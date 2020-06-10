@@ -5,12 +5,8 @@ from .writer import Writer
 
 
 class CsvWriter(Writer):
-    def __init__(self, filter, file_path):
+    def __init__(self, file_path, filter):
         self.file_path = file_path
-        self.filter = filter
-
-    def write_user(self, user):
-        self.user = user
 
         result_headers = [
             "微博id",
@@ -25,7 +21,7 @@ class CsvWriter(Writer):
             "转发数",
             "评论数",
         ]
-        if not self.filter:
+        if not filter:
             result_headers.insert(4, "被转发微博原始图片url")
             result_headers.insert(5, "是否为原创微博")
         try:
@@ -37,6 +33,9 @@ class CsvWriter(Writer):
             print("Error: ", e)
             traceback.print_exc()
 
+    def write_user(self, user):
+        self.user = user
+
     def write_weibo(self, weibos):
         """将爬取的信息写入csv文件"""
         try:
@@ -45,8 +44,7 @@ class CsvWriter(Writer):
                       newline="") as f:
                 writer = csv.writer(f)
                 writer.writerows(result_data)
-            print(u"%d条微博写入csv文件完毕,保存路径:" % len(weibos))
-            print(self.file_path)
+            print(u"%d条微博写入csv文件完毕，保存路径：%s" % (len(weibos), self.file_path))
         except Exception as e:
             print("Error: ", e)
             traceback.print_exc()

@@ -46,5 +46,4 @@ class JsonWriter(Writer):
         data = self._update_json_data(data, weibos)
         with codecs.open(self.file_path, "w", encoding="utf-8") as f:
             f.write(json.dumps(data, indent=4, ensure_ascii=False))
-        print(u"%d条微博写入json文件完毕,保存路径:" % len(weibos))
-        print(self.file_path)
+        print(u"%d条微博写入json文件完毕，保存路径：%s" % (len(weibos), self.file_path))

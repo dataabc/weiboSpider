@@ -159,12 +159,12 @@ class Spider:
             from .writer import CsvWriter
 
             self.writers.append(
-                CsvWriter(self.filter, self._get_filepath("csv")))
+                CsvWriter(self._get_filepath("csv"), self.filter))
         if "txt" in self.write_mode:
             from .writer import TxtWriter
 
             self.writers.append(
-                TxtWriter(self.filter, self._get_filepath("txt")))
+                TxtWriter(self._get_filepath("txt"), self.filter))
         if "json" in self.write_mode:
             from .writer import JsonWriter
 

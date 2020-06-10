@@ -9,6 +9,12 @@ class MySqlWriter(Writer):
     def __init__(self, mysql_config):
         self.mysql_config = mysql_config
 
+        # 创建'weibo'数据库
+        create_database = """CREATE DATABASE IF NOT EXISTS weibo DEFAULT
+                            CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"""
+        self._mysql_create_database(create_database)
+        self.mysql_config["db"] = "weibo"
+
     def _mysql_create(self, connection, sql):
         """创建MySQL数据库或表"""
         try:
@@ -33,7 +39,6 @@ class MySqlWriter(Writer):
     def _mysql_create_table(self, sql):
         """创建MySQL表"""
         import pymysql
-        self.mysql_config["db"] = "weibo"
         connection = pymysql.connect(**self.mysql_config)
         self._mysql_create(connection, sql)
 
@@ -43,7 +48,6 @@ class MySqlWriter(Writer):
         if len(data_list) > 0:
             keys = ", ".join(data_list[0].keys())
             values = ", ".join(["%s"] * len(data_list[0]))
-            self.mysql_config["db"] = "weibo"
             connection = pymysql.connect(**self.mysql_config)
             cursor = connection.cursor()
             sql = """INSERT INTO {table}({keys}) VALUES ({values}) ON
@@ -101,10 +105,6 @@ class MySqlWriter(Writer):
         """将爬取的用户信息写入MySQL数据库"""
         self.user = user
 
-        # 创建'weibo'数据库
-        create_database = """CREATE DATABASE IF NOT EXISTS weibo DEFAULT
-                            CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"""
-        self._mysql_create_database(create_database)
         # 创建'user'表
         create_table = """
                 CREATE TABLE IF NOT EXISTS user (
