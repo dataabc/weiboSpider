@@ -13,14 +13,14 @@
 - 下载用户**原创**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
 - 下载用户**转发**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）<br>
 
-当然，如果你只对用户信息感兴趣，而不需要爬用户的微博，也可以通过设置实现只爬取微博用户信息的功能。<br>
-程序也可以实现**爬取结果自动更新**，即：现在爬取了目标用户的微博，几天之后，目标用户可能又发新微博了。通过设置，可以实现每隔几天**增量爬取**用户这几天发的新微博。具体方法见[定期自动爬取微博](#定期自动爬取微博可选)。<br>
-本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需[免cookie版](https://github.com/dataabc/weibo-crawler)，大家可以访问<https://github.com/dataabc/weibo-crawler>，二者功能类似，免cookie版获取的信息更多，用法更简单，而且不需要cookie。<br>
+如果你只对用户信息感兴趣，而不需要爬用户的微博，也可以通过设置实现只爬取微博用户信息的功能。<br>
+本程序需要设置用户cookie，以获取微博访问权限，后面会讲解如何获取cookie。如需[免cookie版](https://github.com/dataabc/weibo-crawler)，可以访问<https://github.com/dataabc/weibo-crawler>，二者功能类似。<br>
 
 * [获取到的字段](#获取到的字段)
 * [实例](#实例)
 * [运行环境](#运行环境)
 * [使用说明](#使用说明)
+* [个性化定制程序（可选）](#个性化定制程序可选)
 * [定期自动爬取微博（可选）](#定期自动爬取微博可选)
 * [如何获取cookie](#如何获取cookie)
 * [如何获取user_id](#如何获取user_id)
@@ -111,9 +111,9 @@ $ python3 -m weibo_spider
 ```bash
 $ python3 -m weibo_spider --config_path="config.json"
 ```
-### 4.按需求修改脚本（可选）
-本部分为可选部分，如果你不需要自己修改代码或添加新功能，可以忽略此部分。<br>
-本程序所有代码都位于weiboSpider.py文件，程序主体是一个Weibo类，上述所有功能都是通过在main函数调用Weibo类实现的，默认的调用代码如下：
+## 个性化定制程序（可选）
+本部分为可选部分，如果不需要个性化定制程序或添加新功能，可以忽略此部分。<br>
+本程序主体代码位于weibo_spider.py文件，程序主体是一个Weibo类，上述所有功能都是通过在main函数调用Weibo类实现的，默认的调用代码如下：
 ```python
         config = get_config()
         wb = Weibo(config)
@@ -174,4 +174,4 @@ $ python3 -m weibo_spider --config_path="config.json"
 
 ## 注意事项
 1.user_id不能为爬虫微博的user_id。因为要爬微博信息，必须先登录到某个微博账号，此账号我们姑且称为爬虫微博。爬虫微博访问自己的页面和访问其他用户的页面，得到的网页格式不同，所以无法爬取自己的微博信息；如果想要爬取爬虫微博内容，可以参考[获取自身微博信息](https://github.com/dataabc/weiboSpider/issues/113)；<br>
-2.cookie有期限限制，超过有效期需重新更新cookie。
+2.cookie有期限限制，若提示cookie错误或已过期，需要重新更新cookie。
