@@ -79,10 +79,7 @@ class Spider:
 
     def get_user_info(self, user_uri):
         # 获取用户信息、微博数、关注数、粉丝数
-        self.user = {}
-        user = IndexParser(self.cookie, user_uri).get_user()
-        for k, v in user.items():
-            self.user[k] = v
+        self.user = IndexParser(self.cookie, user_uri).get_user()
 
     def get_weibo_info(self):
         """获取微博信息"""
