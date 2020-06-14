@@ -46,6 +46,11 @@ class MySqlWriter(Writer):
         """向MySQL表插入或更新数据"""
         import pymysql
         if len(data_list) > 0:
+            # We use this to filter out unset values.
+            data_list = [{k: v
+                          for k, v in data.items() if v is not None}
+                         for data in data_list]
+
             keys = ", ".join(data_list[0].keys())
             values = ", ".join(["%s"] * len(data_list[0]))
             connection = pymysql.connect(**self.mysql_config)
@@ -96,8 +101,8 @@ class MySqlWriter(Writer):
         weibo_list = []
         info_list = copy.deepcopy(weibos)
         for weibo in info_list:
-            weibo["user_id"] = self.user.id
-            weibo_list.append(weibo)
+            weibo.user_id = self.user.id
+            weibo_list.append(weibo.__dict__)
         self._mysql_insert("weibo", weibo_list)
         print(u"%d条微博写入MySQL数据库完毕" % len(weibos))
 

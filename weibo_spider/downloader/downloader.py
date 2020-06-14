@@ -55,8 +55,8 @@ class Downloader(ABC):
         try:
             print(u"即将进行%s下载" % self.describe)
             for w in tqdm(weibos, desc="Download progress"):
-                if w[self.key] != u"无":
-                    self.handle_download(w[self.key], w)
+                if getattr(w, self.key) != u"无":
+                    self.handle_download(getattr(w, self.key), w)
             print(u"%s下载完毕,保存路径:" % self.describe)
             print(self.file_dir)
         except Exception as e:

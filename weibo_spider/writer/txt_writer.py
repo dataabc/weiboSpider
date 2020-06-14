@@ -42,8 +42,9 @@ class TxtWriter(Writer):
         try:
             temp_result = []
             for w in weibo:
-                temp_result.append(w["content"] + "\n" + "\n".join(
-                    [v + "：" + str(w[k]) for k, v in self.weibo_desc]))
+                temp_result.append(w.__dict__["content"] + "\n" + "\n".join(
+                    [v + "：" + str(w.__dict__[k])
+                     for k, v in self.weibo_desc]))
             result = "\n\n".join(temp_result) + "\n\n"
 
             with open(self.file_path, "ab") as f:
