@@ -13,8 +13,9 @@ from time import sleep
 from absl import app, flags
 from tqdm import tqdm
 
-from . import config_util, datetime_util, printer
+from . import config_util, datetime_util
 from .parser import IndexParser, PageParser
+from .user import User
 
 FLAGS = flags.FLAGS
 
@@ -40,6 +41,7 @@ class Spider:
             "video_download"]  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
         self.cookie = {"Cookie": config["cookie"]}
         self.mysql_config = config.get("mysql_config")  # MySQL数据库连接配置，可以不填
+
         user_id_list = config["user_id_list"]
         if not isinstance(user_id_list, list):
             if FLAGS.user_id_list is not None:
@@ -60,9 +62,8 @@ class Spider:
         self.user_config_list = user_config_list  # 要爬取的微博用户的user_config列表
         self.user_config = {}  # 用户配置,包含用户id和since_date
         self.start_time = ""  # 获取用户第一条微博时的时间
-        self.user = {}  # 存储爬取到的用户信息
+        self.user = User()  # 存储爬取到的用户信息
         self.got_num = 0  # 存储爬取到的微博数
-        self.weibo = []  # 存储爬取到的所有微博信息
         self.weibo_id_list = []  # 存储爬取到的所有微博id
 
     def write_weibo(self, weibos):
@@ -103,8 +104,8 @@ class Spider:
                             self.weibo_id_list)  # 获取第page页的全部微博
                     print(u"{}已获取{}({})的第{}页微博{}".format(
                         "-" * 30,
-                        self.user["nickname"],
-                        self.user["id"],
+                        self.user.nickname,
+                        self.user.id,
                         page,
                         "-" * 30,
                     ))
@@ -131,14 +132,14 @@ class Spider:
                 file_dir = FLAGS.output_dir
             else:
                 file_dir = (os.getcwd() + os.sep + "weibo" + os.sep +
-                            self.user["nickname"])
+                            self.user.nickname)
             if type == "img" or type == "video":
                 file_dir = file_dir + os.sep + type
             if not os.path.isdir(file_dir):
                 os.makedirs(file_dir)
             if type == "img" or type == "video":
                 return file_dir
-            file_path = file_dir + os.sep + self.user["id"] + "." + type
+            file_path = file_dir + os.sep + self.user.id + "." + type
             return file_path
         except Exception as e:
             print("Error: ", e)
@@ -147,7 +148,6 @@ class Spider:
     def initialize_info(self, user_config):
         """初始化爬虫信息"""
         self.got_num = 0
-        self.weibo = []
         self.user_config = user_config
         self.weibo_id_list = []
 
@@ -191,7 +191,7 @@ class Spider:
         try:
             for user_config in self.user_config_list:
                 self.get_user_info(user_config["user_uri"])
-                printer.print_user_info(self.user)
+                print(self.user)
                 print("*" * 100)
 
                 self.initialize_info(user_config)
@@ -212,7 +212,7 @@ class Spider:
                     config_util.update_user_config_file(
                         self.user_config_file_path,
                         self.user_config["user_uri"],
-                        self.user["nickname"],
+                        self.user.nickname,
                         self.start_time,
                     )
         except Exception as e:

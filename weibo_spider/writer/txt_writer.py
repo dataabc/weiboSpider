@@ -24,12 +24,12 @@ class TxtWriter(Writer):
     def write_user(self, user):
         self.user = user
         user_info = "\n".join(
-            [v + "：" + str(self.user[k]) for k, v in self.user_desc])
+            [v + "：" + str(self.user.__dict__[k]) for k, v in self.user_desc])
 
         with open(self.file_path, "ab") as f:
             f.write((self.user_header + "：\n" + user_info + "\n\n").encode(
                 sys.stdout.encoding))
-        print(u"%s信息写入txt文件完毕，保存路径：%s" % (user["nickname"], self.file_path))
+        print(u"%s信息写入txt文件完毕，保存路径：%s" % (self.user.nickname, self.file_path))
 
     def write_weibo(self, weibo):
         """将爬取的信息写入txt文件"""

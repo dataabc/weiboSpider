@@ -14,7 +14,7 @@ class JsonWriter(Writer):
 
     def _update_json_data(self, data, weibo_info):
         """更新要写入json结果文件中的数据，已经存在于json中的信息更新为最新值，不存在的信息添加到data中"""
-        data["user"] = self.user
+        data["user"] = self.user.__dict__
         if data.get("weibo"):
             is_new = 1  # 待写入微博是否全部为新微博，即待写入微博与json中的数据不重复
             for old in data["weibo"]:

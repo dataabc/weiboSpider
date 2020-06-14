@@ -96,7 +96,7 @@ class MySqlWriter(Writer):
         weibo_list = []
         info_list = copy.deepcopy(weibos)
         for weibo in info_list:
-            weibo["user_id"] = self.user["id"]
+            weibo["user_id"] = self.user.id
             weibo_list.append(weibo)
         self._mysql_insert("weibo", weibo_list)
         print(u"%d条微博写入MySQL数据库完毕" % len(weibos))
@@ -124,5 +124,5 @@ class MySqlWriter(Writer):
                 PRIMARY KEY (id)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
         self._mysql_create_table(create_table)
-        self._mysql_insert("user", [user])
-        print(u"%s信息写入MySQL数据库完毕" % user["nickname"])
+        self._mysql_insert("user", [user.__dict__])
+        print(u"%s信息写入MySQL数据库完毕" % user.nickname)

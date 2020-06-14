@@ -28,19 +28,15 @@ class IndexParser(Parser):
     def get_user(self):
         """获取用户信息、微博数、关注数、粉丝数"""
         try:
-            self.user = {}
-            self.user["id"] = self._get_user_id()
-            user = InfoParser(self.cookie,
-                              self.user["id"]).extract_user_info()  # 获取用户信息
-            for k, v in user.items():
-                self.user[k] = v
+            user_id = self._get_user_id()
+            self.user = InfoParser(self.cookie,
+                                   user_id).extract_user_info()  # 获取用户信息
+            self.user.id = user_id
+
             user_info = self.selector.xpath("//div[@class='tip2']/*/text()")
-            weibo_num = int(user_info[0][3:-1])
-            following = int(user_info[1][3:-1])
-            followers = int(user_info[2][3:-1])
-            self.user["weibo_num"] = weibo_num
-            self.user["following"] = following
-            self.user["followers"] = followers
+            self.user.weibo_num = int(user_info[0][3:-1])
+            self.user.following = int(user_info[1][3:-1])
+            self.user.followers = int(user_info[2][3:-1])
             return self.user
         except Exception as e:
             print("Error: ", e)
