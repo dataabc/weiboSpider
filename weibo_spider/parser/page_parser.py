@@ -43,6 +43,7 @@ class PageParser(Parser):
                             else:
                                 return weibos, weibo_id_list
                         print(weibo)
+                        print("-" * 100)
                         weibos.append(weibo)
                         weibo_id_list.append(weibo.id)
             return weibos, weibo_id_list
