@@ -1,19 +1,7 @@
-from unittest.mock import patch, Mock
-import json
-import os
+from unittest.mock import patch
 
+from .util import mock_request_get_content
 from weibo_spider.parser.page_parser import PageParser
-from weibo_spider.parser.util import TEST_DATA_DIR, URL_MAP_FILE
-
-
-def mock_request_get_content(url, cookies):
-    with open(os.path.join(TEST_DATA_DIR, URL_MAP_FILE)) as f:
-        url_map = json.loads(f.read())
-    resp_file = url_map[url]
-    mock = Mock()
-    with open(resp_file, "rb") as f:
-        mock.content = f.read()
-    return mock
 
 
 @patch('requests.get', mock_request_get_content)
@@ -29,7 +17,7 @@ def test_page_parser():
             """微博发布位置：无\n"""
             """发布时间：2020-06-03 00:00\n"""
             """发布工具：生日动态\n"""
-            """点赞数：1499637\n"""
+            """点赞数：1499675\n"""
             """转发数：1000000\n"""
             """评论数：1000000\n"""
             """url：https://weibo.cn/comment/J4PGk4yMw\n""")
@@ -38,7 +26,7 @@ def test_page_parser():
             """微博发布位置：无\n"""
             """发布时间：2020-06-01 20:35\n"""
             """发布工具：绿洲APP\n"""
-            """点赞数：419172\n"""
+            """点赞数：419181\n"""
             """转发数：1000000\n"""
             """评论数：1000000\n"""
             """url：https://weibo.cn/comment/J4EUStJKu\n""")

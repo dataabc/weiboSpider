@@ -6,5 +6,6 @@
     "https://weibo.cn/mblog/picAll/J5ZcSnCAg?rl=1": "tests/testdata/63a98849ec82b2c87ec55bca03cbf5988f7eac233a23d86b4fdf5ffd.html",
     "https://weibo.cn/1669879400?page=2": "tests/testdata/2f62165fa3ca1e85e0d398d385c377a068b76eb95765f7020ffffd3e.html",
     "https://weibo.cn/1669879400?page=3": "tests/testdata/d486235d4a17dd0accb0f2cc77b3648abfa03580b9e0cdb61f1e618f.html",
-    "https://weibo.cn/mblog/picAll/J3xfm61AZ?rl=1": "tests/testdata/76233b3f90394581aac6f19cfa5d674a610e8b442b1f83de7673ab49.html"
+    "https://weibo.cn/mblog/picAll/J3xfm61AZ?rl=1": "tests/testdata/76233b3f90394581aac6f19cfa5d674a610e8b442b1f83de7673ab49.html",
+    "https://weibo.cn/comment/J5cVGuUNq": "tests/testdata/4d5ed0a3ebd0303cb45edd544dbc0ab5e86d43e103405f0c60515884.html"
 }
