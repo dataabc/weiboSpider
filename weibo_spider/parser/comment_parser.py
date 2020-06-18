@@ -3,7 +3,7 @@ import traceback
 from time import sleep
 
 from .parser import Parser
-from .util import handle_html
+from .util import handle_html, handle_garbled
 
 
 class CommentParser(Parser):
@@ -16,10 +16,10 @@ class CommentParser(Parser):
         """获取长原创微博"""
         try:
             for i in range(5):
-                self.selector = self.handle_html(self.cookie, self.url)
+                self.selector = handle_html(self.cookie, self.url)
                 if self.selector is not None:
                     info = self.selector.xpath("//div[@class='c']")[1]
-                    wb_content = self.handle_garbled(info)
+                    wb_content = handle_garbled(info)
                     wb_time = info.xpath("//span[@class='ct']/text()")[0]
                     weibo_content = wb_content[wb_content.find(":") +
                                                1:wb_content.rfind(wb_time)]
