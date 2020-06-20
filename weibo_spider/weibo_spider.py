@@ -189,6 +189,10 @@ class Spider:
     def start(self):
         """运行爬虫"""
         try:
+            if not self.user_config_list:
+                print(
+                    u'没有配置有效的user_id，请通过config.json或user_id_list.txt配置user_id')
+                return
             for user_config in self.user_config_list:
                 self.get_user_info(user_config["user_uri"])
                 print(self.user)

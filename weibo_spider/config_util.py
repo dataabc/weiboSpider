@@ -61,7 +61,7 @@ def get_user_config_list(file_name, default_since_date):
         user_config_list = []
         for line in lines:
             info = line.split(" ")
-            if len(info) > 0:
+            if len(info) > 0 and info[0].isdigit():
                 user_config = {}
                 user_config["user_uri"] = info[0]
                 if len(info) > 2 and _is_date(info[2]):
