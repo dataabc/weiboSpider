@@ -36,6 +36,7 @@
   - [定期自动爬取微博（可选）](#定期自动爬取微博可选)
   - [如何获取cookie](#如何获取cookie)
   - [如何获取user_id](#如何获取user_id)
+  - [常见问题](#常见问题)
   - [相关项目](#相关项目)
   - [注意事项](#注意事项)
 
@@ -207,6 +208,10 @@ $ python3 -m weibo_spider --config_path="config.json"
 
 要了解获取user_id方法，请查看[user_id文档](https://github.com/dataabc/weiboSpider/blob/master/docs/userid.md)，该文档介绍了如何获取一个及多个微博用户user_id的方法。
 
+## 常见问题
+
+如果运行程序的过程中出现错误，可以查看[常见问题](https://github.com/dataabc/weiboSpider/blob/master/docs/FAQ.md)页面，里面包含了最常见的问题及解决方法。如果出现的错误不在常见问题里，您可以通过[发issue](https://github.com/dataabc/weiboSpider/issues/new/choose)寻求帮助，我们会很乐意为您解答。
+
 ## 相关项目
 
 - [weibo-crawler](https://github.com/dataabc/weibo-crawler) - 功能和本项目完全一样，可以不添加cookie，获取的微博属性更多；
@@ -215,4 +220,5 @@ $ python3 -m weibo_spider --config_path="config.json"
 ## 注意事项
 
 1.user_id不能为爬虫微博的user_id。因为要爬微博信息，必须先登录到某个微博账号，此账号我们姑且称为爬虫微博。爬虫微博访问自己的页面和访问其他用户的页面，得到的网页格式不同，所以无法爬取自己的微博信息；如果想要爬取爬虫微博内容，可以参考[获取自身微博信息](https://github.com/dataabc/weiboSpider/issues/113)；
+
 2.cookie有期限限制，大约三个月。若提示cookie错误或已过期，需要重新更新cookie。
