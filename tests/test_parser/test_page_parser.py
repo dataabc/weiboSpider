@@ -1,16 +1,22 @@
 from unittest.mock import patch
 
-from .util import mock_request_get_content
 from weibo_spider.parser.page_parser import PageParser
+
+from .util import mock_request_get_content
 
 
 @patch('requests.get', mock_request_get_content)
 def test_page_parser():
+    user_config = {
+        'user_uri': '1669879400',
+        'since_date': '2020-06-01',
+        'end_date': 'now'
+    }
     page_parser = PageParser(cookie="",
-                             user_uri="1669879400",
+                             user_config=user_config,
                              page=2,
                              filter=True)
-    weibos, weibo_id_list = page_parser.get_one_page("2020-06-01", [])
+    weibos, weibo_id_list = page_parser.get_one_page([])
     assert (weibo_id_list == ['J4PGk4yMw', 'J4EUStJKu'])
     assert (len(weibos) == 2)
     assert (str(weibos[0]) == """生日动态 \xa0\n"""

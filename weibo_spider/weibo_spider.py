@@ -32,7 +32,9 @@ class Spider:
         since_date = str(config["since_date"])
         if since_date.isdigit():
             since_date = str(date.today() - timedelta(int(since_date)))
-        self.since_date = since_date  # 起始时间，即爬取发布日期从该值到现在的微博，形式为yyyy-mm-dd
+        self.since_date = since_date  # 起始时间，即爬取发布日期从该值到结束时间的微博，形式为yyyy-mm-dd
+        self.end_date = config[
+            'end_date']  # 结束时间，即爬取发布日期从起始时间到该值的微博，形式为yyyy-mm-dd，特殊值"now"代表现在
         self.write_mode = config[
             "write_mode"]  # 结果信息保存类型，为list形式，可包含txt、csv、json、mongo和mysql五种类型
         self.pic_download = config[
@@ -53,11 +55,14 @@ class Spider:
             self.user_config_file_path = user_id_list  # 用户配置文件路径
             user_config_list = config_util.get_user_config_list(
                 user_id_list, self.since_date)
+            for user_config in user_config_list:
+                user_config['end_date'] = self.end_date
         else:
             self.user_config_file_path = ""
             user_config_list = [{
                 "user_uri": user_id,
-                "since_date": self.since_date
+                "since_date": self.since_date,
+                "end_date": self.end_date
             } for user_id in user_id_list]
         self.user_config_list = user_config_list  # 要爬取的微博用户的user_config列表
         self.user_config = {}  # 用户配置,包含用户id和since_date
@@ -98,9 +103,8 @@ class Spider:
                 self.start_time = datetime.now().strftime("%Y-%m-%d %H:%M")
                 for page in tqdm(range(1, page_num + 1), desc="Progress"):
                     weibos, self.weibo_id_list = PageParser(
-                        self.cookie, self.user_config["user_uri"],
-                        page, self.filter).get_one_page(
-                            self.user_config['since_date'],
+                        self.cookie,
+                        self.user_config, page, self.filter).get_one_page(
                             self.weibo_id_list)  # 获取第page页的全部微博
                     print(u"{}已获取{}({})的第{}页微博{}".format(
                         "-" * 30,

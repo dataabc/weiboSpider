@@ -8,27 +8,35 @@ import requests
 from .. import datetime_util
 from ..weibo import Weibo
 from .comment_parser import CommentParser
-from .parser import Parser
 from .mblog_picAll_parser import MblogPicAllParser
+from .parser import Parser
 from .util import handle_garbled, handle_html
 
 
 class PageParser(Parser):
-    def __init__(self, cookie, user_uri, page, filter):
+    def __init__(self, cookie, user_config, page, filter):
         self.cookie = cookie
+        self.user_uri = user_config['user_uri']
+        self.since_date = user_config['since_date']
+        self.end_date = user_config['end_date']
         self.page = page
-        self.url = "https://weibo.cn/%s?page=%d" % (user_uri, page)
+        self.url = "https://weibo.cn/%s?page=%d" % (self.user_uri, page)
+        if self.end_date != 'now':
+            starttime = self.since_date.replace('-', '')
+            endtime = self.end_date.replace('-', '')
+            self.url = 'https://weibo.cn/%s/profile?starttime=%s&endtime=%s&advancedfilter=1&page=%d' % (
+                self.user_uri, starttime, endtime, page)
         self.selector = handle_html(self.cookie, self.url)
         self.filter = filter
 
-    def get_one_page(self, since_date, weibo_id_list):
+    def get_one_page(self, weibo_id_list):
         """获取第page页的全部微博"""
         try:
             info = self.selector.xpath("//div[@class='c']")
             is_exist = info[0].xpath("div/span[@class='ctt']")
             weibos = []
             if is_exist:
-                since_date = datetime_util.str_to_time(since_date)
+                since_date = datetime_util.str_to_time(self.since_date)
                 for i in range(0, len(info) - 2):
                     weibo = self.get_one_weibo(info[i])
                     if weibo:

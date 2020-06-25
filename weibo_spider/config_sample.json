@@ -2,6 +2,7 @@
     "user_id_list": ["1669879400"],
     "filter": 1,
     "since_date": "2018-01-01",
+	"end_date": "now",
     "write_mode": ["csv", "txt"],
     "pic_download": 1,
     "video_download": 1,
