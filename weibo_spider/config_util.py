@@ -4,10 +4,13 @@ import sys
 from datetime import datetime
 
 
-def _is_date(since_date):
+def _is_date(date_str):
     """判断日期格式是否正确"""
     try:
-        datetime.strptime(since_date, "%Y-%m-%d")
+        if ':' in date_str:
+            datetime.strptime(date_str, '%Y-%m-%d %H:%M')
+        else:
+            datetime.strptime(date_str, '%Y-%m-%d')
         return True
     except ValueError:
         return False
