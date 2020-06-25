@@ -100,7 +100,7 @@ class Spider:
                     weibos, self.weibo_id_list = PageParser(
                         self.cookie, self.user_config["user_uri"],
                         page, self.filter).get_one_page(
-                            self.since_date,
+                            self.user_config['since_date'],
                             self.weibo_id_list)  # 获取第page页的全部微博
                     print(u"{}已获取{}({})的第{}页微博{}".format(
                         "-" * 30,
