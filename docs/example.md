@@ -5,6 +5,7 @@
     "user_id_list": ["1669879400"],
     "filter": 1,
     "since_date": "1900-01-01",
+    "end_date": "now",
     "write_mode": ["csv", "txt", "json"],
     "pic_download": 1,
     "video_download": 1,
@@ -13,7 +14,7 @@
 ```
 
 对于上述参数的含义以及取值范围，这里仅作简单介绍，详细信息见[程序设置](https://github.com/dataabc/weiboSpider/blob/master/docs/settings.md)。
->**user_id_list**代表我们要爬取的微博用户的user_id，可以是一个或多个，也可以是文件路径，微博用户Dear-迪丽热巴的user_id为1669879400，具体如何获取user_id见[如何获取user_id](https://github.com/dataabc/weiboSpider/blob/master/docs/userid.md)；<br>**filter**的值为1代表爬取全部原创微博，值为0代表爬取全部微博（原创+转发）；<br>**since_date**代表我们要爬取since_date日期之后发布的微博，因为我要爬迪丽热巴的全部原创微博，所以since_date设置了一个非常早的值；<br>**write_mode**代表结果文件的保存类型，我想要把结果写入txt文件、csv文件和json文件，所以它的值为["csv", "txt", "json"]，如果你想写入数据库，具体设置见[设置数据库](https://github.com/dataabc/weiboSpider/blob/master/docs/settings.md#设置数据库可选)；<br>**pic_download**值为1代表下载微博中的图片，值为0代表不下载；<br>**video_download**值为1代表下载微博中的视频，值为0代表不下载；<br>**cookie**是爬虫微博的cookie，具体如何获取cookie见[cookie文档](https://github.com/dataabc/weiboSpider/blob/master/docs/cookie.md)，获取cookie后把"your cookie"替换成真实的cookie值即可。<br>
+>**user_id_list**代表我们要爬取的微博用户的user_id，可以是一个或多个，也可以是文件路径，微博用户Dear-迪丽热巴的user_id为1669879400，具体如何获取user_id见[如何获取user_id](https://github.com/dataabc/weiboSpider/blob/master/docs/userid.md)；<br>**filter**的值为1代表爬取全部原创微博，值为0代表爬取全部微博（原创+转发）；<br>**since_date**代表我们要爬取since_date日期之后发布的微博，因为我要爬迪丽热巴的全部原创微博，所以since_date设置了一个非常早的值；<br>**end_date**代表我们要爬取end_date日期之前发布的微博，since_date配合end_date，表示我们要爬取发布日期在since_date和end_date之间的微博，包含边界，如果end_date值为"now"，表示爬取发布日期从since_date到现在的微博；<br>**write_mode**代表结果文件的保存类型，我想要把结果写入txt文件、csv文件和json文件，所以它的值为["csv", "txt", "json"]，如果你想写入数据库，具体设置见[设置数据库](https://github.com/dataabc/weiboSpider/blob/master/docs/settings.md#设置数据库可选)；<br>**pic_download**值为1代表下载微博中的图片，值为0代表不下载；<br>**video_download**值为1代表下载微博中的视频，值为0代表不下载；<br>**cookie**是爬虫微博的cookie，具体如何获取cookie见[cookie文档](https://github.com/dataabc/weiboSpider/blob/master/docs/cookie.md)，获取cookie后把"your cookie"替换成真实的cookie值即可。<br>
 
 cookie修改完成后在weiboSpider目录下运行如下命令：
 ```bash
