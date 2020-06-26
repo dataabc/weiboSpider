@@ -22,8 +22,14 @@ class PageParser(Parser):
         self.page = page
         self.url = "https://weibo.cn/%s?page=%d" % (self.user_uri, page)
         if self.end_date != 'now':
-            starttime = self.since_date.replace('-', '')
-            endtime = self.end_date.replace('-', '')
+            since_date = self.since_date.split(' ')[0].split('-')
+            end_date = self.end_date.split(' ')[0].split('-')
+            for date in [since_date, end_date]:
+                for i in range(1, 2):
+                    if len(date[i]) == 1:
+                        date[i] = '0' + date[i]
+            starttime = ''.join(since_date)
+            endtime = ''.join(end_date)
             self.url = 'https://weibo.cn/%s/profile?starttime=%s&endtime=%s&advancedfilter=1&page=%d' % (
                 self.user_uri, starttime, endtime, page)
         self.selector = handle_html(self.cookie, self.url)

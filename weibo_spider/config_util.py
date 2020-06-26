@@ -30,6 +30,11 @@ def validate_config(config):
     if (not _is_date(since_date)) and (not since_date.isdigit()):
         sys.exit(u"since_date值应为yyyy-mm-dd形式或整数,请重新输入")
 
+    # 验证end_date
+    end_date = str(config["end_date"])
+    if (not _is_date(end_date)) and (end_date != 'now'):
+        sys.exit(u'end_date值应为yyyy-mm-dd形式或"now",请重新输入')
+
     # 验证write_mode
     write_mode = ["txt", "csv", "json", "mongo", "mysql"]
     if not isinstance(config["write_mode"], list):
