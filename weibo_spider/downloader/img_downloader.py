@@ -1,6 +1,6 @@
 import os
 
-from .downloader import Downloader
+from weibo_spider.downloader.downloader import Downloader
 
 
 class ImgDownloader(Downloader):

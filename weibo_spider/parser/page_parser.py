@@ -5,12 +5,12 @@ from datetime import datetime, timedelta
 
 import requests
 
-from .. import datetime_util
-from ..weibo import Weibo
-from .comment_parser import CommentParser
-from .mblog_picAll_parser import MblogPicAllParser
-from .parser import Parser
-from .util import handle_garbled, handle_html
+from weibo_spider import datetime_util
+from weibo_spider.weibo import Weibo
+from weibo_spider.parser.comment_parser import CommentParser
+from weibo_spider.parser.mblog_picAll_parser import MblogPicAllParser
+from weibo_spider.parser.parser import Parser
+from weibo_spider.parser.util import handle_garbled, handle_html
 
 
 class PageParser(Parser):

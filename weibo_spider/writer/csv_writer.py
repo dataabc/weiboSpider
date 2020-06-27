@@ -1,7 +1,7 @@
 import csv
 import traceback
 
-from .writer import Writer
+from weibo_spider.writer.writer import Writer
 
 
 class CsvWriter(Writer):

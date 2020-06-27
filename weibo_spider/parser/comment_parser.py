@@ -2,8 +2,8 @@ import random
 import traceback
 from time import sleep
 
-from .parser import Parser
-from .util import handle_html, handle_garbled
+from weibo_spider.parser.parser import Parser
+from weibo_spider.parser.util import handle_html, handle_garbled
 
 
 class CommentParser(Parser):

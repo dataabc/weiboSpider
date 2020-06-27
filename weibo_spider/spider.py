@@ -13,9 +13,9 @@ from time import sleep
 from absl import app, flags
 from tqdm import tqdm
 
-from . import config_util, datetime_util
-from .parser import IndexParser, PageParser
-from .user import User
+from weibo_spider import config_util, datetime_util
+from weibo_spider.parser import IndexParser, PageParser
+from weibo_spider.user import User
 
 FLAGS = flags.FLAGS
 

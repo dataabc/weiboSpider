@@ -2,7 +2,7 @@ import codecs
 import json
 import os
 
-from .writer import Writer
+from weibo_spider.writer.writer import Writer
 
 
 class JsonWriter(Writer):

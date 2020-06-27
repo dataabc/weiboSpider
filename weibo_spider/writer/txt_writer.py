@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-from .writer import Writer
+from weibo_spider.writer.writer import Writer
 
 
 class TxtWriter(Writer):

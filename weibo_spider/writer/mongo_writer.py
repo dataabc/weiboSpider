@@ -1,7 +1,7 @@
 import copy
 import sys
 
-from .writer import Writer
+from weibo_spider.writer.writer import Writer
 
 
 class MongoWriter(Writer):

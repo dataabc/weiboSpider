@@ -1,7 +1,7 @@
 
 
-from .parser import Parser
-from .util import handle_html
+from weibo_spider.parser.parser import Parser
+from weibo_spider.parser.util import handle_html
 
 
 class MblogPicAllParser(Parser):
