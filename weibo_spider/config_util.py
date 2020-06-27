@@ -52,8 +52,7 @@ def validate_config(config):
         sys.exit(u"user_id_list值应为list类型或txt文件路径")
     if not isinstance(user_id_list, list):
         if not os.path.isabs(user_id_list):
-            user_id_list = (os.path.split(os.path.realpath(__file__))[0] +
-                            os.sep + user_id_list)
+            user_id_list = os.getcwd() + os.sep + user_id_list
         if not os.path.isfile(user_id_list):
             sys.exit(u"不存在%s文件" % user_id_list)
 

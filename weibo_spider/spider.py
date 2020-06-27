@@ -48,10 +48,8 @@ class Spider:
         if not isinstance(user_id_list, list):
             if FLAGS.user_id_list is not None:
                 user_id_list = FLAGS.user_id_list
-            else:
+            elif not os.path.isabs(user_id_list):
                 user_id_list = os.getcwd() + os.sep + user_id_list
-            if not os.path.isfile(user_id_list):
-                sys.exit(u"当前路径：%s 不存在配置文件config.json" % user_id_list)
             self.user_config_file_path = user_id_list  # 用户配置文件路径
             user_config_list = config_util.get_user_config_list(
                 user_id_list, self.since_date)
