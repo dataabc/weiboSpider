@@ -64,7 +64,7 @@ class Spider:
             } for user_id in user_id_list]
         self.user_config_list = user_config_list  # 要爬取的微博用户的user_config列表
         self.user_config = {}  # 用户配置,包含用户id和since_date
-        self.start_time = ""  # 获取用户第一条微博时的时间
+        self.new_since_date = ''  # 完成某用户爬取后，自动生成对应用户新的since_date
         self.user = User()  # 存储爬取到的用户信息
         self.got_num = 0  # 存储爬取到的微博数
         self.weibo_id_list = []  # 存储爬取到的所有微博id
@@ -98,7 +98,11 @@ class Spider:
                     self.user_config["user_uri"]).get_page_num()  # 获取微博总页数
                 page1 = 0
                 random_pages = random.randint(1, 5)
-                self.start_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+                if self.end_date == 'now':
+                    self.new_since_date = datetime.now().strftime(
+                        "%Y-%m-%d %H:%M")
+                else:
+                    self.new_since_date = self.end_date
                 for page in tqdm(range(1, page_num + 1), desc="Progress"):
                     weibos, self.weibo_id_list = PageParser(
                         self.cookie,
@@ -219,7 +223,7 @@ class Spider:
                         self.user_config_file_path,
                         self.user_config["user_uri"],
                         self.user.nickname,
-                        self.start_time,
+                        self.new_since_date,
                     )
         except Exception as e:
             print("Error: ", e)
