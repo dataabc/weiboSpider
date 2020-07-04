@@ -25,7 +25,7 @@ class PageParser(Parser):
             since_date = self.since_date.split(' ')[0].split('-')
             end_date = self.end_date.split(' ')[0].split('-')
             for date in [since_date, end_date]:
-                for i in range(1, 2):
+                for i in [1, 2]:
                     if len(date[i]) == 1:
                         date[i] = '0' + date[i]
             starttime = ''.join(since_date)
