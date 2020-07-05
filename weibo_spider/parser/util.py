@@ -1,6 +1,6 @@
+import hashlib
 import sys
 import traceback
-import hashlib
 
 import requests
 from lxml import etree
