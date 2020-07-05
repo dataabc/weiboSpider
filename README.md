@@ -136,11 +136,23 @@ $ python3 -m pip install weibo-spider
 $ python3 -m weibo_spider
 ```
 
-第一次执行，会自动在当前目录创建config.json配置文件，配置好后执行同样的命令就可以获取微博了。如果你已经有config.json文件了，也可以通过config_path参数配置config.json路径，运行程序，命令行如下：
+第一次执行，会自动在当前目录创建config.json配置文件，配置好后执行同样的命令就可以获取微博了。
+
+如果你已经有config.json文件了，也可以通过config_path参数配置config.json路径，运行程序，命令行如下：
 
 ```bash
 $ python3 -m weibo_spider --config_path="config.json"
 ```
+
+如果你想指定文件（csv、txt、json、图片、视频）保存路径，可以通过output_dir参数设定。假如你想把文件保存到/home/weibo/目录，可以运行如下命令：
+```
+$ python3 -m weibo_spider --output_dir="/home/weibo/"
+```
+如果你想通过命令行输入user_id，可以使用参数u，可以输入一个或多个user_id，每个user_id以英文逗号分开，如果这些user_id中有重复的user_id，程序会自动去重。命令行如下：
+```
+$ python3 -m weibo_spider --u="1669879400,1223178222"
+```
+程序会获取user_id分别为1669879400和1223178222的微博用户的微博，后面会讲[如何获取user_id](#如何获取user_id)。该方式的所有user_id使用config.json中的since_date和end_date设置，通过修改它们的值可以控制爬取的时间范围。若config.json中的user_id_list是文件路径，每个命令行中的user_id都会自动保存到该文件内，且自动更新since_date；若不是路径，user_id会保存在当前目录的user_id_list.txt内，且自动更新since_date，若当前目录下不存在user_id_list.txt，程序会自动创建它。
 
 ## 个性化定制程序（可选）
 
