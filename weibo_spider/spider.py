@@ -145,7 +145,7 @@ class Spider:
         """获取结果文件路径"""
         try:
             if FLAGS.output_dir is not None:
-                file_dir = FLAGS.output_dir
+                file_dir = FLAGS.output_dir + os.sep + self.user.nickname
             else:
                 file_dir = (os.getcwd() + os.sep + 'weibo' + os.sep +
                             self.user.nickname)
