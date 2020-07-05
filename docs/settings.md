@@ -59,7 +59,7 @@ since_date值可以是日期，也可以是整数。如果是日期，代表爬�
 代表爬取最近10天的微博，这个说法不是特别准确，准确说是爬取发布时间从**10天前到本程序开始执行时**之间的微博。<br>
 **since_date是所有user的爬取起始时间，非常不灵活。如果你要爬多个用户，并且想单独为每个用户设置一个since_date，可以使用[定期自动爬取微博](https://github.com/dataabc/weiboSpider/blob/master/docs/automation.md)方法二中的方法，该方法可以为多个用户设置不同的since_date，非常灵活。**<br>
 **设置end_date**<br>
-end_date值可以是日期，也可以是"now"。如果是日期，代表爬取该日期之前的微博，格式应为“yyyy-mm-dd”；如果是"now"，代表爬取发布日期从since_date到现在的微博。since_date配合end_date，表示爬取发布日期在since_date和end_date之间的微博，包含边界。since_date是起始日期，end_date是结束日期，因此end_date时间应晚于since_date。注意，since_date即可以通过config.json文件的since_date参数设置，也可以通过user_id_list.txt设置；而end_date只能通过config.json文件的end_date参数设置，是全局变量，所有user_id都使用同一个end_date。<br>
+end_date值可以是日期，也可以是"now"。如果是日期，代表爬取该日期之前的微博，格式应为“yyyy-mm-dd”；如果是"now"，代表爬取发布日期从since_date到现在的微博。since_date配合end_date，表示爬取发布日期在since_date和end_date之间的微博，包含边界。since_date是起始日期，end_date是结束日期，因此end_date时间应晚于since_date。注意，since_date即可以通过config.json文件的since_date参数设置，也可以通过user_id_list.txt设置；而end_date只能通过config.json文件的end_date参数设置，是全局变量，所有user_id都使用同一个end_date。当end_date值不是"now"时，程序无法获取微博中的视频，如果想要获取视频，请为end_date赋值为"now"。<br>
 **设置write_mode**<br>
 write_mode控制结果文件格式，取值范围是csv、txt、json、mongo和mysql，分别代表将结果文件写入csv、txt、json、MongoDB和MySQL数据库。write_mode可以同时包含这些取值中的一个或几个，如：
 ```
