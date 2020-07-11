@@ -1,8 +1,10 @@
 import copy
+import logging
 import sys
-import traceback
 
 from .writer import Writer
+
+logger = logging.getLogger('spider.mysql_writer')
 
 
 class MySqlWriter(Writer):
@@ -13,7 +15,7 @@ class MySqlWriter(Writer):
         create_database = """CREATE DATABASE IF NOT EXISTS weibo DEFAULT
                             CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"""
         self._mysql_create_database(create_database)
-        self.mysql_config["db"] = "weibo"
+        self.mysql_config['db'] = 'weibo'
 
     def _mysql_create(self, connection, sql):
         """创建MySQL数据库或表"""
@@ -28,13 +30,15 @@ class MySqlWriter(Writer):
         try:
             import pymysql
         except ImportError:
-            sys.exit(u"系统中可能没有安装pymysql库，请先运行 pip install pymysql ，再运行程序")
+            logger.warning(
+                u'系统中可能没有安装pymysql库，请先运行 pip install pymysql ，再运行程序')
+            sys.exit()
         try:
-            print(self.mysql_config, sql)
             connection = pymysql.connect(**self.mysql_config)
             self._mysql_create(connection, sql)
         except pymysql.OperationalError:
-            sys.exit(u"系统中可能没有安装或正确配置MySQL数据库，请先根据系统环境安装或配置MySQL，再运行程序")
+            logger.warning(u'系统中可能没有安装或正确配置MySQL数据库，请先根据系统环境安装或配置MySQL，再运行程序')
+            sys.exit()
 
     def _mysql_create_table(self, sql):
         """创建MySQL表"""
@@ -51,16 +55,16 @@ class MySqlWriter(Writer):
                           for k, v in data.items() if v is not None}
                          for data in data_list]
 
-            keys = ", ".join(data_list[0].keys())
-            values = ", ".join(["%s"] * len(data_list[0]))
+            keys = ', '.join(data_list[0].keys())
+            values = ', '.join(['%s'] * len(data_list[0]))
             connection = pymysql.connect(**self.mysql_config)
             cursor = connection.cursor()
             sql = """INSERT INTO {table}({keys}) VALUES ({values}) ON
                         DUPLICATE KEY UPDATE""".format(table=table,
                                                        keys=keys,
                                                        values=values)
-            update = ",".join([
-                " {key} = values({key})".format(key=key)
+            update = ','.join([
+                ' {key} = values({key})'.format(key=key)
                 for key in data_list[0]
             ])
             sql += update
@@ -70,8 +74,7 @@ class MySqlWriter(Writer):
                 connection.commit()
             except Exception as e:
                 connection.rollback()
-                print("Error: ", e)
-                traceback.print_exc()
+                logger.exception(e)
             finally:
                 connection.close()
 
@@ -103,8 +106,8 @@ class MySqlWriter(Writer):
         for weibo in info_list:
             weibo.user_id = self.user.id
             weibo_list.append(weibo.__dict__)
-        self._mysql_insert("weibo", weibo_list)
-        print(u"%d条微博写入MySQL数据库完毕" % len(weibos))
+        self._mysql_insert('weibo', weibo_list)
+        logger.info(u'%d条微博写入MySQL数据库完毕', len(weibos))
 
     def write_user(self, user):
         """将爬取的用户信息写入MySQL数据库"""
@@ -129,5 +132,5 @@ class MySqlWriter(Writer):
                 PRIMARY KEY (id)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
         self._mysql_create_table(create_table)
-        self._mysql_insert("user", [user.__dict__])
-        print(u"%s信息写入MySQL数据库完毕" % user.nickname)
+        self._mysql_insert('user', [user.__dict__])
+        logger.info(u'%s信息写入MySQL数据库完毕', user.nickname)

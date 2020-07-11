@@ -20,10 +20,10 @@ class User:
 
     def __str__(self):
         """打印微博用户信息"""
-        result = ""
-        result += u"用户昵称: %s\n" % self.nickname
-        result += u"用户id: %s\n" % self.id
-        result += u"微博数: %d\n" % self.weibo_num
-        result += u"关注数: %d\n" % self.following
-        result += u"粉丝数: %d\n" % self.followers
+        result = ''
+        result += u'用户昵称: %s\n' % self.nickname
+        result += u'用户id: %s\n' % self.id
+        result += u'微博数: %d\n' % self.weibo_num
+        result += u'关注数: %d\n' % self.following
+        result += u'粉丝数: %d\n' % self.followers
         return result

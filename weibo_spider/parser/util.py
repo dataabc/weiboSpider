@@ -1,6 +1,6 @@
 import hashlib
+import logging
 import sys
-import traceback
 
 import requests
 from lxml import etree
@@ -8,7 +8,8 @@ from lxml import etree
 # Set GENERATE_TEST_DATA to True when generating test data.
 GENERATE_TEST_DATA = False
 TEST_DATA_DIR = 'tests/testdata'
-URL_MAP_FILE = "url_map.json"
+URL_MAP_FILE = 'url_map.json'
+logger = logging.getLogger('spider.util')
 
 
 def hash_url(url):
@@ -25,8 +26,8 @@ def handle_html(cookie, url):
             import json
             import os
 
-            resp_file = os.path.join(TEST_DATA_DIR, "%s.html" % hash_url(url))
-            with io.open(resp_file, "w") as f:
+            resp_file = os.path.join(TEST_DATA_DIR, '%s.html' % hash_url(url))
+            with io.open(resp_file, 'w') as f:
                 f.write(resp.text)
 
             with io.open(os.path.join(TEST_DATA_DIR, URL_MAP_FILE), 'r+') as f:
@@ -39,16 +40,14 @@ def handle_html(cookie, url):
         selector = etree.HTML(resp.content)
         return selector
     except Exception as e:
-        print("Error: ", e)
-        traceback.print_exc()
+        logger.exception(e)
 
 
 def handle_garbled(info):
     """处理乱码"""
     try:
-        info = (info.xpath("string(.)").replace(u"\u200b", "").encode(
-            sys.stdout.encoding, "ignore").decode(sys.stdout.encoding))
+        info = (info.xpath('string(.)').replace(u'\u200b', '').encode(
+            sys.stdout.encoding, 'ignore').decode(sys.stdout.encoding))
         return info
     except Exception as e:
-        print("Error: ", e)
-        traceback.print_exc()
+        logger.exception(e)

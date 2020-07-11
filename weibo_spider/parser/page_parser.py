@@ -1,6 +1,6 @@
+import logging
 import re
 import sys
-import traceback
 from datetime import datetime, timedelta
 
 import requests
@@ -11,6 +11,8 @@ from .comment_parser import CommentParser
 from .mblog_picAll_parser import MblogPicAllParser
 from .parser import Parser
 from .util import handle_garbled, handle_html
+
+logger = logging.getLogger('spider.page_parser')
 
 
 class PageParser(Parser):
@@ -56,14 +58,13 @@ class PageParser(Parser):
                                 continue
                             else:
                                 return weibos, weibo_id_list
-                        print(weibo)
-                        print('-' * 100)
+                        logger.info(weibo)
+                        logger.info('-' * 100)
                         weibos.append(weibo)
                         weibo_id_list.append(weibo.id)
             return weibos, weibo_id_list
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def is_original(self, info):
         """判断微博是否为原创微博"""
@@ -86,8 +87,7 @@ class PageParser(Parser):
                     weibo_content = wb_content
             return weibo_content
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_retweet(self, info, weibo_id):
         """获取转发微博"""
@@ -115,8 +115,7 @@ class PageParser(Parser):
                                  weibo_content)
             return weibo_content
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_weibo_content(self, info, is_original):
         """获取微博内容"""
@@ -128,8 +127,7 @@ class PageParser(Parser):
                 weibo_content = self.get_retweet(info, weibo_id)
             return weibo_content
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_article_url(self, info):
         """获取微博头条文章的url"""
@@ -163,8 +161,7 @@ class PageParser(Parser):
                         break
             return publish_place
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_publish_time(self, info):
         """获取微博发布时间"""
@@ -195,8 +192,7 @@ class PageParser(Parser):
                 publish_time = publish_time[:16]
             return publish_time
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_publish_tool(self, info):
         """获取微博发布工具"""
@@ -209,8 +205,7 @@ class PageParser(Parser):
                 publish_tool = u'无'
             return publish_tool
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_weibo_footer(self, info):
         """获取微博点赞数、转发数、评论数"""
@@ -232,8 +227,7 @@ class PageParser(Parser):
             footer['comment_num'] = comment_num
             return footer
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_picture_urls(self, info, is_original):
         """获取微博原始图片url"""
@@ -259,12 +253,12 @@ class PageParser(Parser):
                 picture_urls['original_pictures'] = original_picture
             return picture_urls
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def get_video_url(self, info, is_original):
         """获取微博视频url"""
         try:
+            video_url = u'无'
             if is_original:
                 div_first = info.xpath('div')[0]
                 a_list = div_first.xpath('.//a')
@@ -285,13 +279,10 @@ class PageParser(Parser):
                         video_url = wb_info['data']['object']['stream']['url']
                         if not video_url:  # 说明该视频为直播
                             video_url = u'无'
-            else:
-                video_url = u'无'
             return video_url
         except Exception as e:
+            logger.exception(e)
             return u'无'
-            print('Error: ', e)
-            traceback.print_exc()
 
     def is_pinned_weibo(self, info):
         """判断微博是否为置顶微博"""
@@ -329,11 +320,10 @@ class PageParser(Parser):
                 weibo.comment_num = footer['comment_num']  # 评论数
             else:
                 weibo = None
-                print(u'正在过滤转发微博')
+                logger.info(u'正在过滤转发微博')
             return weibo
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def extract_picture_urls(self, info, weibo_id):
         """提取微博原始图片url"""
@@ -363,12 +353,12 @@ class PageParser(Parser):
                                             '/wap180/', '/large/')
                                         break
                     else:
-                        sys.exit(
+                        logger.warning(
                             u'爬虫微博可能被设置成了"不显示图片"，请前往'
                             u'"https://weibo.cn/account/customize/pic"，修改为"显示"'
                         )
+                        sys.exit()
             return picture_urls
         except Exception as e:
+            logger.exception(e)
             return u'无'
-            print('Error: ', e)
-            traceback.print_exc()

@@ -1,7 +1,9 @@
 import csv
-import traceback
+import logging
 
 from .writer import Writer
+
+logger = logging.getLogger('spider.csv_writer')
 
 
 class CsvWriter(Writer):
@@ -20,13 +22,12 @@ class CsvWriter(Writer):
             self.result_headers.insert(4, ('被转发微博原始图片url', 'retweet_pictures'))
             self.result_headers.insert(5, ('是否为原创微博', 'original'))
         try:
-            with open(self.file_path, "a", encoding="utf-8-sig",
-                      newline="") as f:
+            with open(self.file_path, 'a', encoding='utf-8-sig',
+                      newline='') as f:
                 writer = csv.writer(f)
                 writer.writerows([[kv[0] for kv in self.result_headers]])
         except Exception as e:
-            print("Error: ", e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def write_user(self, user):
         self.user = user
@@ -36,11 +37,10 @@ class CsvWriter(Writer):
         try:
             result_data = [[w.__dict__[kv[1]] for kv in self.result_headers]
                            for w in weibos]
-            with open(self.file_path, "a", encoding="utf-8-sig",
-                      newline="") as f:
+            with open(self.file_path, 'a', encoding='utf-8-sig',
+                      newline='') as f:
                 writer = csv.writer(f)
                 writer.writerows(result_data)
-            print(u"%d条微博写入csv文件完毕，保存路径：%s" % (len(weibos), self.file_path))
+            logger.info(u'%d条微博写入csv文件完毕，保存路径：%s', len(weibos), self.file_path)
         except Exception as e:
-            print("Error: ", e)
-            traceback.print_exc()
+            logger.exception(e)

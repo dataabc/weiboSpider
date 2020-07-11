@@ -1,7 +1,10 @@
 import codecs
+import logging
 import os
 import sys
 from datetime import datetime
+
+logger = logging.getLogger('spider.config_util')
 
 
 def _is_date(date_str):
@@ -23,38 +26,45 @@ def validate_config(config):
     argument_list = ['filter', 'pic_download', 'video_download']
     for argument in argument_list:
         if config[argument] != 0 and config[argument] != 1:
-            sys.exit(u'%s值应为0或1,请重新输入' % config[argument])
+            logger.warning(u'%s值应为0或1,请重新输入', config[argument])
+            sys.exit()
 
     # 验证since_date
     since_date = str(config['since_date'])
     if (not _is_date(since_date)) and (not since_date.isdigit()):
-        sys.exit(u'since_date值应为yyyy-mm-dd形式或整数,请重新输入')
+        logger.warning(u'since_date值应为yyyy-mm-dd形式或整数,请重新输入')
+        sys.exit()
 
     # 验证end_date
     end_date = str(config['end_date'])
     if (not _is_date(end_date)) and (end_date != 'now'):
-        sys.exit(u'end_date值应为yyyy-mm-dd形式或"now",请重新输入')
+        logger.warning(u'end_date值应为yyyy-mm-dd形式或"now",请重新输入')
+        sys.exit()
 
     # 验证write_mode
     write_mode = ['txt', 'csv', 'json', 'mongo', 'mysql']
     if not isinstance(config['write_mode'], list):
-        sys.exit(u'write_mode值应为list类型')
+        logger.warning(u'write_mode值应为list类型')
+        sys.exit()
     for mode in config['write_mode']:
         if mode not in write_mode:
-            sys.exit(
-                u'%s为无效模式，请从txt、csv、json、mongo和mysql中挑选一个或多个作为write_mode' %
+            logger.warning(
+                u'%s为无效模式，请从txt、csv、json、mongo和mysql中挑选一个或多个作为write_mode',
                 mode)
+            sys.exit()
 
     # 验证user_id_list
     user_id_list = config['user_id_list']
     if (not isinstance(user_id_list,
                        list)) and (not user_id_list.endswith('.txt')):
-        sys.exit(u'user_id_list值应为list类型或txt文件路径')
+        logger.warning(u'user_id_list值应为list类型或txt文件路径')
+        sys.exit()
     if not isinstance(user_id_list, list):
         if not os.path.isabs(user_id_list):
             user_id_list = os.getcwd() + os.sep + user_id_list
         if not os.path.isfile(user_id_list):
-            sys.exit(u'不存在%s文件' % user_id_list)
+            logger.warning(u'不存在%s文件', user_id_list)
+            sys.exit()
 
 
 def get_user_config_list(file_name, default_since_date):
@@ -64,7 +74,8 @@ def get_user_config_list(file_name, default_since_date):
             lines = f.read().splitlines()
             lines = [line.decode('utf-8-sig') for line in lines]
         except UnicodeDecodeError:
-            sys.exit(u'%s文件应为utf-8编码，请先将文件编码转为utf-8再运行程序' % file_name)
+            logger.error(u'%s文件应为utf-8编码，请先将文件编码转为utf-8再运行程序', file_name)
+            sys.exit()
         user_config_list = []
         for line in lines:
             info = line.split(' ')

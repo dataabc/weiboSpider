@@ -2,11 +2,12 @@
 # -*- coding: UTF-8 -*-
 
 import json
+import logging
+import logging.config
 import os
 import random
 import shutil
 import sys
-import traceback
 from datetime import date, datetime, timedelta
 from time import sleep
 
@@ -23,6 +24,10 @@ flags.DEFINE_string('config_path', None, 'The path to config.json.')
 flags.DEFINE_string('u', None, 'The user_id we want to input.')
 flags.DEFINE_string('user_id_list', None, 'The path to user_id_list.txt.')
 flags.DEFINE_string('output_dir', None, 'The dir path to store results.')
+logging_path = os.path.split(
+    os.path.realpath(__file__))[0] + os.sep + 'logging.conf'
+logging.config.fileConfig(logging_path)
+logger = logging.getLogger('spider')
 
 
 class Spider:
@@ -53,7 +58,8 @@ class Spider:
             if not os.path.isabs(user_id_list):
                 user_id_list = os.getcwd() + os.sep + user_id_list
             if not os.path.isfile(user_id_list):
-                sys.exit(u'不存在%s文件' % user_id_list)
+                logger.warning('不存在%s文件', user_id_list)
+                sys.exit()
             self.user_config_file_path = user_id_list
         if FLAGS.u:
             user_id_list = FLAGS.u.split(',')
@@ -118,13 +124,14 @@ class Spider:
                         self.cookie,
                         self.user_config, page, self.filter).get_one_page(
                             self.weibo_id_list)  # 获取第page页的全部微博
-                    print(u'{}已获取{}({})的第{}页微博{}'.format(
+                    logger.info(
+                        u'%s已获取%s(%s)的第%d页微博%s',
                         '-' * 30,
                         self.user.nickname,
                         self.user.id,
                         page,
                         '-' * 30,
-                    ))
+                    )
                     if weibos:
                         yield weibos
                     else:
@@ -138,8 +145,7 @@ class Spider:
                         page1 = page
                         random_pages = random.randint(1, 5)
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def _get_filepath(self, type):
         """获取结果文件路径"""
@@ -158,8 +164,7 @@ class Spider:
             file_path = file_dir + os.sep + self.user.id + '.' + type
             return file_path
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
     def initialize_info(self, user_config):
         """初始化爬虫信息"""
@@ -206,27 +211,27 @@ class Spider:
         """运行爬虫"""
         try:
             if not self.user_config_list:
-                print(
+                logger.info(
                     u'没有配置有效的user_id，请通过config.json或user_id_list.txt配置user_id')
                 return
             for user_config in self.user_config_list:
                 self.get_user_info(user_config['user_uri'])
-                print(self.user)
-                print('*' * 100)
+                logger.info(self.user)
+                logger.info('*' * 100)
 
                 self.initialize_info(user_config)
                 self.write_user(self.user)
-                print('*' * 100)
+                logger.info('*' * 100)
 
                 for weibos in self.get_weibo_info():
                     self.write_weibo(weibos)
                     self.got_num += len(weibos)
                 if not self.filter:
-                    print(u'共爬取' + str(self.got_num) + u'条微博')
+                    logger.info(u'共爬取' + str(self.got_num) + u'条微博')
                 else:
-                    print(u'共爬取' + str(self.got_num) + u'条原创微博')
-                print(u'信息抓取完毕')
-                print('*' * 100)
+                    logger.info(u'共爬取' + str(self.got_num) + u'条原创微博')
+                logger.info(u'信息抓取完毕')
+                logger.info('*' * 100)
 
                 if self.user_config_file_path or FLAGS.u:
                     config_util.update_user_config_file(
@@ -236,8 +241,7 @@ class Spider:
                         self.new_since_date,
                     )
         except Exception as e:
-            print('Error: ', e)
-            traceback.print_exc()
+            logger.exception(e)
 
 
 def _get_config():
@@ -249,16 +253,19 @@ def _get_config():
         config_path = FLAGS.config_path
     elif not os.path.isfile(config_path):
         shutil.copy(src, config_path)
-        sys.exit(u'请先配置当前目录(%s)下的config.json文件，'
-                 u'如果想了解config.json参数的具体意义及配置方法，请访问\n'
-                 u'https://github.com/dataabc/weiboSpider#2程序设置' % os.getcwd())
+        logger.info(u'请先配置当前目录(%s)下的config.json文件，'
+                    u'如果想了解config.json参数的具体意义及配置方法，请访问\n'
+                    u'https://github.com/dataabc/weiboSpider#2程序设置' %
+                    os.getcwd())
+        sys.exit()
     try:
         with open(config_path) as f:
             config = json.loads(f.read())
             return config
     except ValueError:
-        sys.exit(u'config.json 格式不正确，请访问 '
-                 u'https://github.com/dataabc/weiboSpider#2程序设置')
+        logger.error(u'config.json 格式不正确，请访问 '
+                     u'https://github.com/dataabc/weiboSpider#2程序设置')
+        sys.exit()
 
 
 def main(_):
@@ -268,8 +275,7 @@ def main(_):
         wb = Spider(config)
         wb.start()  # 爬取微博信息
     except Exception as e:
-        print('Error: ', e)
-        traceback.print_exc()
+        logger.exception(e)
 
 
 if __name__ == '__main__':
