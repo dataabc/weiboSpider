@@ -14,8 +14,6 @@ logger = logging.getLogger('spider.downloader')
 class Downloader(ABC):
     def __init__(self, file_dir):
         self.file_dir = file_dir
-
-        self.file_type = ''
         self.describe = u''
         self.key = ''
 
@@ -23,16 +21,6 @@ class Downloader(ABC):
     def handle_download(self, urls, w):
         """下载 urls 里所指向的图片或视频文件，使用 w 里的信息来生成文件名"""
         pass
-
-    def get_filepath(self):
-        """获取结果文件路径"""
-        try:
-            file_dir = self.file_dir + os.sep + self.file_type
-            if not os.path.isdir(file_dir):
-                os.makedirs(file_dir)
-            return file_dir
-        except Exception as e:
-            logger.exception(e)
 
     def download_one_file(self, url, file_path, weibo_id):
         """下载单个文件(图片/视频)"""
@@ -44,9 +32,9 @@ class Downloader(ABC):
                 with open(file_path, 'wb') as f:
                     f.write(downloaded.content)
         except Exception as e:
-            error_file = self.get_filepath() + os.sep + 'not_downloaded.txt'
+            error_file = self.file_dir + os.sep + 'not_downloaded.txt'
             with open(error_file, 'ab') as f:
-                url = weibo_id + ':' + url + '\n'
+                url = weibo_id + ':' + file_path + ':' + url + '\n'
                 f.write(url.encode(sys.stdout.encoding))
             logger.exception(e)
 

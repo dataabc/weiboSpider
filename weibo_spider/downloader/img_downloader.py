@@ -6,8 +6,6 @@ from .downloader import Downloader
 class ImgDownloader(Downloader):
     def __init__(self, file_dir):
         self.file_dir = file_dir
-
-        self.file_type = 'img'
         self.describe = u'图片'
         self.key = 'original_pictures'
 

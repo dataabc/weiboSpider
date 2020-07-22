@@ -6,8 +6,6 @@ from .downloader import Downloader
 class VideoDownloader(Downloader):
     def __init__(self, file_dir):
         self.file_dir = file_dir
-
-        self.file_type = 'img'
         self.describe = u'视频'
         self.key = 'video_url'
 
