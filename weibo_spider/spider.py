@@ -212,7 +212,15 @@ class Spider:
                 logger.info(
                     u'没有配置有效的user_id，请通过config.json或user_id_list.txt配置user_id')
                 return
+            user_count = 0
+            user_count1 = random.randint(1, 5)
+            random_users = random.randint(1, 5)
             for user_config in self.user_config_list:
+                if (user_count - user_count1) % random_users == 0:
+                    sleep(random.randint(6, 10))
+                    user_count1 = user_count
+                    random_users = random.randint(1, 5)
+                user_count += 1
                 self.get_user_info(user_config['user_uri'])
                 logger.info(self.user)
                 logger.info('*' * 100)
