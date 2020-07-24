@@ -114,11 +114,6 @@ class Spider:
                     self.user_config['user_uri']).get_page_num()  # 获取微博总页数
                 page1 = 0
                 random_pages = random.randint(1, 5)
-                if self.end_date == 'now':
-                    self.new_since_date = datetime.now().strftime(
-                        '%Y-%m-%d %H:%M')
-                else:
-                    self.new_since_date = self.end_date
                 for page in tqdm(range(1, page_num + 1), desc='Progress'):
                     weibos, self.weibo_id_list = PageParser(
                         self.cookie,
@@ -171,7 +166,10 @@ class Spider:
         self.got_num = 0
         self.user_config = user_config
         self.weibo_id_list = []
-
+        if self.end_date == 'now':
+            self.new_since_date = datetime.now().strftime('%Y-%m-%d %H:%M')
+        else:
+            self.new_since_date = self.end_date
         self.writers = []
         if 'csv' in self.write_mode:
             from .writer import CsvWriter
