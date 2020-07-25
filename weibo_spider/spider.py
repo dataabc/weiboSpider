@@ -41,6 +41,16 @@ class Spider:
         self.since_date = since_date  # 起始时间，即爬取发布日期从该值到结束时间的微博，形式为yyyy-mm-dd
         self.end_date = config[
             'end_date']  # 结束时间，即爬取发布日期从起始时间到该值的微博，形式为yyyy-mm-dd，特殊值"now"代表现在
+        random_wait_pages = config['random_wait_pages']
+        self.random_wait_pages = [
+            min(random_wait_pages),
+            max(random_wait_pages)
+        ]
+        random_wait_seconds = config['random_wait_seconds']
+        self.random_wait_seconds = [
+            min(random_wait_seconds),
+            max(random_wait_seconds)
+        ]
         self.write_mode = config[
             'write_mode']  # 结果信息保存类型，为list形式，可包含txt、csv、json、mongo和mysql五种类型
         self.pic_download = config[
@@ -113,7 +123,7 @@ class Spider:
                     self.cookie,
                     self.user_config['user_uri']).get_page_num()  # 获取微博总页数
                 page1 = 0
-                random_pages = random.randint(1, 5)
+                random_pages = random.randint(*self.random_wait_pages)
                 for page in tqdm(range(1, page_num + 1), desc='Progress'):
                     weibos, self.weibo_id_list = PageParser(
                         self.cookie,
@@ -136,9 +146,9 @@ class Spider:
                     # 制会自动解除)，加入随机等待模拟人的操作，可降低被系统限制的风险。默
                     # 认是每爬取1到5页随机等待6到10秒，如果仍然被限，可适当增加sleep时间
                     if (page - page1) % random_pages == 0 and page < page_num:
-                        sleep(random.randint(6, 10))
+                        sleep(random.randint(*self.random_wait_seconds))
                         page1 = page
-                        random_pages = random.randint(1, 5)
+                        random_pages = random.randint(*self.random_wait_pages)
         except Exception as e:
             logger.exception(e)
 
@@ -213,13 +223,13 @@ class Spider:
                     u'没有配置有效的user_id，请通过config.json或user_id_list.txt配置user_id')
                 return
             user_count = 0
-            user_count1 = random.randint(1, 5)
-            random_users = random.randint(1, 5)
+            user_count1 = random.randint(*self.random_wait_pages)
+            random_users = random.randint(*self.random_wait_pages)
             for user_config in self.user_config_list:
                 if (user_count - user_count1) % random_users == 0:
-                    sleep(random.randint(6, 10))
+                    sleep(random.randint(*self.random_wait_seconds))
                     user_count1 = user_count
-                    random_users = random.randint(1, 5)
+                    random_users = random.randint(*self.random_wait_pages)
                 user_count += 1
                 self.get_user_info(user_config['user_uri'])
                 logger.info(self.user)
