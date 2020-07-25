@@ -41,6 +41,26 @@ def validate_config(config):
         logger.warning(u'end_date值应为yyyy-mm-dd形式或"now",请重新输入')
         sys.exit()
 
+    # 验证random_wait_pages
+    random_wait_pages = config['random_wait_pages']
+    if not isinstance(random_wait_pages, list):
+        logger.warning(u'random_wait_pages参数值应为list类型,请重新输入')
+        sys.exit()
+    if (not isinstance(min(random_wait_pages), int)) or (not isinstance(
+            max(random_wait_pages), int)):
+        logger.warning(u'random_wait_pages列表中的值应为整数类型,请重新输入')
+        sys.exit()
+
+    # 验证random_wait_seconds
+    random_wait_seconds = config['random_wait_seconds']
+    if not isinstance(random_wait_seconds, list):
+        logger.warning(u'random_wait_seconds参数值应为list类型,请重新输入')
+        sys.exit()
+    if (not isinstance(min(random_wait_seconds), int)) or (not isinstance(
+            max(random_wait_seconds), int)):
+        logger.warning(u'random_wait_seconds列表中的值应为整数类型,请重新输入')
+        sys.exit()
+
     # 验证write_mode
     write_mode = ['txt', 'csv', 'json', 'mongo', 'mysql']
     if not isinstance(config['write_mode'], list):
