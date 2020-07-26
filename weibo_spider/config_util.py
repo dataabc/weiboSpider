@@ -50,6 +50,9 @@ def validate_config(config):
             max(random_wait_pages), int)):
         logger.warning(u'random_wait_pages列表中的值应为整数类型,请重新输入')
         sys.exit()
+    if min(random_wait_pages) < 1:
+        logger.warning(u'random_wait_pages列表中的值应大于0,请重新输入')
+        sys.exit()
 
     # 验证random_wait_seconds
     random_wait_seconds = config['random_wait_seconds']
@@ -59,6 +62,9 @@ def validate_config(config):
     if (not isinstance(min(random_wait_seconds), int)) or (not isinstance(
             max(random_wait_seconds), int)):
         logger.warning(u'random_wait_seconds列表中的值应为整数类型,请重新输入')
+        sys.exit()
+    if min(random_wait_seconds) < 1:
+        logger.warning(u'random_wait_seconds列表中的值应大于0,请重新输入')
         sys.exit()
 
     # 验证write_mode
