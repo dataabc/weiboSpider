@@ -12,6 +12,7 @@ $ python3 -m weibo_spider
     "end_date": "now",
     "random_wait_pages": [1, 5],
     "random_wait_seconds": [6, 10],
+    "global_wait": [[1000, 3600], [500, 2000]],    
     "write_mode": ["csv", "txt"],
     "pic_download": 1,
     "video_download": 1,
@@ -66,6 +67,8 @@ end_date值可以是日期，也可以是"now"。如果是日期，代表爬取�
 random_wait_pages值是一个长度为2的整数列表，代表每爬取x页微博暂停一次，x为整数，值在random_wait_pages列表两个整数之间随机获取。默认值为[1, 5]，代表每爬取1到5页暂停一次，如果程序被限制，可以加快暂停频率，即适当减小random_wait_pages内的值。<br>
 **设置random_wait_seconds**<br>
 random_wait_seconds值是一个长度为2的整数列表，代表每次暂停sleep x 秒，x为整数， 值在random_wait_seconds列表两个整数之间随机获取。默认值为[6, 10]，代表每次暂停sleep 6到10秒，如果程序被限制，可以增加等待时间，即适当增大random_wait_seconds内的值。<br>
+**设置global_wait**<br>
+global_wait控制全局等待时间，默认值为[[1000, 3600], [500, 2000]]，代表获取1000页微博，程序一次性暂停3600秒；之后获取500页微博，程序再一次性暂停2000秒；之后如果再获取1000页微博，程序一次性暂停3600秒，以此类推。默认的只有前面的两个全局等待时间，可以设置多个，如值可以为[[1000, 3600], [500, 3000], [700, 3600]]，程序会根据配置依次等待对应时间，如果配置全部被使用，程序会从第一个配置开始，依次使用，循环往复。<br>
 **设置write_mode**<br>
 write_mode控制结果文件格式，取值范围是csv、txt、json、mongo和mysql，分别代表将结果文件写入csv、txt、json、MongoDB和MySQL数据库。write_mode可以同时包含这些取值中的一个或几个，如：
 ```
