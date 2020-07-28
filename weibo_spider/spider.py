@@ -166,7 +166,10 @@ class Spider:
                         random_pages = random.randint(*self.random_wait_pages)
 
                     if self.page_count >= self.global_wait[0][0]:
-                        sleep(self.global_wait[0][1])
+                        logger.info(u'即将进入全局等待时间，%d秒后程序继续执行' %
+                                    self.global_wait[0][1])
+                        for i in tqdm(range(self.global_wait[0][1])):
+                            sleep(1)
                         self.page_count = 0
                         self.global_wait.append(self.global_wait.pop(0))
         except Exception as e:
