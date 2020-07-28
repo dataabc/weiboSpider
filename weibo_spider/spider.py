@@ -128,8 +128,12 @@ class Spider:
                 self.page_count += 1
                 if self.page_count > 2 and (self.page_count +
                                             page_num) > self.global_wait[0][0]:
-                    sleep(self.global_wait[0][1] * self.page_count /
-                          self.global_wait[0][0])
+                    wait_seconds = int(
+                        self.global_wait[0][1] *
+                        min(1, self.page_count / self.global_wait[0][0]))
+                    logger.info(u'即将进入全局等待时间，%d秒后程序继续执行' % wait_seconds)
+                    for i in tqdm(range(wait_seconds)):
+                        sleep(1)
                     self.page_count = 0
                     self.global_wait.append(self.global_wait.pop(0))
                 page1 = 0
