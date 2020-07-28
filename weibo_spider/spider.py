@@ -45,12 +45,14 @@ class Spider:
         self.random_wait_pages = [
             min(random_wait_pages),
             max(random_wait_pages)
-        ]
+        ]  # 随机等待频率，即每爬多少页暂停一次
         random_wait_seconds = config['random_wait_seconds']
         self.random_wait_seconds = [
             min(random_wait_seconds),
             max(random_wait_seconds)
-        ]
+        ]  # 随机等待时间，即每次暂停要sleep多少秒
+        self.global_wait = config['global_wait']  # 配置全局等待时间，如每爬1000页等待3600秒等
+        self.page_count = 0  # 统计每次全局等待后，爬取了多少页，若页数满足全局等待要求就进入下一次全局等待
         self.write_mode = config[
             'write_mode']  # 结果信息保存类型，为list形式，可包含txt、csv、json、mongo和mysql五种类型
         self.pic_download = config[
@@ -108,8 +110,9 @@ class Spider:
             writer.write_user(user)
 
     def get_user_info(self, user_uri):
-        # 获取用户信息、微博数、关注数、粉丝数
+        """获取用户信息"""
         self.user = IndexParser(self.cookie, user_uri).get_user()
+        self.page_count += 1
 
     def get_weibo_info(self):
         """获取微博信息"""
@@ -122,6 +125,13 @@ class Spider:
                 page_num = IndexParser(
                     self.cookie,
                     self.user_config['user_uri']).get_page_num()  # 获取微博总页数
+                self.page_count += 1
+                if self.page_count > 2 and (self.page_count +
+                                            page_num) > self.global_wait[0][0]:
+                    sleep(self.global_wait[0][1] * self.page_count /
+                          self.global_wait[0][0])
+                    self.page_count = 0
+                    self.global_wait.append(self.global_wait.pop(0))
                 page1 = 0
                 random_pages = random.randint(*self.random_wait_pages)
                 for page in tqdm(range(1, page_num + 1), desc='Progress'):
@@ -137,6 +147,7 @@ class Spider:
                         page,
                         '-' * 30,
                     )
+                    self.page_count += 1
                     if weibos:
                         yield weibos
                     else:
@@ -149,6 +160,11 @@ class Spider:
                         sleep(random.randint(*self.random_wait_seconds))
                         page1 = page
                         random_pages = random.randint(*self.random_wait_pages)
+
+                    if self.page_count >= self.global_wait[0][0]:
+                        sleep(self.global_wait[0][1])
+                        self.page_count = 0
+                        self.global_wait.append(self.global_wait.pop(0))
         except Exception as e:
             logger.exception(e)
 
