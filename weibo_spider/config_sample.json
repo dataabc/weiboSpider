@@ -5,7 +5,7 @@
     "end_date": "now",
     "random_wait_pages": [1, 5],
     "random_wait_seconds": [6, 10],
-	"global_wait": [[1000, 3600], [500, 2000]],
+    "global_wait": [[1000, 3600], [500, 2000]],
     "write_mode": ["csv", "txt"],
     "pic_download": 1,
     "video_download": 1,
