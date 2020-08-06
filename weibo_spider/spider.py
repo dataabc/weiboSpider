@@ -35,10 +35,11 @@ class Spider:
         """Weibo类初始化"""
         self.filter = config[
             'filter']  # 取值范围为0、1,程序默认值为0,代表要爬取用户的全部微博,1代表只爬取用户的原创微博
-        since_date = str(config['since_date'])
-        if since_date.isdigit():
-            since_date = str(date.today() - timedelta(int(since_date)))
-        self.since_date = since_date  # 起始时间，即爬取发布日期从该值到结束时间的微博，形式为yyyy-mm-dd
+        since_date = config['since_date']
+        if isinstance(since_date, int):
+            since_date = date.today() - timedelta(since_date)
+        self.since_date = str(
+            since_date)  # 起始时间，即爬取发布日期从该值到结束时间的微博，形式为yyyy-mm-dd
         self.end_date = config[
             'end_date']  # 结束时间，即爬取发布日期从起始时间到该值的微博，形式为yyyy-mm-dd，特殊值"now"代表现在
         random_wait_pages = config['random_wait_pages']
@@ -119,8 +120,7 @@ class Spider:
         try:
             since_date = datetime_util.str_to_time(
                 self.user_config['since_date'])
-            now = datetime.now().strftime('%Y-%m-%d %H:%M')
-            now = datetime.strptime(now, '%Y-%m-%d %H:%M')
+            now = datetime.now()
             if since_date <= now:
                 page_num = IndexParser(
                     self.cookie,

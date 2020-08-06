@@ -30,8 +30,8 @@ def validate_config(config):
             sys.exit()
 
     # 验证since_date
-    since_date = str(config['since_date'])
-    if (not _is_date(since_date)) and (not since_date.isdigit()):
+    since_date = config['since_date']
+    if (not _is_date(str(since_date))) and (not isinstance(since_date, int)):
         logger.warning(u'since_date值应为yyyy-mm-dd形式或整数,请重新输入')
         sys.exit()
 
