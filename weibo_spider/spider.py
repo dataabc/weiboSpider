@@ -25,12 +25,6 @@ flags.DEFINE_string('u', None, 'The user_id we want to input.')
 flags.DEFINE_string('user_id_list', None, 'The path to user_id_list.txt.')
 flags.DEFINE_string('output_dir', None, 'The dir path to store results.')
 
-# flags.DEFINE_string('multiprocess', None, 'multiprocessing.....................')
-# flags.DEFINE_string('print-in-debugger-startup', None, 'print-in-debugger-startup.....................')
-# flags.DEFINE_string('client', None, 'client.....................')
-# flags.DEFINE_string('port', None, 'port.....................')
-# flags.DEFINE_string('file', None, 'file.....................')
-
 logging_path = os.path.split(
     os.path.realpath(__file__))[0] + os.sep + 'logging.conf'
 logging.config.fileConfig(logging_path)
