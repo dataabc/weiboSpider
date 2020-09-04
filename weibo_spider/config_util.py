@@ -85,14 +85,14 @@ def validate_config(config):
                 sys.exit()
 
     # 验证write_mode
-    write_mode = ['txt', 'csv', 'json', 'mongo', 'mysql']
+    write_mode = ['txt', 'csv', 'json', 'mongo', 'mysql', 'sqlite']
     if not isinstance(config['write_mode'], list):
         logger.warning(u'write_mode值应为list类型')
         sys.exit()
     for mode in config['write_mode']:
         if mode not in write_mode:
             logger.warning(
-                u'%s为无效模式，请从txt、csv、json、mongo和mysql中挑选一个或多个作为write_mode',
+                u'%s为无效模式，请从txt、csv、json、mongo和mysql、sqlite中挑选一个或多个作为write_mode',
                 mode)
             sys.exit()
 
