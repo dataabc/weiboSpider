@@ -30,7 +30,6 @@ class CommentParser(Parser):
                 sleep(random.randint(6, 10))
         except Exception:
             logger.exception(u'网络出错')
-            return u'网络出错'
 
     def get_long_retweet(self):
         """获取长转发微博"""
