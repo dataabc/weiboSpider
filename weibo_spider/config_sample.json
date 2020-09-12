@@ -16,5 +16,6 @@
         "user": "root",
         "password": "123456",
         "charset": "utf8mb4"
-    }
+    },
+    "sqlite_config": "../weibo.db"
 }
