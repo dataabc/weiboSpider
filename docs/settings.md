@@ -24,7 +24,7 @@ $ python3 -m weibo_spider
         "password": "123456",
         "charset": "utf8mb4"
     },
-    "sqlite_config": "../weibo.db"
+    "sqlite_config": "weibo.db"
 }
 ```
 下面讲解每个参数的含义与设置方法。<br>
@@ -71,7 +71,7 @@ random_wait_seconds值是一个长度为2的整数列表，代表每次暂停sle
 **设置global_wait**<br>
 global_wait控制全局等待时间，默认值为[[1000, 3600], [500, 2000]]，代表获取1000页微博，程序一次性暂停3600秒；之后获取500页微博，程序再一次性暂停2000秒；之后如果再获取1000页微博，程序一次性暂停3600秒，以此类推。默认的只有前面的两个全局等待时间（[1000, 3600]和[500, 2000]），可以设置多个，如值可以为[[1000, 3600], [500, 3000], [700, 3600]]，程序会根据配置依次等待对应时间，如果配置全部被使用，程序会从第一个配置开始，依次使用，循环往复。<br>
 **设置write_mode**<br>
-write_mode控制结果文件格式，取值范围是csv、txt、json、mongo和mysql，分别代表将结果文件写入csv、txt、json、MongoDB和MySQL数据库。write_mode可以同时包含这些取值中的一个或几个，如：
+write_mode控制结果文件格式，取值范围是csv、txt、json、mongo、mysql和sqlite，分别代表将结果文件写入csv、txt、json、MongoDB、MySQL和SQLite数据库。write_mode可以同时包含这些取值中的一个或几个，如：
 ```
 "write_mode": ["csv", "txt"],
 ```
