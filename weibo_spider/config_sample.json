@@ -17,5 +17,5 @@
         "password": "123456",
         "charset": "utf8mb4"
     },
-    "sqlite_config": "../weibo.db"
+    "sqlite_config": "weibo.db"
 }
