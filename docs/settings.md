@@ -23,7 +23,8 @@ $ python3 -m weibo_spider
         "user": "root",
         "password": "123456",
         "charset": "utf8mb4"
-    }
+    },
+    "sqlite_config": "../weibo.db"
 }
 ```
 下面讲解每个参数的含义与设置方法。<br>
@@ -90,7 +91,9 @@ video_download控制是否下载微博中的视频，值为1代表下载，值�
 **设置cookie**<br>
 请按照[如何获取cookie](https://github.com/dataabc/weiboSpider/blob/master/docs/cookie.md)，获取cookie，然后将“your cookie”替换成真实的cookie值。<br>
 **设置mysql_config（可选）**<br>
-mysql_config控制mysql参数配置。如果你不需要将结果信息写入mysql，这个参数可以忽略，即删除或保留都无所谓；如果你需要写入mysql且config.json文件中mysql_config的配置与你的mysql配置不一样，请将该值改成你自己mysql中的参数配置。
+mysql_config控制mysql参数配置。如果你不需要将结果信息写入mysql，这个参数可以忽略，即删除或保留都无所谓；如果你需要写入mysql且config.json文件中mysql_config的配置与你的mysql配置不一样，请将该值改成你自己mysql中的参数配置。<br>
+**设置sqlite_config（可选）**<br>
+sqlite_config控制SQLite参数配置，代表SQLite数据库的保存路径，可根据自己需求修改。
 
 ## 设置数据库（可选）
 本部分是可选部分，如果不需要将爬取信息写入数据库，可跳过这一步。本程序目前支持MySQL数据库和MongoDB数据库，如果你需要写入其它数据库，可以参考这两个数据库的写法自己编写。<br>
