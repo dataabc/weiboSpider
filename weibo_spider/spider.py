@@ -63,7 +63,7 @@ class Spider:
             'video_download']  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
         self.cookie = {'Cookie': config['cookie']}
         self.mysql_config = config.get('mysql_config')  # MySQL数据库连接配置，可以不填
-        
+
         self.sqlite_config = config.get('sqlite_config')
 
         self.user_config_file_path = ''
@@ -231,9 +231,9 @@ class Spider:
             self.writers.append(MongoWriter())
         if 'sqlite' in self.write_mode:
             from .writer import SqliteWriter
-        
+
             self.writers.append(SqliteWriter(self.sqlite_config))
-        
+
         self.downloaders = []
         if self.pic_download == 1:
             from .downloader import ImgDownloader

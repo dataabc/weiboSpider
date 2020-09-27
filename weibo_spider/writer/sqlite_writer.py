@@ -11,7 +11,6 @@ class SqliteWriter(Writer):
     def __init__(self, sqlite_config):
         self.sqlite_config = sqlite_config
 
-
     def _sqlite_create(self, connection, sql):
         """创建sqlite数据库或表"""
         try:
@@ -94,7 +93,7 @@ class SqliteWriter(Writer):
                 gender varchar(10),
                 location varchar(200),
                 birthday varchar(40),
-                description varchar(140),
+                description varchar(400),
                 verified_reason varchar(140),
                 talent varchar(200),
                 education varchar(200),

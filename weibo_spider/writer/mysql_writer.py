@@ -121,7 +121,7 @@ class MySqlWriter(Writer):
                 gender varchar(10),
                 location varchar(200),
                 birthday varchar(40),
-                description varchar(140),
+                description varchar(400),
                 verified_reason varchar(140),
                 talent varchar(200),
                 education varchar(200),
