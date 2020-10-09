@@ -57,12 +57,12 @@ class PageParser(Parser):
                             if self.is_pinned_weibo(info[i]):
                                 continue
                             else:
-                                return weibos, weibo_id_list
+                                return weibos, weibo_id_list, False
                         logger.info(weibo)
                         logger.info('-' * 100)
                         weibos.append(weibo)
                         weibo_id_list.append(weibo.id)
-            return weibos, weibo_id_list
+            return weibos, weibo_id_list, True
         except Exception as e:
             logger.exception(e)
 
