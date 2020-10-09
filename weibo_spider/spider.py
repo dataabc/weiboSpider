@@ -142,7 +142,7 @@ class Spider:
                 page1 = 0
                 random_pages = random.randint(*self.random_wait_pages)
                 for page in tqdm(range(1, page_num + 1), desc='Progress'):
-                    weibos, self.weibo_id_list = PageParser(
+                    weibos, self.weibo_id_list, to_continue = PageParser(
                         self.cookie,
                         self.user_config, page, self.filter).get_one_page(
                             self.weibo_id_list)  # 获取第page页的全部微博
@@ -155,7 +155,7 @@ class Spider:
                         '-' * 30,
                     )
                     self.page_count += 1
-                    if weibos:
+                    if to_continue:
                         yield weibos
                     else:
                         return weibos
