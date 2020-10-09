@@ -16,7 +16,7 @@ def test_page_parser():
                              user_config=user_config,
                              page=2,
                              filter=True)
-    weibos, weibo_id_list = page_parser.get_one_page([])
+    weibos, weibo_id_list, to_continue = page_parser.get_one_page([])
     assert (weibo_id_list == ['J4PGk4yMw', 'J4EUStJKu'])
     assert (len(weibos) == 2)
     assert (str(weibos[0]) == """生日动态 \xa0\n"""
