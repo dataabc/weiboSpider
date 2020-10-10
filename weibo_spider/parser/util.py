@@ -51,3 +51,30 @@ def handle_garbled(info):
         return info
     except Exception as e:
         logger.exception(e)
+
+
+def bid2mid(bid):
+    """convert string bid to string mid"""
+    alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    base = len(alphabet)
+    bidlen = len(bid)
+    head = bidlen % 4
+    digit = int((bidlen-head)/4)
+    dlist = [bid[0:head]]
+    for d in range(1,digit+1):
+        dlist.append(bid[head:head+d*4])
+        head += 4
+    mid = ''
+    for d in dlist:
+        num = 0
+        idx = 0
+        strlen = len(d)
+        for char in d:
+            power = (strlen - (idx + 1))
+            num += alphabet.index(char) * (base ** power)
+            idx += 1
+            strnum = str(num)
+            while (len(d) == 4 and len(strnum) < 7):
+                strnum = '0' + strnum
+        mid += strnum
+    return mid
