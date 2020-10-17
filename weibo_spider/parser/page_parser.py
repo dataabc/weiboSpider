@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 import sys
@@ -271,14 +272,18 @@ class PageParser(Parser):
                 if video_link != u'无':
                     video_link = video_link.replace(
                         'm.weibo.cn/s/video/show', 'm.weibo.cn/s/video/object')
-                    wb_info = requests.get(video_link,
-                                           cookies=self.cookie).json()
-                    video_url = wb_info['data']['object']['stream'].get(
-                        'hd_url')
-                    if not video_url:
-                        video_url = wb_info['data']['object']['stream']['url']
-                        if not video_url:  # 说明该视频为直播
-                            video_url = u'无'
+                    try:
+                        wb_info = requests.get(video_link,
+                                               cookies=self.cookie).json()
+                        video_url = wb_info['data']['object']['stream'].get(
+                            'hd_url')
+                        if not video_url:
+                            video_url = wb_info['data']['object']['stream'][
+                                'url']
+                            if not video_url:  # 说明该视频为直播
+                                video_url = u'无'
+                    except json.decoder.JSONDecodeError:
+                        logger.warning(u'当前账号没有浏览该视频的权限')
             return video_url
         except Exception as e:
             logger.exception(e)
