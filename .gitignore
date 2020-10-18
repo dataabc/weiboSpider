@@ -11,3 +11,5 @@ config.json
 
 weibo/
 *.log
+
+.idea
