@@ -85,7 +85,7 @@ class MySqlWriter(Writer):
                 CREATE TABLE IF NOT EXISTS weibo (
                 id varchar(10) NOT NULL,
                 user_id varchar(12),
-                content varchar(2000),
+                content varchar(5000),
                 article_url varchar(200),
                 original_pictures varchar(3000),
                 retweet_pictures varchar(3000),
