@@ -1,11 +1,11 @@
-from unittest.mock import Mock
 import json
 import os
+from unittest.mock import Mock
 
 from weibo_spider.parser.util import TEST_DATA_DIR, URL_MAP_FILE
 
 
-def mock_request_get_content(url, cookies):
+def mock_request_get_content(url, headers):
     with open(os.path.join(TEST_DATA_DIR, URL_MAP_FILE)) as f:
         url_map = json.loads(f.read())
     resp_file = url_map[url]
