@@ -273,8 +273,13 @@ class PageParser(Parser):
                     video_link = video_link.replace(
                         'm.weibo.cn/s/video/show', 'm.weibo.cn/s/video/object')
                     try:
+                        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+                        headers = {
+                            'User_Agent': user_agent,
+                            'Cookie': self.cookie
+                        }
                         wb_info = requests.get(video_link,
-                                               cookies=self.cookie).json()
+                                               headers=headers).json()
                         video_url = wb_info['data']['object']['stream'].get(
                             'hd_url')
                         if not video_url:

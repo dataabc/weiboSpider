@@ -19,7 +19,9 @@ def hash_url(url):
 def handle_html(cookie, url):
     """处理html"""
     try:
-        resp = requests.get(url, cookies=cookie)
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+        headers = {'User_Agent': user_agent, 'Cookie': cookie}
+        resp = requests.get(url, headers=headers)
 
         if GENERATE_TEST_DATA:
             import io
@@ -59,10 +61,10 @@ def bid2mid(bid):
     base = len(alphabet)
     bidlen = len(bid)
     head = bidlen % 4
-    digit = int((bidlen-head)/4)
+    digit = int((bidlen - head) / 4)
     dlist = [bid[0:head]]
-    for d in range(1,digit+1):
-        dlist.append(bid[head:head+d*4])
+    for d in range(1, digit + 1):
+        dlist.append(bid[head:head + d * 4])
         head += 4
     mid = ''
     for d in dlist:
@@ -71,7 +73,7 @@ def bid2mid(bid):
         strlen = len(d)
         for char in d:
             power = (strlen - (idx + 1))
-            num += alphabet.index(char) * (base ** power)
+            num += alphabet.index(char) * (base**power)
             idx += 1
             strnum = str(num)
             while (len(d) == 4 and len(strnum) < 7):
