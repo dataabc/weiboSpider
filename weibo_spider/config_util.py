@@ -92,7 +92,7 @@ def validate_config(config):
     for mode in config['write_mode']:
         if mode not in write_mode:
             logger.warning(
-                u'%s为无效模式，请从txt、csv、json、mongo和mysql、sqlite中挑选一个或多个作为write_mode',
+                u'%s为无效模式，请从txt、csv、json、mongo、sqlite和mysql中挑选一个或多个作为write_mode',
                 mode)
             sys.exit()
 
