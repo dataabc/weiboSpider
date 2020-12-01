@@ -61,6 +61,8 @@ class Spider:
             'pic_download']  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
         self.video_download = config[
             'video_download']  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
+        self.result_dir_name = config.get(
+            'result_dir_name', 0)  # 结果目录名，取值为0或1，决定结果文件存储在用户昵称文件夹里还是用户id文件夹里
         self.cookie = config['cookie']
         self.mysql_config = config.get('mysql_config')  # MySQL数据库连接配置，可以不填
 
@@ -181,11 +183,13 @@ class Spider:
     def _get_filepath(self, type):
         """获取结果文件路径"""
         try:
+            dir_name = self.user.nickname
+            if self.result_dir_name:
+                dir_name = self.user.id
             if FLAGS.output_dir is not None:
-                file_dir = FLAGS.output_dir + os.sep + self.user.nickname
+                file_dir = FLAGS.output_dir + os.sep + dir_name
             else:
-                file_dir = (os.getcwd() + os.sep + 'weibo' + os.sep +
-                            self.user.nickname)
+                file_dir = (os.getcwd() + os.sep + 'weibo' + os.sep + dir_name)
             if type == 'img' or type == 'video':
                 file_dir = file_dir + os.sep + type
             if not os.path.isdir(file_dir):
