@@ -16,6 +16,7 @@ $ python3 -m weibo_spider
     "write_mode": ["csv", "txt"],
     "pic_download": 1,
     "video_download": 1,
+    "result_dir_name": 0,
     "cookie": "your cookie",
     "mysql_config": {
         "host": "localhost",
@@ -88,6 +89,12 @@ video_download控制是否下载微博中的视频，值为1代表下载，值�
 "video_download": 1,
 ```
 代表下载微博中的视频。<br>
+**设置result_dir_name**<br>
+result_dir_name控制结果目录的名字，可选值为0和1，默认值为0：
+```
+"result_dir_name": 0,
+```
+值为0表示将结果文件保存在以用户昵称为名的文件夹里，这样结果更清晰；值为1表示将结果保存在以用户id为名的文件夹里，这样更能保证多次爬取的一致性，因为用户昵称可以改变，用户id是不变的。<br>
 **设置cookie**<br>
 请按照[如何获取cookie](https://github.com/dataabc/weiboSpider/blob/master/docs/cookie.md)，获取cookie，然后将“your cookie”替换成真实的cookie值。<br>
 **设置mysql_config（可选）**<br>
