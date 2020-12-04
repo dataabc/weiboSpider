@@ -67,7 +67,7 @@ class Spider:
         self.mysql_config = config.get('mysql_config')  # MySQL数据库连接配置，可以不填
 
         self.sqlite_config = config.get('sqlite_config')
-
+        self.kafka_config = config.get('kafka_config')
         self.user_config_file_path = ''
         user_id_list = config['user_id_list']
         if FLAGS.user_id_list:
@@ -237,6 +237,11 @@ class Spider:
             from .writer import SqliteWriter
 
             self.writers.append(SqliteWriter(self.sqlite_config))
+
+        if 'kafka' in self.write_mode:
+            from .writer import KafkaWriter
+
+            self.writers.append(KafkaWriter(self.kafka_config))
 
         self.downloaders = []
         if self.pic_download == 1:
