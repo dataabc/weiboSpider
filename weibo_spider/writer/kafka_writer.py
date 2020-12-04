@@ -4,7 +4,7 @@ import logging
 from kafka import KafkaProducer
 
 from .writer import Writer
-logger = logging.getLogger('spider.mysql_writer')
+logger = logging.getLogger('spider.kafka_writer')
 
 
 class KafkaWriter(Writer):
@@ -28,4 +28,3 @@ class KafkaWriter(Writer):
 
     def __del__(self):
         self.producer.close()
-
