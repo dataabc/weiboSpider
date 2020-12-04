@@ -18,5 +18,10 @@
         "password": "123456",
         "charset": "utf8mb4"
     },
+    "kafka_config": {
+        "bootstrap-server": "127.0.0.1:9092",
+        "weibo_topics": ["spider_weibo"],
+        "user_topics": ["spider_weibo"]
+    },
     "sqlite_config": "weibo.db"
 }
