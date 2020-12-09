@@ -82,12 +82,20 @@ class Spider:
         if FLAGS.u:
             user_id_list = FLAGS.u.split(',')
         if isinstance(user_id_list, list):
-            user_id_list = list(set(user_id_list))
-            user_config_list = [{
-                'user_uri': user_id,
+            # 第一部分是处理dict类型的
+            # 第二部分是其他类型,其他类型提供去重功能
+            user_config_list = list(map(
+                lambda x: {
+                    'user_uri': x['id'],
+                    'since_date': x.get('since_date', self.since_date),
+                    'end_date': x.get('end_date', self.end_date),
+                }, [user_id for user_id in user_id_list if isinstance(user_id, dict)]
+            )) + list(map(lambda x: {
+                'user_uri': x,
                 'since_date': self.since_date,
                 'end_date': self.end_date
-            } for user_id in user_id_list]
+            }, set([user_id for user_id in user_id_list if not isinstance(user_id, dict)]))
+                      )
             if FLAGS.u:
                 config_util.add_user_uri_list(self.user_config_file_path,
                                               user_id_list)
@@ -147,7 +155,7 @@ class Spider:
                     weibos, self.weibo_id_list, to_continue = PageParser(
                         self.cookie,
                         self.user_config, page, self.filter).get_one_page(
-                            self.weibo_id_list)  # 获取第page页的全部微博
+                        self.weibo_id_list)  # 获取第page页的全部微博
                     logger.info(
                         u'%s已获取%s(%s)的第%d页微博%s',
                         '-' * 30,
