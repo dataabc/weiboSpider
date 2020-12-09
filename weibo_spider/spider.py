@@ -82,11 +82,11 @@ class Spider:
         if FLAGS.u:
             user_id_list = FLAGS.u.split(',')
         if isinstance(user_id_list, list):
-            user_id_list = list(set(user_id_list))
+            user_id_list = list(user_id_list)
             user_config_list = [{
-                'user_uri': user_id,
-                'since_date': self.since_date,
-                'end_date': self.end_date
+                'user_uri': user_id['id'] if isinstance(user_id, dict) else user_id,
+                'since_date': user_id.get('since_date', self.since_date) if isinstance(user_id, dict) else self.since_date,
+                'end_date': user_id.get('end_date', self.end_date) if isinstance(user_id, dict) else self.end_date,
             } for user_id in user_id_list]
             if FLAGS.u:
                 config_util.add_user_uri_list(self.user_config_file_path,
