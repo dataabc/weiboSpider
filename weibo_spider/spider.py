@@ -61,6 +61,10 @@ class Spider:
             'pic_download']  # 取值范围为0、1,程序默认值为0,代表不下载微博原始图片,1代表下载
         self.video_download = config[
             'video_download']  # 取值范围为0、1,程序默认为0,代表不下载微博视频,1代表下载
+        self.file_download_timeout = config.get(
+            'file_download_timeout',
+            [5, 5, 10
+             ])  # 控制文件下载“超时”时的操作，值是list形式，包含三个数字，依次分别是最大超时重试次数、最大连接时间和最大读取时间
         self.result_dir_name = config.get(
             'result_dir_name', 0)  # 结果目录名，取值为0或1，决定结果文件存储在用户昵称文件夹里还是用户id文件夹里
         self.cookie = config['cookie']
@@ -84,18 +88,26 @@ class Spider:
         if isinstance(user_id_list, list):
             # 第一部分是处理dict类型的
             # 第二部分是其他类型,其他类型提供去重功能
-            user_config_list = list(map(
-                lambda x: {
-                    'user_uri': x['id'],
-                    'since_date': x.get('since_date', self.since_date),
-                    'end_date': x.get('end_date', self.end_date),
-                }, [user_id for user_id in user_id_list if isinstance(user_id, dict)]
-            )) + list(map(lambda x: {
-                'user_uri': x,
-                'since_date': self.since_date,
-                'end_date': self.end_date
-            }, set([user_id for user_id in user_id_list if not isinstance(user_id, dict)]))
-                      )
+            user_config_list = list(
+                map(
+                    lambda x: {
+                        'user_uri': x['id'],
+                        'since_date': x.get('since_date', self.since_date),
+                        'end_date': x.get('end_date', self.end_date),
+                    }, [
+                        user_id for user_id in user_id_list
+                        if isinstance(user_id, dict)
+                    ])) + list(
+                        map(
+                            lambda x: {
+                                'user_uri': x,
+                                'since_date': self.since_date,
+                                'end_date': self.end_date
+                            },
+                            set([
+                                user_id for user_id in user_id_list
+                                if not isinstance(user_id, dict)
+                            ])))
             if FLAGS.u:
                 config_util.add_user_uri_list(self.user_config_file_path,
                                               user_id_list)
@@ -155,7 +167,7 @@ class Spider:
                     weibos, self.weibo_id_list, to_continue = PageParser(
                         self.cookie,
                         self.user_config, page, self.filter).get_one_page(
-                        self.weibo_id_list)  # 获取第page页的全部微博
+                            self.weibo_id_list)  # 获取第page页的全部微博
                     logger.info(
                         u'%s已获取%s(%s)的第%d页微博%s',
                         '-' * 30,
@@ -255,12 +267,15 @@ class Spider:
         if self.pic_download == 1:
             from .downloader import ImgDownloader
 
-            self.downloaders.append(ImgDownloader(self._get_filepath('img')))
+            self.downloaders.append(
+                ImgDownloader(self._get_filepath('img'),
+                              self.file_download_timeout))
         if self.video_download == 1:
             from .downloader import VideoDownloader
 
             self.downloaders.append(
-                VideoDownloader(self._get_filepath('video')))
+                VideoDownloader(self._get_filepath('video'),
+                                self.file_download_timeout))
 
     def start(self):
         """运行爬虫"""

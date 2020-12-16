@@ -12,10 +12,17 @@ logger = logging.getLogger('spider.downloader')
 
 
 class Downloader(ABC):
-    def __init__(self, file_dir):
+    def __init__(self, file_dir, file_download_timeout):
         self.file_dir = file_dir
-        self.describe = u''
+        self.describe = ''
         self.key = ''
+        self.file_download_timeout = [5, 5, 10]
+        if (isinstance(file_download_timeout, list)
+                and len(file_download_timeout) == 3):
+            for i in range(3):
+                v = file_download_timeout[i]
+                if isinstance(v, (int, float)) and v > 0:
+                    self.file_download_timeout[i] = v
 
     @abstractmethod
     def handle_download(self, urls, w):
@@ -27,8 +34,11 @@ class Downloader(ABC):
         try:
             if not os.path.isfile(file_path):
                 s = requests.Session()
-                s.mount(url, HTTPAdapter(max_retries=5))
-                downloaded = s.get(url, timeout=(5, 10))
+                s.mount(url,
+                        HTTPAdapter(max_retries=self.file_download_timeout[0]))
+                downloaded = s.get(url,
+                                   timeout=(self.file_download_timeout[1],
+                                            self.file_download_timeout[2]))
                 with open(file_path, 'wb') as f:
                     f.write(downloaded.content)
         except Exception as e:

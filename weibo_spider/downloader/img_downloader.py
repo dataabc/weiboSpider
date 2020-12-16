@@ -4,8 +4,8 @@ from .downloader import Downloader
 
 
 class ImgDownloader(Downloader):
-    def __init__(self, file_dir):
-        self.file_dir = file_dir
+    def __init__(self, file_dir, file_download_timeout):
+        super().__init__(file_dir, file_download_timeout)
         self.describe = u'图片'
         self.key = 'original_pictures'
 

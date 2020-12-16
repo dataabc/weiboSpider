@@ -9,6 +9,7 @@
     "write_mode": ["csv", "txt"],
     "pic_download": 1,
     "video_download": 1,
+	"file_download_timeout": [5, 5, 10],
 	"result_dir_name": 0,
     "cookie": "your cookie",
     "mysql_config": {
