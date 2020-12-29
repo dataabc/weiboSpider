@@ -197,6 +197,15 @@ class Spider:
                             sleep(1)
                         self.page_count = 0
                         self.global_wait.append(self.global_wait.pop(0))
+
+                # 更新用户user_id_list.txt中的since_date
+                if self.user_config_file_path or FLAGS.u:
+                    config_util.update_user_config_file(
+                        self.user_config_file_path,
+                        self.user_config['user_uri'],
+                        self.user.nickname,
+                        self.new_since_date,
+                    )
         except Exception as e:
             logger.exception(e)
 
@@ -310,14 +319,6 @@ class Spider:
                     logger.info(u'共爬取' + str(self.got_num) + u'条原创微博')
                 logger.info(u'信息抓取完毕')
                 logger.info('*' * 100)
-
-                if self.user_config_file_path or FLAGS.u:
-                    config_util.update_user_config_file(
-                        self.user_config_file_path,
-                        self.user_config['user_uri'],
-                        self.user.nickname,
-                        self.new_since_date,
-                    )
         except Exception as e:
             logger.exception(e)
 
