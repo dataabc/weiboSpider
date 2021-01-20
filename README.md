@@ -6,7 +6,7 @@
 
 本程序可以连续爬取**一个**或**多个**新浪微博用户（如[胡歌](https://weibo.cn/u/1223178222)、[迪丽热巴](https://weibo.cn/u/1669879400)、[郭碧婷](https://weibo.cn/u/1729370543)）的数据，并将结果信息写入**文件**或**数据库**。写入信息几乎包括用户微博的所有数据，包括**用户信息**和**微博信息**两大类。因为内容太多，这里不再赘述，详细内容见[获取到的字段](#获取到的字段)。如果只需要用户信息，可以通过设置实现只爬取微博用户信息的功能。本程序需设置cookie来获取微博访问权限，后面会讲解[如何获取cookie](#如何获取cookie)。如果不想设置cookie，可以使用[免cookie版](https://github.com/dataabc/weibo-crawler)，二者功能类似。
 
-具体的写入文件类型如下：
+爬取结果可写入文件和数据库，具体的写入文件类型如下：
 
 - **txt文件**（默认）
 - **csv文件**（默认）
@@ -14,12 +14,14 @@
 - **MySQL数据库**（可选）
 - **MongoDB数据库**（可选）
 - **SQLite数据库**（可选）
-- 下载用户**原创**微博中的原始**图片**（可选）
-- 下载用户**转发**微博中的原始**图片**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
-- 下载用户**原创**微博中的**视频**（可选）
-- 下载用户**转发**微博中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
-- 下载用户**原创**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
-- 下载用户**转发**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+
+同时支持下载微博中的图片和视频，具体的可下载文件如下：
+- **原创**微博中的原始**图片**（可选）
+- **转发**微博中的原始**图片**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- **原创**微博中的**视频**（可选）
+- **转发**微博中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- **原创**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- **转发**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
 
 ## 内容列表
 
