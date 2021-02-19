@@ -81,56 +81,62 @@ class MySqlWriter(Writer):
     def write_weibo(self, weibos):
         """将爬取的微博信息写入MySQL数据库"""
         # 创建'weibo'表
-        create_table = """
-                CREATE TABLE IF NOT EXISTS weibo (
-                id varchar(10) NOT NULL,
-                user_id varchar(12),
-                content varchar(5000),
-                article_url varchar(200),
-                original_pictures varchar(3000),
-                retweet_pictures varchar(3000),
-                original BOOLEAN NOT NULL DEFAULT 1,
-                video_url varchar(300),
-                publish_place varchar(100),
-                publish_time DATETIME NOT NULL,
-                publish_tool varchar(30),
-                up_num INT NOT NULL,
-                retweet_num INT NOT NULL,
-                comment_num INT NOT NULL,
-                PRIMARY KEY (id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
-        self._mysql_create_table(create_table)
-        # 在'weibo'表中插入或更新微博数据
-        weibo_list = []
-        info_list = copy.deepcopy(weibos)
-        for weibo in info_list:
-            weibo.user_id = self.user.id
-            weibo_list.append(weibo.__dict__)
-        self._mysql_insert('weibo', weibo_list)
-        logger.info(u'%d条微博写入MySQL数据库完毕', len(weibos))
+        try:
+            create_table = """
+                    CREATE TABLE IF NOT EXISTS weibo (
+                    id varchar(10) NOT NULL,
+                    user_id varchar(12),
+                    content varchar(5000),
+                    article_url varchar(200),
+                    original_pictures varchar(3000),
+                    retweet_pictures varchar(3000),
+                    original BOOLEAN NOT NULL DEFAULT 1,
+                    video_url varchar(300),
+                    publish_place varchar(100),
+                    publish_time DATETIME NOT NULL,
+                    publish_tool varchar(30),
+                    up_num INT NOT NULL,
+                    retweet_num INT NOT NULL,
+                    comment_num INT NOT NULL,
+                    PRIMARY KEY (id)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
+            self._mysql_create_table(create_table)
+            # 在'weibo'表中插入或更新微博数据
+            weibo_list = []
+            info_list = copy.deepcopy(weibos)
+            for weibo in info_list:
+                weibo.user_id = self.user.id
+                weibo_list.append(weibo.__dict__)
+            self._mysql_insert('weibo', weibo_list)
+            logger.info(u'%d条微博写入MySQL数据库完毕', len(weibos))
+        except Exception as e:
+            logger.exception(e)
 
     def write_user(self, user):
         """将爬取的用户信息写入MySQL数据库"""
-        self.user = user
+        try:
+            self.user = user
 
-        # 创建'user'表
-        create_table = """
-                CREATE TABLE IF NOT EXISTS user (
-                id varchar(20) NOT NULL,
-                nickname varchar(30),
-                gender varchar(10),
-                location varchar(200),
-                birthday varchar(40),
-                description varchar(400),
-                verified_reason varchar(140),
-                talent varchar(200),
-                education varchar(200),
-                work varchar(200),
-                weibo_num INT,
-                following INT,
-                followers INT,
-                PRIMARY KEY (id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
-        self._mysql_create_table(create_table)
-        self._mysql_insert('user', [user.__dict__])
-        logger.info(u'%s信息写入MySQL数据库完毕', user.nickname)
+            # 创建'user'表
+            create_table = """
+                    CREATE TABLE IF NOT EXISTS user (
+                    id varchar(20) NOT NULL,
+                    nickname varchar(30),
+                    gender varchar(10),
+                    location varchar(200),
+                    birthday varchar(40),
+                    description varchar(400),
+                    verified_reason varchar(140),
+                    talent varchar(200),
+                    education varchar(200),
+                    work varchar(200),
+                    weibo_num INT,
+                    following INT,
+                    followers INT,
+                    PRIMARY KEY (id)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
+            self._mysql_create_table(create_table)
+            self._mysql_insert('user', [user.__dict__])
+            logger.info(u'%s信息写入MySQL数据库完毕', user.nickname)
+        except Exception as e:
+            logger.exception(e)
