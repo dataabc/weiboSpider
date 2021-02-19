@@ -286,6 +286,29 @@ class Spider:
                 VideoDownloader(self._get_filepath('video'),
                                 self.file_download_timeout))
 
+    def get_one_user(self, user_config):
+        """获取一个用户的微博"""
+        try:
+            self.get_user_info(user_config['user_uri'])
+            logger.info(self.user)
+            logger.info('*' * 100)
+
+            self.initialize_info(user_config)
+            self.write_user(self.user)
+            logger.info('*' * 100)
+
+            for weibos in self.get_weibo_info():
+                self.write_weibo(weibos)
+                self.got_num += len(weibos)
+            if not self.filter:
+                logger.info(u'共爬取' + str(self.got_num) + u'条微博')
+            else:
+                logger.info(u'共爬取' + str(self.got_num) + u'条原创微博')
+            logger.info(u'信息抓取完毕')
+            logger.info('*' * 100)
+        except Exception as e:
+            logger.exception(e)
+
     def start(self):
         """运行爬虫"""
         try:
@@ -302,23 +325,7 @@ class Spider:
                     user_count1 = user_count
                     random_users = random.randint(*self.random_wait_pages)
                 user_count += 1
-                self.get_user_info(user_config['user_uri'])
-                logger.info(self.user)
-                logger.info('*' * 100)
-
-                self.initialize_info(user_config)
-                self.write_user(self.user)
-                logger.info('*' * 100)
-
-                for weibos in self.get_weibo_info():
-                    self.write_weibo(weibos)
-                    self.got_num += len(weibos)
-                if not self.filter:
-                    logger.info(u'共爬取' + str(self.got_num) + u'条微博')
-                else:
-                    logger.info(u'共爬取' + str(self.got_num) + u'条原创微博')
-                logger.info(u'信息抓取完毕')
-                logger.info('*' * 100)
+                self.get_one_user(user_config)
         except Exception as e:
             logger.exception(e)
 
