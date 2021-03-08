@@ -42,6 +42,7 @@
   - [如何获取cookie](#如何获取cookie)
   - [如何获取user_id](#如何获取user_id)
   - [常见问题](#常见问题)
+  - [学术研究](#学术研究)
   - [相关项目](#相关项目)
   - [贡献](#贡献)
   - [贡献者](#贡献者)
@@ -230,7 +231,9 @@ $ python3 -m weibo_spider --u="1669879400,1223178222"
 ## 常见问题
 
 如果运行程序的过程中出现错误，可以查看[常见问题](https://github.com/dataabc/weiboSpider/blob/master/docs/FAQ.md)页面，里面包含了最常见的问题及解决方法。如果出现的错误不在常见问题里，您可以通过[发issue](https://github.com/dataabc/weiboSpider/issues/new/choose)寻求帮助，我们会很乐意为您解答。
+## 学术研究
 
+本项目通过获取微博数据，为写论文、做研究等非商业项目提供所需数据。[学术研究文档](https://github.com/dataabc/weiboSpider/blob/master/docs/academic.md)是一些在论文或研究等方面使用过本程序的项目，这些项目展示已征得所有者同意。在一些涉及隐私的描述上，已与所有者做了沟通，描述中只介绍所有者允许展示的部分。如果部分信息所有者之前同意展示并且已经写在了文档中，现在又不想展示了，可以通过邮件(chillychen1991@gmail.com)或issue的方式告诉我，我会删除相关信息。同时，也欢迎使用本项目写论文或做其它学术研究的朋友，将自己的研究成果展示在[学术研究文档](https://github.com/dataabc/weiboSpider/blob/master/docs/academic.md)里，这完全是自愿的。
 ## 相关项目
 
 - [weibo-crawler](https://github.com/dataabc/weibo-crawler) - 功能和本项目完全一样，可以不添加cookie，获取的微博属性更多；
