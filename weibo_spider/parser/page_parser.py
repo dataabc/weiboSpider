@@ -35,7 +35,17 @@ class PageParser(Parser):
             endtime = ''.join(end_date)
             self.url = 'https://weibo.cn/%s/profile?starttime=%s&endtime=%s&advancedfilter=1&page=%d' % (
                 self.user_uri, starttime, endtime, page)
-        self.selector = handle_html(self.cookie, self.url)
+        self.selector = ''
+        self.to_continue = True
+        is_exist = ''
+        for i in range(3):
+            self.selector = handle_html(self.cookie, self.url)
+            info = self.selector.xpath("//div[@class='c']")
+            is_exist = info[0].xpath("div/span[@class='ctt']")
+            if is_exist:
+                break
+        if not is_exist:
+            self.to_continue = False
         self.filter = filter
 
     def get_one_page(self, weibo_id_list):
@@ -63,7 +73,7 @@ class PageParser(Parser):
                         logger.info('-' * 100)
                         weibos.append(weibo)
                         weibo_id_list.append(weibo.id)
-            return weibos, weibo_id_list, True
+            return weibos, weibo_id_list, self.to_continue
         except Exception as e:
             logger.exception(e)
 
