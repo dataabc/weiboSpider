@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setuptools.setup(
     name='weibo-spider',
-    version='0.2.0',
+    version='0.2.1',
     author='Chen Lei',
     author_email='chillychen1991@gmail.com',
     description='新浪微博爬虫，用python爬取新浪微博数据。',

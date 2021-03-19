@@ -53,6 +53,7 @@ def handle_garbled(info):
         return info
     except Exception as e:
         logger.exception(e)
+        return u'无'
 
 
 def bid2mid(bid):
