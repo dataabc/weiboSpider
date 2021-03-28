@@ -29,7 +29,7 @@ def handle_html(cookie, url):
             import os
 
             resp_file = os.path.join(TEST_DATA_DIR, '%s.html' % hash_url(url))
-            with io.open(resp_file, 'w') as f:
+            with io.open(resp_file, 'w', encoding='utf-8') as f:
                 f.write(resp.text)
 
             with io.open(os.path.join(TEST_DATA_DIR, URL_MAP_FILE), 'r+') as f:
