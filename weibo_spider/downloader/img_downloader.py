@@ -11,7 +11,7 @@ class ImgDownloader(Downloader):
 
     def handle_download(self, urls, w):
         """处理下载相关操作"""
-        file_prefix = w.publish_time[:11].replace('-', '') + '_' + w.id
+        file_prefix = w.publish_time[:10].replace('-', '') + '_' + w.id
         if ',' in urls:
             url_list = urls.split(',')
             for i, url in enumerate(url_list):
