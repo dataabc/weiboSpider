@@ -28,11 +28,7 @@ python3 -m weibo_spider
 请使用[weibo-follow](https://github.com/dataabc/weibo-follow)。该程序可以利用一个user_id，获取该user_id微博用户关注人的user_id，一个user_id最多可以获得200个user_id，并写入user_id_list.txt文件。程序支持读文件，利用这200个user_id，可以获得最多200X200=40000个user_id。再利用这40000个user_id可以得到40000X200=8000000个user_id，如此反复，以此类推，可以获得大量user_id。本项目也支持读文件，将上述程序的结果文件user_id_list.txt路径赋值给本项目config.json的user_id_list参数，就可以获得这些user_id用户所发布的大量微博。
 
 ### 7.如何获取自己的微博？
-修改info_parser.py和page_parser.py中__init__方法，将前者的self.url修改为：
-```
-        self.url = "https://weibo.cn/%s/profile" % (user_id)
-```
-后者的self.url修改为：
+修改page_parser.py中__init__方法，将self.url修改为：
 ```
         self.url = "https://weibo.cn/%s/profile?page=%d" % (user_uri, page)
 ```
