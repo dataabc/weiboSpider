@@ -10,6 +10,7 @@ dist/
 config.json
 
 weibo/
+weibo.db
 *.log
 
 .idea
