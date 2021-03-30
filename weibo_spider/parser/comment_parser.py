@@ -47,7 +47,8 @@ class CommentParser(Parser):
         try:
             self.selector = handle_html(self.cookie, self.url)
             if self.selector is not None:
-                links = self.selector.xpath("body/div[@class='c' and @id][1]/div/span/a")
+                # 来自微博视频号的格式与普通格式不一致，不加 span 层级
+                links = self.selector.xpath("body/div[@class='c' and @id][1]/div//a")
                 for a in links:
                     if 'm.weibo.cn/s/video/show?object_id=' in a.xpath(
                             '@href')[0]:

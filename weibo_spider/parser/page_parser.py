@@ -273,12 +273,13 @@ class PageParser(Parser):
         weibo_id = info.xpath('@id')[0][2:]
         try:
             video_page_url = ''
-            a_text = info.xpath('div[1]/span[@class="ctt"]/a/text()')
+            a_text = info.xpath('./div[1]//a/text()')
             if u'全文' in a_text:
                 video_page_url = CommentParser(self.cookie,
                                                weibo_id).get_video_page_url()
             else:
-                a_list = info.xpath('div[1]/span[@class="ctt"]/a')
+                # 来自微博视频号的格式与普通格式不一致，不加 span 层级
+                a_list = info.xpath('./div[1]//a')
                 for a in a_list:
                     if 'm.weibo.cn/s/video/show?object_id=' in a.xpath(
                             '@href')[0]:
