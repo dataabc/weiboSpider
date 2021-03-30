@@ -266,39 +266,38 @@ class PageParser(Parser):
         except Exception as e:
             logger.exception(e)
 
-    def get_video_url(self, info, is_original):
+    def get_video_url(self, info):
         """获取微博视频url"""
         try:
             video_url = u'无'
-            if is_original:
-                div_first = info.xpath('div')[0]
-                a_list = div_first.xpath('.//a')
-                video_link = u'无'
-                for a in a_list:
-                    if 'm.weibo.cn/s/video/show?object_id=' in a.xpath(
-                            '@href')[0]:
-                        video_link = a.xpath('@href')[0]
-                        break
-                if video_link != u'无':
-                    video_link = video_link.replace(
-                        'm.weibo.cn/s/video/show', 'm.weibo.cn/s/video/object')
-                    try:
-                        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
-                        headers = {
-                            'User_Agent': user_agent,
-                            'Cookie': self.cookie
-                        }
-                        wb_info = requests.get(video_link,
-                                               headers=headers).json()
-                        video_url = wb_info['data']['object']['stream'].get(
-                            'hd_url')
-                        if not video_url:
-                            video_url = wb_info['data']['object']['stream'][
-                                'url']
-                            if not video_url:  # 说明该视频为直播
-                                video_url = u'无'
-                    except json.decoder.JSONDecodeError:
-                        logger.warning(u'当前账号没有浏览该视频的权限')
+            div_first = info.xpath('div')[0]
+            a_list = div_first.xpath('.//a')
+            video_link = u'无'
+            for a in a_list:
+                if 'm.weibo.cn/s/video/show?object_id=' in a.xpath(
+                        '@href')[0]:
+                    video_link = a.xpath('@href')[0]
+                    break
+            if video_link != u'无':
+                video_link = video_link.replace(
+                    'm.weibo.cn/s/video/show', 'm.weibo.cn/s/video/object')
+                try:
+                    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+                    headers = {
+                        'User_Agent': user_agent,
+                        'Cookie': self.cookie
+                    }
+                    wb_info = requests.get(video_link,
+                                           headers=headers).json()
+                    video_url = wb_info['data']['object']['stream'].get(
+                        'hd_url')
+                    if not video_url:
+                        video_url = wb_info['data']['object']['stream'][
+                            'url']
+                        if not video_url:  # 说明该视频为直播
+                            video_url = u'无'
+                except json.decoder.JSONDecodeError:
+                    logger.warning(u'当前账号没有浏览该视频的权限')
             return video_url
         except Exception as e:
             logger.exception(e)
@@ -317,6 +316,7 @@ class PageParser(Parser):
         try:
             weibo = Weibo()
             is_original = self.is_original(info)
+            weibo.original = is_original  # 是否原创微博
             if (not self.filter) or is_original:
                 weibo.id = info.xpath('@id')[0][2:]
                 weibo.content = self.get_weibo_content(info,
@@ -328,9 +328,7 @@ class PageParser(Parser):
                 if not self.filter:
                     weibo.retweet_pictures = picture_urls[
                         'retweet_pictures']  # 转发图片url
-                    weibo.original = is_original  # 是否原创微博
-                weibo.video_url = self.get_video_url(info,
-                                                     is_original)  # 微博视频url
+                weibo.video_url = self.get_video_url(info)  # 微博视频url
                 weibo.publish_place = self.get_publish_place(info)  # 微博发布位置
                 weibo.publish_time = self.get_publish_time(info)  # 微博发布时间
                 weibo.publish_tool = self.get_publish_tool(info)  # 微博发布工具
