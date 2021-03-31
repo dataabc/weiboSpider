@@ -1,5 +1,6 @@
 import logging
 import random
+import requests
 from time import sleep
 
 from .parser import Parser
@@ -39,3 +40,21 @@ class CommentParser(Parser):
             return weibo_content
         except Exception as e:
             logger.exception(e)
+
+    def get_video_page_url(self):
+        """获取微博视频页面的链接"""
+        video_url = ''
+        try:
+            self.selector = handle_html(self.cookie, self.url)
+            if self.selector is not None:
+                # 来自微博视频号的格式与普通格式不一致，不加 span 层级
+                links = self.selector.xpath("body/div[@class='c' and @id][1]/div//a")
+                for a in links:
+                    if 'm.weibo.cn/s/video/show?object_id=' in a.xpath(
+                            '@href')[0]:
+                        video_url = a.xpath('@href')[0]
+                        break
+        except Exception:
+            logger.exception(u'网络出错')
+
+        return video_url
