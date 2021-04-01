@@ -12,6 +12,9 @@ class ImgDownloader(Downloader):
     def handle_download(self, urls, w):
         """处理下载相关操作"""
         file_prefix = w.publish_time[:10].replace('-', '') + '_' + w.id
+        file_dir = self.file_dir + os.sep + self.describe
+        if not os.path.isdir(file_dir):
+            os.makedirs(file_dir)
         if ',' in urls:
             url_list = urls.split(',')
             for i, url in enumerate(url_list):
@@ -21,7 +24,7 @@ class ImgDownloader(Downloader):
                 else:
                     file_suffix = url[index:]
                 file_name = file_prefix + '_' + str(i + 1) + file_suffix
-                file_path = self.file_dir + os.sep + file_name
+                file_path = file_dir + os.sep + file_name
                 self.download_one_file(url, file_path, w.id)
         else:
             index = urls.rfind('.')
@@ -30,5 +33,5 @@ class ImgDownloader(Downloader):
             else:
                 file_suffix = urls[index:]
             file_name = file_prefix + file_suffix
-            file_path = self.file_dir + os.sep + file_name
+            file_path = file_dir + os.sep + file_name
             self.download_one_file(urls, file_path, w.id)
