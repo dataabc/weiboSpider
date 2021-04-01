@@ -274,12 +274,13 @@ class Spider:
 
         self.downloaders = []
         if self.pic_download == 1:
-            from .downloader import OriginPictureDownloader, RetweetPictureDownloader
+            from .downloader import (OriginPictureDownloader,
+                                     RetweetPictureDownloader)
 
             self.downloaders.append(
                 OriginPictureDownloader(self._get_filepath('img'),
                                         self.file_download_timeout))
-
+        if self.pic_download and not self.filter:
             self.downloaders.append(
                 RetweetPictureDownloader(self._get_filepath('img'),
                                          self.file_download_timeout))
