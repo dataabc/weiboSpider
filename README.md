@@ -17,9 +17,9 @@
 
 同时支持下载微博中的图片和视频，具体的可下载文件如下：
 - **原创**微博中的原始**图片**（可选）
-- **转发**微博中的原始**图片**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- **转发**微博中的原始**图片**（可选）
 - **原创**微博中的**视频**（可选）
-- **转发**微博中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
+- **转发**微博中的**视频**（可选）
 - **原创**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
 - **转发**微博**Live Photo**中的**视频**（[免cookie版](https://github.com/dataabc/weibo-crawler)特有）
 
