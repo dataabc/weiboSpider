@@ -1,10 +1,7 @@
-import json
 import logging
 import re
 import sys
 from datetime import datetime, timedelta
-
-import requests
 
 from .. import datetime_util
 from ..weibo import Weibo
@@ -17,8 +14,13 @@ logger = logging.getLogger('spider.page_parser')
 
 
 class PageParser(Parser):
+    empty_count = 0
+
     def __init__(self, cookie, user_config, page, filter):
         self.cookie = cookie
+        if hasattr(PageParser,
+                   'user_uri') and self.user_uri != user_config['user_uri']:
+            PageParser.empty_count = 0
         self.user_uri = user_config['user_uri']
         self.since_date = user_config['since_date']
         self.end_date = user_config['end_date']
@@ -43,9 +45,13 @@ class PageParser(Parser):
             info = self.selector.xpath("//div[@class='c']")
             is_exist = info[0].xpath("div/span[@class='ctt']")
             if is_exist:
+                PageParser.empty_count = 0
                 break
         if not is_exist:
+            PageParser.empty_count += 1
+        if PageParser.empty_count > 2:
             self.to_continue = False
+            PageParser.empty_count = 0
         self.filter = filter
 
     def get_one_page(self, weibo_id_list):
