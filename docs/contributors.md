@@ -6,19 +6,19 @@
 
 ## 主要代码开发者
 
-|[dataabc](https://github.com/dataabc)  |[songzy12](https://github.com/songzy12) |
-| - | - | 
+| [dataabc](https://github.com/dataabc) | [songzy12](https://github.com/songzy12) |
+| - | - |
 
 ## 代码贡献者
 
-|[codermino](https://github.com/codermino)  |[duangan1](https://github.com/duangan1) | [MKSP2015](https://github.com/MKSP2015) |
+| [codermino](https://github.com/codermino) | [duangan1](https://github.com/duangan1) | [MKSP2015](https://github.com/MKSP2015) |
 | - | - | - |
 
 ## 优质issue提出者
 
 |   |   |   |   |   |   |
 | - | - | - | - | - | - |
-| [13531982270](https://github.com/13531982270) | [Archenemy61](https://github.com/Archenemy61) | [arctanx](https://github.com/arctanx) |[bossming](https://github.com/bossming)|[bubblesran](https://github.com/bubblesran)| [cangling](https://github.com/cangling)|
+| [13531982270](https://github.com/13531982270) | [Archenemy61](https://github.com/Archenemy61) | [arctanx](https://github.com/arctanx) | [bossming](https://github.com/bossming) | [bubblesran](https://github.com/bubblesran) | [cangling](https://github.com/cangling)|
 | [Ccccche](https://github.com/Ccccche) | [Evifly](https://github.com/Evifly) | [gudaost](https://github.com/gudaost) | [Hylan129](https://github.com/Hylan129) | [HZzzzy](https://github.com/HZzzzy) | [kur0mi](https://github.com/kur0mi) |
 | [leonall](https://github.com/leonall) | [liu-song](https://github.com/liu-song) | [Issac110](https://github.com/Issac110) | [MengyingQian](https://github.com/MengyingQian) | [PandGnone](https://github.com/PandGnone) | [PLQin](https://github.com/PLQin) |
 | [redMUSCLE](https://github.com/redMUSCLE) | [shengdade](https://github.com/shengdade) | [softrime](https://github.com/softrime) | [SugimitoYuuji](https://github.com/SugimitoYuuji) | [sunbat](https://github.com/sunbat) | [taichifox95](https://github.com/taichifox95) |
