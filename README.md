@@ -31,6 +31,8 @@
 - [Weibo Spider](#weibo-spider)
   - [内容列表](#内容列表)
   - [获取到的字段](#获取到的字段)
+    - [用户信息](#用户信息)
+    - [微博信息](#微博信息)
   - [示例](#示例)
   - [运行环境](#运行环境)
   - [使用说明](#使用说明)
@@ -224,7 +226,7 @@ $ python3 -m weibo_spider --u="1669879400,1223178222"
 
 ## 定期自动爬取微博（可选）
 
-要想让程序每个一段时间自动爬取，且爬取的内容为新增加的内容（不包括已经获取的微博），请查看[定期自动爬取微博](https://github.com/dataabc/weiboSpider/blob/master/docs/automation.md)。
+要想让程序每隔一段时间自动爬取，且爬取的内容为新增加的内容（不包括已经获取的微博），请查看[定期自动爬取微博](https://github.com/dataabc/weiboSpider/blob/master/docs/automation.md)。
 
 ## 如何获取cookie
 
