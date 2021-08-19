@@ -15,7 +15,8 @@ from absl import app, flags
 from tqdm import tqdm
 
 from . import config_util, datetime_util
-from .parser import IndexParser, PageParser
+from .downloader import AvatarPictureDownloader
+from .parser import IndexParser, PageParser, PhotoParser, AlbumParser
 from .user import User
 
 FLAGS = flags.FLAGS
@@ -139,6 +140,16 @@ class Spider:
         """获取用户信息"""
         self.user = IndexParser(self.cookie, user_uri).get_user()
         self.page_count += 1
+
+    def download_user_avatar(self, user_uri):
+        """下载用户头像"""
+        avatar_album_url = PhotoParser(self.cookie,
+                                       user_uri).extract_avatar_album_url()
+        pic_urls = AlbumParser(self.cookie,
+                               avatar_album_url).extract_pic_urls()
+        AvatarPictureDownloader(
+            self._get_filepath('img'),
+            self.file_download_timeout).handle_download(pic_urls)
 
     def get_weibo_info(self):
         """获取微博信息"""
@@ -301,6 +312,10 @@ class Spider:
             self.initialize_info(user_config)
             self.write_user(self.user)
             logger.info('*' * 100)
+
+            # 下载用户头像相册中的图片。
+            if self.pic_download:
+                self.download_user_avatar(user_config['user_uri'])
 
             for weibos in self.get_weibo_info():
                 self.write_weibo(weibos)
