@@ -7,5 +7,7 @@
     "https://weibo.cn/1669879400?page=2": "tests/testdata/2f62165fa3ca1e85e0d398d385c377a068b76eb95765f7020ffffd3e.html",
     "https://weibo.cn/1669879400?page=3": "tests/testdata/d486235d4a17dd0accb0f2cc77b3648abfa03580b9e0cdb61f1e618f.html",
     "https://weibo.cn/mblog/picAll/J3xfm61AZ?rl=1": "tests/testdata/76233b3f90394581aac6f19cfa5d674a610e8b442b1f83de7673ab49.html",
-    "https://weibo.cn/comment/J5cVGuUNq": "tests/testdata/4d5ed0a3ebd0303cb45edd544dbc0ab5e86d43e103405f0c60515884.html"
+    "https://weibo.cn/comment/J5cVGuUNq": "tests/testdata/4d5ed0a3ebd0303cb45edd544dbc0ab5e86d43e103405f0c60515884.html",
+    "https://weibo.cn/1980768563/photo?tf=6_008": "tests/testdata/e4d541ecb02253c14abc1d52605fc00d91279df9ac4c1465c85b91b3.html",    
+    "https://weibo.cn/album/166564740000001980768563?rl=1": "tests/testdata/b541fd1751117498b6d6f40d3321686ddf871651237c4ac854a5c3eb.html"
 }
