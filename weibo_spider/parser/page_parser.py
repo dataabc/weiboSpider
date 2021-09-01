@@ -62,7 +62,7 @@ class PageParser(Parser):
             weibos = []
             if is_exist:
                 since_date = datetime_util.str_to_time(self.since_date)
-                for i in range(0, len(info) - 2):
+                for i in range(0, len(info) - 1):
                     weibo = self.get_one_weibo(info[i])
                     if weibo:
                         if weibo.id in weibo_id_list:
