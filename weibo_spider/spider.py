@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 from . import config_util, datetime_util
 from .downloader import AvatarPictureDownloader
-from .parser import IndexParser, PageParser, PhotoParser, AlbumParser
+from .parser import AlbumParser, IndexParser, PageParser, PhotoParser
 from .user import User
 
 FLAGS = flags.FLAGS

@@ -2,7 +2,7 @@ import logging
 
 from .info_parser import InfoParser
 from .parser import Parser
-from .util import handle_html
+from .util import handle_html, string_to_int
 
 logger = logging.getLogger('spider.index_parser')
 
@@ -36,9 +36,9 @@ class IndexParser(Parser):
             self.user.id = user_id
 
             user_info = self.selector.xpath("//div[@class='tip2']/*/text()")
-            self.user.weibo_num = int(user_info[0][3:-1])
-            self.user.following = int(user_info[1][3:-1])
-            self.user.followers = int(user_info[2][3:-1])
+            self.user.weibo_num = string_to_int(user_info[0][3:-1])
+            self.user.following = string_to_int(user_info[1][3:-1])
+            self.user.followers = string_to_int(user_info[2][3:-1])
             return self.user
         except Exception as e:
             logger.exception(e)
