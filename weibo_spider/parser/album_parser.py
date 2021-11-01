@@ -1,5 +1,5 @@
-from .util import handle_html
 from .parser import Parser
+from .util import handle_html
 
 
 class AlbumParser(Parser):
@@ -10,4 +10,9 @@ class AlbumParser(Parser):
 
     def extract_pic_urls(self):
         # <img src="http://wx2.sinaimg.cn/wap180/76102133ly8fwr33wpn8fj20v90v9tbw.jpg" alt="" class="c">
-        return self.selector.xpath('//img[@class="c"]/@src')
+        pic_list = self.selector.xpath('//div[@class="c"]//img/@src')
+        for i, pic in enumerate(pic_list):
+            if "?" in pic:
+                pic = pic[:pic.index("?")]
+            pic_list[i] = pic
+        return pic_list
