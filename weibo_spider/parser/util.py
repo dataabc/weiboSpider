@@ -107,6 +107,7 @@ def to_video_download_url(cookie, video_page_url):
 def string_to_int(string):
     """字符串转换为整数"""
     if len(string) == 0:
+        print("Warning: the input string is empty!")
         return 0
     if isinstance(string, int):
         return string
