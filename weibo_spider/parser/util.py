@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import re
 import sys
 
 import requests
@@ -118,3 +119,16 @@ def string_to_int(string):
     elif string.endswith(u'亿'):
         string = float(string[:-1]) * 100000000
     return int(string)
+
+
+def get_long_weibo_detail(cookie, id):
+    """获取长微博详情"""
+    try:
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+        headers = {'User_Agent': user_agent, 'Cookie': cookie}
+        resp = requests.get("https://m.weibo.cn/statuses/show?id=" + id, headers=headers)
+        if resp.status_code == 200:
+            content = resp.json()['data']['text'].replace("<br />", "\n")
+            return re.sub("</?[^>]+>", "", content)
+    except Exception as e:
+        logger.exception(e)
