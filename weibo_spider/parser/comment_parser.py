@@ -13,7 +13,6 @@ class CommentParser(Parser):
         self.cookie = cookie
         self.weibo_id = weibo_id
         self.url = 'https://weibo.cn/comment/' + weibo_id
-        self.selector = handle_html(self.cookie, self.url)
 
     def get_long_weibo(self):
         """获取长原创微博"""
