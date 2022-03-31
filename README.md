@@ -244,6 +244,17 @@ $ python3 -m weibo_spider --u="1669879400,1223178222"
 
 本项目通过获取微博数据，为写论文、做研究等非商业项目提供所需数据。[学术研究文档](https://github.com/dataabc/weiboSpider/blob/master/docs/academic.md)是一些在论文或研究等方面使用过本程序的项目，这些项目展示已征得所有者同意。在一些涉及隐私的描述上，已与所有者做了沟通，描述中只介绍所有者允许展示的部分。如果部分信息所有者之前同意展示并且已经写在了文档中，现在又不想展示了，可以通过邮件(chillychen1991@gmail.com)或issue的方式告诉我，我会删除相关信息。同时，也欢迎使用本项目写论文或做其它学术研究的朋友，将自己的研究成果展示在[学术研究文档](https://github.com/dataabc/weiboSpider/blob/master/docs/academic.md)里，这完全是自愿的。
 
+为方便大家引用，现提供本项目的 bibtex 条目如下：
+
+```
+@misc{weibospider2020,
+  author = {Lei Chen, Zhengyang Song, schaepher, minami9, bluerthanever, MKSP2015, moqimoqidea, windlively, eggachecat, mtuwei, codermino, duangan1},
+  title = {{Weibo Spider}},
+  howpublished = {\url{https://github.com/dataabc/weiboSpider}},
+  year = {2020}
+}
+```
+
 ## 相关项目
 
 - [weibo-crawler](https://github.com/dataabc/weibo-crawler) - 功能和本项目完全一样，可以不添加cookie，获取的微博属性更多；
