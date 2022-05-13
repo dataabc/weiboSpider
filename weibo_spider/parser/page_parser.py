@@ -43,6 +43,8 @@ class PageParser(Parser):
         for i in range(3):
             self.selector = handle_html(self.cookie, self.url)
             info = self.selector.xpath("//div[@class='c']")
+            if info is None or len(info) == 0:
+                continue
             is_exist = info[0].xpath("div/span[@class='ctt']")
             if is_exist:
                 PageParser.empty_count = 0
