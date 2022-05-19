@@ -73,6 +73,7 @@ class Spider:
 
         self.sqlite_config = config.get('sqlite_config')
         self.kafka_config = config.get('kafka_config')
+        self.mongo_config = config.get('mongo_config')
         self.user_config_file_path = ''
         user_id_list = config['user_id_list']
         if FLAGS.user_id_list:
@@ -272,7 +273,7 @@ class Spider:
         if 'mongo' in self.write_mode:
             from .writer import MongoWriter
 
-            self.writers.append(MongoWriter())
+            self.writers.append(MongoWriter(self.mongo_config))
         if 'sqlite' in self.write_mode:
             from .writer import SqliteWriter
 

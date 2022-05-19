@@ -24,5 +24,10 @@
         "weibo_topics": ["spider_weibo"],
         "user_topics": ["spider_weibo"]
     },
-    "sqlite_config": "weibo.db"
+    "sqlite_config": "weibo.db",
+    "mongo_config": {
+        "connection_string": "mongodb://test:testpwd@localhost:27017/weibo",
+        "dba_name": "admin",
+        "dba_password": "password"
+    }
 }
