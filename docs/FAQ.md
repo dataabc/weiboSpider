@@ -41,5 +41,5 @@ python3 -m weibo_spider
 修改page_parser.py中__init__方法，将self.url修改为：
 
 ```python
-        self.url = "https://weibo.cn/%s/profile?page=%d" % (user_uri, page)
+        self.url = "https://weibo.cn/%s/profile?page=%d" % (self.user_uri, page)
 ```
