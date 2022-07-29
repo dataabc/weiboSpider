@@ -26,8 +26,8 @@
     },
     "sqlite_config": "weibo.db",
     "mongo_config": {
-        "connection_string": "mongodb://test:testpwd@localhost:27017/weibo",
-        "dba_name": "admin",
-        "dba_password": "password"
+        "connection_string": "mongodb://admin:password@localhost:27017/weibo",
+        "dba_name": "",
+        "dba_password": ""
     }
 }
