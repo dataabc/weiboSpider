@@ -178,6 +178,28 @@ $ pip install pymysql
 ```bash
 $ pip install pymongo
 ```
+connection_string是MongoDB标准URI：
+```text
+mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
+```
+
+dba_name和dba_password对应URI中的username和password。如果没有访问限制可不填。
+无访问限制的例子：
+```json
+"connection_string": "mongodb://localhost:27017/weibo",
+```
+使用用户名和密码的例子：
+```json
+"connection_string": "mongodb://admin:password@localhost:27017/weibo",
+"dba_name": "",
+"dba_password": "",
+```
+或
+```json
+"connection_string": "mongodb://localhost:27017/weibo",
+"dba_name": "admin",
+"dba_password": "password",
+```
 
 MySQL和MongDB数据库的写入内容一样。程序首先会创建一个名为"weibo"的数据库，然后再创建"user"表和"weibo"表，包含爬取的所有内容。爬取到的微博**用户信息**或插入或更新，都会存储到user表里；爬取到的**微博信息**或插入或更新，都会存储到weibo表里，两个表通过user_id关联。如果想了解两个表的具体字段，请点击"详情"。
 
