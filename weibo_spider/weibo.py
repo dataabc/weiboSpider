@@ -4,7 +4,7 @@ class Weibo:
         self.user_id = ''
 
         self.content = ''
-        # self.article_url = ''
+        self.article_url = ''
 
         self.original_pictures = []
         self.retweet_pictures = None
@@ -28,5 +28,5 @@ class Weibo:
         # result += u'点赞数：%d\n' % self.up_num
         # result += u'转发数：%d\n' % self.retweet_num
         # result += u'评论数：%d\n' % self.comment_num
-        # result += u'url：https://weibo.cn/comment/%s \n' % self.id
+        result += u'url：https://weibo.cn/comment/%s \n' % self.id
         return result
