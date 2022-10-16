@@ -11,7 +11,7 @@ class IndexParser(Parser):
     def __init__(self, cookie, user_uri):
         self.cookie = cookie
         self.user_uri = user_uri
-        self.url = 'https://weibo.cn/%s' % (user_uri)
+        self.url = 'https://weibo.cn/%s/profile' % (user_uri)
         self.selector = handle_html(self.cookie, self.url)
 
     def _get_user_id(self):
