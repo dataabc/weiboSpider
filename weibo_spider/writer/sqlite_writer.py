@@ -59,6 +59,7 @@ class SqliteWriter(Writer):
                 user_id varchar(12),
                 content varchar(2000),
                 article_url varchar(200),
+                embedded_url varchar(200),
                 original_pictures varchar(3000),
                 retweet_pictures varchar(3000),
                 original BOOLEAN NOT NULL DEFAULT 1,

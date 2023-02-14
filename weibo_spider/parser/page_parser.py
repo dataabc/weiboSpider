@@ -8,7 +8,7 @@ from ..weibo import Weibo
 from .comment_parser import CommentParser
 from .mblog_picAll_parser import MblogPicAllParser
 from .parser import Parser
-from .util import handle_garbled, handle_html, to_video_download_url
+from .util import handle_garbled, handle_html, to_video_download_url, extract_embedded_url
 
 logger = logging.getLogger('spider.page_parser')
 
@@ -25,7 +25,8 @@ class PageParser(Parser):
         self.since_date = user_config['since_date']
         self.end_date = user_config['end_date']
         self.page = page
-        self.url = 'https://weibo.cn/%s/profile?page=%d' % (self.user_uri, page)
+        self.url = 'https://weibo.cn/%s/profile?page=%d' % (
+            self.user_uri, page)
         if self.end_date != 'now':
             since_date = self.since_date.split(' ')[0].split('-')
             end_date = self.end_date.split(' ')[0].split('-')
@@ -157,6 +158,16 @@ class PageParser(Parser):
             if url and url[0].startswith('https://weibo.cn/sinaurl'):
                 article_url = url[0]
         return article_url
+        
+    def get_embedded_url(self, info):
+        """获取嵌入微博正文的url"""
+        try:
+            a_href = info.xpath('div//a/@href')
+            for h in a_href:
+                if "sinaurl?f=w&amp" in h:
+                    return extract_embedded_url(h)
+        except Exception as e:
+            logger.exception(e)
 
     def get_publish_place(self, info):
         """获取微博发布位置"""
@@ -320,6 +331,7 @@ class PageParser(Parser):
                 weibo.content = self.get_weibo_content(info,
                                                        is_original)  # 微博内容
                 weibo.article_url = self.get_article_url(info)  # 头条文章url
+                weibo.embedded_url = self.get_embedded_url(info)  # 嵌入的url
                 picture_urls = self.get_picture_urls(info, is_original)
                 weibo.original_pictures = picture_urls[
                     'original_pictures']  # 原创图片url

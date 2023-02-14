@@ -5,6 +5,7 @@ class Weibo:
 
         self.content = ''
         self.article_url = ''
+        self.embedded_url = ''
 
         self.original_pictures = []
         self.retweet_pictures = None
