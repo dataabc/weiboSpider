@@ -11,6 +11,7 @@ class CsvWriter(Writer):
         self.file_path = file_path
 
         self.result_headers = [('微博id', 'id'), ('微博正文', 'content'),
+                               ('Weibourl', 'weibo_url'),
                                ('头条文章url', 'article_url'),
                                ('嵌入url', 'embedded_url'),
                                ('原始图片url', 'original_pictures'),

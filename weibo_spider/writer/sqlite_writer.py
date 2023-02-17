@@ -58,6 +58,7 @@ class SqliteWriter(Writer):
                 id varchar(10) NOT NULL,
                 user_id varchar(12),
                 content varchar(2000),
+                weibo_url varchar(200),
                 article_url varchar(200),
                 embedded_url varchar(200),
                 original_pictures varchar(3000),

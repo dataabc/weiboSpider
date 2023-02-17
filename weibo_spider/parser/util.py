@@ -39,8 +39,6 @@ def handle_html(cookie, url):
                 f.write(json.dumps(url_map, indent=4, ensure_ascii=False))
                 f.truncate()
 
-        import pdb
-        pdb.set_trace()
         selector = etree.HTML(resp.content)
         return selector
     except Exception as e:
@@ -121,10 +119,19 @@ def string_to_int(string):
         string = float(string[:-1]) * 100000000
     return int(string)
 
+
 def extract_embedded_url(href):
-    contents = href.split(";")
-    assert len(contents) == 2
-    raw = contents[1][2:]
-    raw = raw.replace("%3A", ":")
-    res = raw.replace("%2F", "/")
+    res = ''
+    locations = []
+    index = href.find('https')
+
+    while index != -1:
+        locations.append(index)
+        index = href.find('https', index + 1)
+
+    if len(locations) == 2:
+        raw = href[locations[1]:]
+        raw = raw.replace("%3A", ":")
+        res = raw.replace("%2F", "/")
+
     return res

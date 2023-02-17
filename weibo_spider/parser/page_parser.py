@@ -158,13 +158,13 @@ class PageParser(Parser):
             if url and url[0].startswith('https://weibo.cn/sinaurl'):
                 article_url = url[0]
         return article_url
-        
+
     def get_embedded_url(self, info):
         """获取嵌入微博正文的url"""
         try:
             a_href = info.xpath('div//a/@href')
             for h in a_href:
-                if "sinaurl?f=w&amp" in h:
+                if "sinaurl?f=w" in h:
                     return extract_embedded_url(h)
         except Exception as e:
             logger.exception(e)
@@ -331,6 +331,7 @@ class PageParser(Parser):
                 weibo.content = self.get_weibo_content(info,
                                                        is_original)  # 微博内容
                 weibo.article_url = self.get_article_url(info)  # 头条文章url
+                weibo.weibo_url = f"https://weibo.com/{self.user_uri}/{weibo.id}"
                 weibo.embedded_url = self.get_embedded_url(info)  # 嵌入的url
                 picture_urls = self.get_picture_urls(info, is_original)
                 weibo.original_pictures = picture_urls[
