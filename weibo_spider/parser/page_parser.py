@@ -10,6 +10,8 @@ from .mblog_picAll_parser import MblogPicAllParser
 from .parser import Parser
 from .util import handle_garbled, handle_html, to_video_download_url
 
+MAX_PINNED_COUNT = 2
+
 logger = logging.getLogger('spider.page_parser')
 
 
@@ -58,6 +60,7 @@ class PageParser(Parser):
 
     def get_one_page(self, weibo_id_list):
         """获取第page页的全部微博"""
+        cur_pinned_count = 0
         try:
             info = self.selector.xpath("//div[@class='c']")
             is_exist = info[0].xpath("div/span[@class='ctt']")
@@ -72,8 +75,11 @@ class PageParser(Parser):
                         publish_time = datetime_util.str_to_time(
                             weibo.publish_time)
 
-                        if publish_time < since_date:
-                            if self.is_pinned_weibo(info[i]):
+                        if publish_time < since_date:                            
+                            # As of 2023.05, there can be at most 2 pinned weibo.
+                            # We will continue for at most 2 times before return.
+                            if self.page == 1 and cur_pinned_count < MAX_PINNED_COUNT:
+                                cur_pinned_count += 1
                                 continue
                             else:
                                 return weibos, weibo_id_list, False
@@ -300,14 +306,6 @@ class PageParser(Parser):
             logger.exception(e)
 
         return video_url
-
-    def is_pinned_weibo(self, info):
-        """判断微博是否为置顶微博"""
-        kt = info.xpath(".//span[@class='kt']/text()")
-        if kt and kt[0] == u'置顶':
-            return True
-        else:
-            return False
 
     def get_one_weibo(self, info):
         """获取一条微博的全部信息"""
