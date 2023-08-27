@@ -75,7 +75,7 @@ class PageParser(Parser):
                         publish_time = datetime_util.str_to_time(
                             weibo.publish_time)
 
-                        if publish_time < since_date:                            
+                        if publish_time < since_date:
                             # As of 2023.05, there can be at most 2 pinned weibo.
                             # We will continue for at most 2 times before return.
                             if self.page == 1 and cur_pinned_count < MAX_PINNED_COUNT:
@@ -158,9 +158,9 @@ class PageParser(Parser):
         """获取微博头条文章的url"""
         article_url = ''
         text = handle_garbled(info)
-        if text.startswith(u'发布了头条文章'):
+        if text.startswith(u'发布了头条文章') or text.startswith(u'我发表了头条文章'):
             url = info.xpath('.//a/@href')
-            if url and url[0].startswith('https://weibo.cn/sinaurl'):
+            if url and url[0].startswith('https://weibo.com/ttarticle'):
                 article_url = url[0]
         return article_url
 
