@@ -21,7 +21,7 @@ class CommentParser(Parser):
             for i in range(5):
                 self.selector = handle_html(self.cookie, self.url)
                 if self.selector is not None:
-                    info = self.selector.xpath("//div[@class='c']")[1]
+                    info = self.selector.xpath("//div[@class='c']")[0]
                     wb_content = handle_garbled(info)
                     wb_time = info.xpath("//span[@class='ct']/text()")[0]
                     weibo_content = wb_content[wb_content.find(':') +
