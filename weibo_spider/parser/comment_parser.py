@@ -1,8 +1,11 @@
 import logging
 import random
 import requests
+import re
 from time import sleep
-
+from lxml.html import tostring
+from lxml.html import fromstring
+from lxml import etree
 from .parser import Parser
 from .util import handle_garbled, handle_html
 
@@ -21,11 +24,17 @@ class CommentParser(Parser):
             for i in range(5):
                 self.selector = handle_html(self.cookie, self.url)
                 if self.selector is not None:
-                    info = self.selector.xpath("//div[@class='c']")[1]
-                    wb_content = handle_garbled(info)
-                    wb_time = info.xpath("//span[@class='ct']/text()")[0]
-                    weibo_content = wb_content[wb_content.find(':') +
-                                               1:wb_content.rfind(wb_time)]
+                    info_div = self.selector.xpath("//div[@class='c' and @id='M_']")[0]
+                    info_span = info_div.xpath("//span[@class='ctt']")[0]
+                    # 1. 获取 info_span 中的所有 HTML 代码作为字符串
+                    html_string = etree.tostring(info_span, encoding='unicode', method='html')
+                    # 2. 将 <br> 替换为 \n
+                    html_string = html_string.replace('<br>', '\n')
+                    # 3. 去掉所有 HTML 标签，但保留标签内的有效文本
+                    new_content = fromstring(html_string).text_content()
+                    # 4. 替换多个连续的 \n 为一个 \n
+                    new_content = re.sub(r'\n+', '\n', new_content)
+                    weibo_content = handle_garbled(new_content)
                     if weibo_content is not None:
                         return weibo_content
                 sleep(random.randint(6, 10))
