@@ -48,8 +48,13 @@ def handle_html(cookie, url):
 def handle_garbled(info):
     """处理乱码"""
     try:
-        info = (info.xpath('string(.)').replace(u'\u200b', '').encode(
-            sys.stdout.encoding, 'ignore').decode(sys.stdout.encoding))
+        if hasattr(info, 'xpath'): # 检查 info 是否具有 xpath 方法
+            info_str = info.xpath('string(.)')  # 提取字符串内容
+        else:
+            info_str = str(info) # 若不支持 xpath，将其转换为字符串
+
+        info = info_str.replace(u'\u200b', '').encode(
+            sys.stdout.encoding, 'ignore').decode(sys.stdout.encoding)
         return info
     except Exception as e:
         logger.exception(e)
