@@ -33,7 +33,7 @@ class CommentParser(Parser):
                     # 3. 去掉所有 HTML 标签，但保留标签内的有效文本
                     new_content = fromstring(html_string).text_content()
                     # 4. 替换多个连续的 \n 为一个 \n
-                    new_content = re.sub(r'\n+', '\n', new_content)
+                    new_content = re.sub(r'\n+\s*', '\n', new_content)
                     weibo_content = handle_garbled(new_content)
                     if weibo_content is not None:
                         return weibo_content

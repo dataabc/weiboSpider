@@ -5,6 +5,8 @@ import os
 import requests
 
 from .writer import Writer
+from time import sleep
+from requests.exceptions import RequestException
 
 logger = logging.getLogger('spider.post_writer')
 
