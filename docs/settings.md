@@ -239,3 +239,15 @@ MySQL和MongDB数据库的写入内容一样。程序首先会创建一个名为
 - **publish_tool**：存储微博的发布工具。
 
 </details>
+
+## 设置API接口POST联动（可选）
+
+本部分是可选部分，如果不需要将爬取信息通过POST请求发送到指定API接口，可跳过这一步
+
+请求数据格式为 `content-type : application/json`，接口响应返回也需要是  `content-type : application/json`，HTTP状态码为 `200` 
+
+数据主体与 `write_mode` 配置的 `json` 输出格式一致，是整页获取数据json，每页POST发送一次
+
+`api_url` 为指定的API接口地址
+
+`api_token` 为接口鉴权TOKEN，将在 Request Headers 中添加 `api-token` 字段，根据需要配置

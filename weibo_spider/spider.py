@@ -74,6 +74,7 @@ class Spider:
         self.sqlite_config = config.get('sqlite_config')
         self.kafka_config = config.get('kafka_config')
         self.mongo_config = config.get('mongo_config')
+        self.post_config = config.get('post_config')
         self.user_config_file_path = ''
         user_id_list = config['user_id_list']
         if FLAGS.user_id_list:
@@ -283,6 +284,11 @@ class Spider:
             from .writer import KafkaWriter
 
             self.writers.append(KafkaWriter(self.kafka_config))
+
+        if 'post' in self.write_mode:
+            from .writer import PostWriter
+
+            self.writers.append(PostWriter(self.post_config))
 
         self.downloaders = []
         if self.pic_download == 1:

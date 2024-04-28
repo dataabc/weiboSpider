@@ -29,5 +29,9 @@
         "connection_string": "mongodb://admin:password@localhost:27017/weibo",
         "dba_name": "",
         "dba_password": ""
+    },
+    "post_config": {
+        "api_url": "",
+        "api_token": ""
     }
 }
