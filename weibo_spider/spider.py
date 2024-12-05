@@ -366,6 +366,7 @@ def _get_config():
         config_path = FLAGS.config_path
     elif not os.path.isfile(config_path):
         shutil.copy(src, config_path)
+        config_util.update_cookie_config(config_path)
         logger.info(u'请先配置当前目录(%s)下的config.json文件，'
                     u'如果想了解config.json参数的具体意义及配置方法，请访问\n'
                     u'https://github.com/dataabc/weiboSpider#2程序设置' %
