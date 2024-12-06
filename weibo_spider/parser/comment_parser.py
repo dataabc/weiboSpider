@@ -24,17 +24,30 @@ class CommentParser(Parser):
             for i in range(5):
                 self.selector = handle_html(self.cookie, self.url)
                 if self.selector is not None:
-                    info_div = self.selector.xpath("//div[@class='c' and @id='M_']")[0]
+                    parent_div = self.selector.xpath("//div[@class='c' and @id='M_']")[0]
+                    info_div = parent_div[0]
+                    detail_div = parent_div[1]
+                    all_content = etree.Element("div")
+                    
+                    # gets content within the first div starting at ctt
                     info_span = info_div.xpath("//span[@class='ctt']")[0]
+                    for elem in info_div[info_div.index(info_span):]:
+                        all_content.append(elem)
+
+                    # gets all content in the second div
+                    for elem in detail_div:
+                        all_content.append(elem)
+            
                     # 1. 获取 info_span 中的所有 HTML 代码作为字符串
-                    html_string = etree.tostring(info_span, encoding='unicode', method='html')
-                    # 2. 将 <br> 替换为 \n
-                    html_string = html_string.replace('<br>', '\n')
-                    # 3. 去掉所有 HTML 标签，但保留标签内的有效文本
+                    html_string = etree.tostring(all_content, encoding='unicode', method='html')
+                    # 2. 去掉所有 HTML 标签，但保留标签内的有效文本
                     new_content = fromstring(html_string).text_content()
-                    # 4. 替换多个连续的 \n 为一个 \n
+                    # 3. 替换多个连续的 \n 为一个 \n
                     new_content = re.sub(r'\n+\s*', '\n', new_content)
+                    #4. gets everything before the date
+                    new_content = re.split(r'\d{2}月\d{2}日\s+\d{2}:\d{2}', new_content)[0]
                     weibo_content = handle_garbled(new_content)
+                    
                     if weibo_content is not None:
                         return weibo_content
                 sleep(random.randint(6, 10))
