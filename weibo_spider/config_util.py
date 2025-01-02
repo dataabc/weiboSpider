@@ -207,7 +207,7 @@ def check_cookie(user_config_file_path):
     """Checks if user is logged in"""
     try:
         cookie = get_cookie()
-        if cookie["MLOGIN"] == '0':
+        if cookie.get("MLOGIN", '0') == '0':
             logger.warning("使用 Chrome 在此登录 %s", "https://passport.weibo.com/sso/signin?entry=wapsso&source=wapssowb&url=https://m.weibo.cn/")
             sys.exit()
         else:
