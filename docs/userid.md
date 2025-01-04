@@ -1,9 +1,9 @@
 ## 如何获取user_id
 
 1. 打开网址<https://weibo.cn>，搜索我们要找的人，如"迪丽热巴"，进入她的主页；
-   ![user home](https://picture.cognize.me/cognize/github/weibospider/user_home.png)
+   ![user home](https://github.com/dataabc/media/blob/master/weiboSpider/images/user_home.png)
 2. 按照上图箭头所指，点击"资料"链接，跳转到用户资料页面；
-   ![user info](https://picture.cognize.me/cognize/github/weibospider/user_info.png)
+   ![user info](https://github.com/dataabc/media/blob/master/weiboSpider/images/user_info.png)
 
 如上图所示，迪丽热巴微博资料页的地址为"<https://weibo.cn/1669879400/info>"，其中的"1669879400"即为此微博的user_id。
 

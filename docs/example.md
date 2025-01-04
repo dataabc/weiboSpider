@@ -40,13 +40,13 @@ $ python3 -m weibo_spider
 
 *1669879400.csv*
 
-![](https://picture.cognize.me/cognize/github/weibospider/weibo_csv.png)
+![](https://github.com/dataabc/media/blob/master/weiboSpider/images/weibo_csv.png)
 
 ## txt结果文件如下所示
 
 *1669879400.txt*
 
-![](https://picture.cognize.me/cognize/github/weibospider/weibo_txt.png)
+![](https://github.com/dataabc/media/blob/master/weiboSpider/images/weibo_txt.png)
 
 json文件包含迪丽热巴的用户信息和上千条微博信息，内容较多。为了表达清晰，这里仅展示两条微博。
 
@@ -104,7 +104,7 @@ json文件包含迪丽热巴的用户信息和上千条微博信息，内容较�
 
 *img文件夹*
 
-![](https://picture.cognize.me/cognize/github/weibospider/img.png)
+![](https://github.com/dataabc/media/blob/master/weiboSpider/images/img.png)
 
 本次下载了793张图片，大小一共1.21GB，包括她原创微博中的图片和转发微博转发理由中的图片。图片名为yyyymmdd+微博id的形式，若某条微博存在多张图片，则图片名中还会包括它在微博图片中的序号。若某张图片因为网络等原因下载失败，程序则会以“weibo_id:pic_url”的形式将出错微博id和图片url写入同文件夹下的not_downloaded.txt里；
 
@@ -112,7 +112,7 @@ json文件包含迪丽热巴的用户信息和上千条微博信息，内容较�
 
 *video文件夹*
 
-![](https://picture.cognize.me/cognize/github/weibospider/video.png)
+![](https://github.com/dataabc/media/blob/master/weiboSpider/images/video.png)
 
 本次下载了70个视频，是她原创微博中的视频，视频名为yyyymmdd+微博id的形式。其中有一个视频因为网络原因下载失败，程序将它的微博id和视频url以“weibo_id:video_url”的形式写到了同文件夹下的not_downloaded.txt里。
 
