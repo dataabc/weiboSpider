@@ -376,7 +376,7 @@ def _get_config():
             try:
                 config_util.check_cookie(config_path)
             except Exception:
-                pass
+                logger.info("Using the cookie field in config.json as the request cookie.")
             config = json.loads(f.read())
             return config
     except ValueError:
