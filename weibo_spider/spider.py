@@ -373,7 +373,10 @@ def _get_config():
         sys.exit()
     try:
         with open(config_path) as f:
-            config_util.check_cookie(config_path)
+            try:
+                config_util.check_cookie(config_path)
+            except Exception:
+                logger.info("Using the cookie field in config.json as the request cookie.")
             config = json.loads(f.read())
             return config
     except ValueError:
