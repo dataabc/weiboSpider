@@ -1,5 +1,5 @@
 lxml
-requests==2.32.0
+requests==2.32.4
 tqdm==4.66.3
 absl-py==0.12.0
 browser_cookie3==0.20.1
