@@ -238,7 +238,7 @@ $ python3 -m weibo_spider --u="1669879400,1223178222"
 
 ## 常见问题
 
-如果运行程序的过程中出现错误，可以查看[常见问题](https://github.com/dataabc/weiboSpider/blob/master/docs/FAQ.md)页面，里面包含了最常见的问题及解决方法。如果出现的错误不在常见问题里，您可以通过[发issue](https://github.com/dataabc/weiboSpider/issues/new/choose)寻求帮助，我们会很乐意为您解答。
+如果运行程序的过程中出现错误，可以查看[常见问题](https://github.com/dataabc/weiboSpider/blob/master/docs/FAQ.md)页面，里面包含了最常见的问题及解决方法。另一方面，由于当前项目所使用的技术或API的局限性，我们已知某些情况无法处理或某些需求无法实现，已将其整理总结在了[已知问题](https://github.com/dataabc/weiboSpider/blob/master/docs/known_issues.md)。除此之外，如果您在程序使用过程中遇到与预期不符的行为，可以通过[发issue](https://github.com/dataabc/weiboSpider/issues/new/choose)寻求帮助，我们会很乐意为您解答。
 
 ## 学术研究
 
